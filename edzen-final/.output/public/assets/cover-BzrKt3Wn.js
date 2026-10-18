@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-DxjG8tPc.js";import{t}from"./AuthFlowApp-Bob6FHls.js";var n=e(),r=()=>(0,n.jsx)(t,{flow:`forgot-password`,variant:`cover`});export{r as component};

@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-DxjG8tPc.js";import{t}from"./FinancePages-BpKur9xC.js";var n=e(),r=()=>(0,n.jsx)(t,{kind:`expenses`});export{r as component};

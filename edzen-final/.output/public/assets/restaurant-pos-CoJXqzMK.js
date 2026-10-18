@@ -1,0 +1,1 @@
+import{t as e}from"./RestaurantPos-Cc8tfdy5.js";var t=e;export{t as component};

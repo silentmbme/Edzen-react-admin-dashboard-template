@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-DxjG8tPc.js";import{t}from"./SchoolPages-Djw6I1Pr.js";var n=e(),r=()=>(0,n.jsx)(t,{kind:`classes`});export{r as component};

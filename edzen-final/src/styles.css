@@ -1,0 +1,888 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Edzen design system.
+ * Shared flat surfaces and a multicolor semantic palette.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: calc(var(--radius) + 2px);
+  --radius-3xl: calc(var(--radius) + 4px);
+  --radius-4xl: calc(var(--radius) + 6px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-header: var(--header);
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: 0 1px 2px rgb(31 41 55 / 0.02);
+  --shadow-pop: 0 4px 12px rgb(31 41 55 / 0.06);
+}
+
+:root {
+  color-scheme: light;
+  --radius: 0.75rem;
+
+  /* Sapphire is the default accent ramp. */
+  --accent-50: oklch(0.975 0.012 250);
+  --accent-100: oklch(0.95 0.028 250);
+  --accent-200: oklch(0.9 0.06 250);
+  --accent-300: oklch(0.825 0.105 250);
+  --accent-400: oklch(0.71 0.15 250);
+  --accent-500: oklch(0.64 0.175 250);
+  --accent-600: #0868f7;
+  --accent-700: oklch(0.49 0.17 251);
+  --accent-800: oklch(0.41 0.135 252);
+  --accent-900: oklch(0.34 0.095 253);
+  --accent-950: oklch(0.23 0.055 254);
+  --accent-color: var(--accent-600);
+  --accent-hover: var(--accent-700);
+  --accent-active: var(--accent-800);
+  --accent-soft: color-mix(in oklab, var(--accent-600) 11%, transparent);
+  --accent-border: color-mix(in oklab, var(--accent-600) 28%, var(--border));
+  --accent-ring: color-mix(in oklab, var(--accent-600) 32%, transparent);
+  --accent-contrast: oklch(0.99 0 0);
+  --primary: var(--accent-600);
+  --primary-hover: var(--accent-hover);
+  --primary-active: var(--accent-active);
+  --primary-foreground: var(--accent-contrast);
+  --primary-soft: var(--accent-soft);
+  --background: oklch(0.976 0.004 268);
+  --foreground: oklch(0.279 0.031 262);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.279 0.031 262);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.279 0.031 262);
+
+  --secondary: oklch(0.968 0.007 247.9);
+  --secondary-foreground: oklch(0.32 0.03 264);
+  --muted: oklch(0.968 0.007 247.9);
+  --muted-foreground: oklch(0.58 0.03 257);
+  --accent: oklch(0.962 0.011 264);
+  --accent-foreground: oklch(0.3 0.03 264);
+
+  --destructive: oklch(0.628 0.221 26.4);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.723 0.183 149.6);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.769 0.166 70.1);
+  --warning-foreground: oklch(0.25 0.03 264);
+  --info: oklch(0.715 0.129 215.2);
+  --info-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.925 0.008 262);
+  --input: oklch(0.925 0.008 262);
+  --ring: var(--primary);
+
+  --chart-1: var(--primary);
+  --chart-2: oklch(0.715 0.129 215.2);
+  --chart-3: oklch(0.723 0.183 149.6);
+  --chart-4: oklch(0.769 0.166 70.1);
+  --chart-5: oklch(0.65 0.19 350);
+
+  --header: oklch(1 0 0 / 0.82);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.42 0.03 258);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.966 0.008 264);
+  --sidebar-accent-foreground: oklch(0.3 0.03 264);
+  --sidebar-border: oklch(0.93 0.008 262);
+  --sidebar-ring: var(--primary);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.185 0.021 265);
+  --foreground: oklch(0.955 0.006 248);
+  --card: oklch(0.229 0.024 265);
+  --card-foreground: oklch(0.955 0.006 248);
+  --popover: oklch(0.229 0.024 265);
+  --popover-foreground: oklch(0.955 0.006 248);
+
+  --secondary: oklch(0.276 0.028 262);
+  --secondary-foreground: oklch(0.95 0.006 248);
+  --muted: oklch(0.276 0.028 262);
+  --muted-foreground: oklch(0.68 0.026 257);
+  --accent: oklch(0.29 0.03 262);
+  --accent-foreground: oklch(0.96 0.006 248);
+
+  --warning-foreground: oklch(0.2 0.02 264);
+
+  --border: oklch(1 0 0 / 0.1);
+  --input: oklch(1 0 0 / 0.14);
+
+  --header: oklch(0.229 0.024 265 / 0.82);
+  --sidebar: oklch(0.212 0.023 265);
+  --sidebar-foreground: oklch(0.8 0.02 255);
+  --sidebar-accent: oklch(0.28 0.03 262);
+  --sidebar-accent-foreground: oklch(0.97 0.006 248);
+  --sidebar-border: oklch(1 0 0 / 0.08);
+}
+
+/* ---- Buyer-facing accent themes ---- */
+
+[data-skin="sapphire"] {
+  --accent-50: oklch(0.975 0.012 250);
+  --accent-100: oklch(0.95 0.028 250);
+  --accent-200: oklch(0.9 0.06 250);
+  --accent-300: oklch(0.825 0.105 250);
+  --accent-400: oklch(0.71 0.15 250);
+  --accent-500: oklch(0.64 0.175 250);
+  --accent-600: #0868f7;
+  --accent-700: oklch(0.49 0.17 251);
+  --accent-800: oklch(0.41 0.135 252);
+  --accent-900: oklch(0.34 0.095 253);
+  --accent-950: oklch(0.23 0.055 254);
+}
+
+[data-skin="emerald"] {
+  --accent-50: oklch(0.975 0.016 163);
+  --accent-100: oklch(0.945 0.038 163);
+  --accent-200: oklch(0.895 0.075 163);
+  --accent-300: oklch(0.82 0.12 163);
+  --accent-400: oklch(0.72 0.145 163);
+  --accent-500: oklch(0.665 0.15 163);
+  --accent-600: oklch(0.61 0.145 163);
+  --accent-700: oklch(0.52 0.125 163);
+  --accent-800: oklch(0.44 0.1 163);
+  --accent-900: oklch(0.36 0.07 163);
+  --accent-950: oklch(0.24 0.04 163);
+}
+
+[data-skin="violet"] {
+  --accent-50: oklch(0.975 0.018 302);
+  --accent-100: oklch(0.95 0.042 302);
+  --accent-200: oklch(0.9 0.085 302);
+  --accent-300: oklch(0.82 0.14 302);
+  --accent-400: oklch(0.7 0.2 302);
+  --accent-500: oklch(0.63 0.235 302);
+  --accent-600: oklch(0.57 0.225 302);
+  --accent-700: oklch(0.49 0.2 302);
+  --accent-800: oklch(0.41 0.16 302);
+  --accent-900: oklch(0.34 0.115 302);
+  --accent-950: oklch(0.23 0.07 302);
+}
+
+[data-skin="rose"] {
+  --accent-50: oklch(0.975 0.014 13);
+  --accent-100: oklch(0.95 0.032 13);
+  --accent-200: oklch(0.9 0.065 13);
+  --accent-300: oklch(0.825 0.115 13);
+  --accent-400: oklch(0.72 0.17 13);
+  --accent-500: oklch(0.655 0.2 13);
+  --accent-600: oklch(0.61 0.205 13);
+  --accent-700: oklch(0.52 0.185 13);
+  --accent-800: oklch(0.44 0.15 13);
+  --accent-900: oklch(0.36 0.11 13);
+  --accent-950: oklch(0.24 0.065 13);
+}
+
+[data-skin="orange"] {
+  --accent-50: oklch(0.98 0.018 55);
+  --accent-100: oklch(0.955 0.04 55);
+  --accent-200: oklch(0.91 0.075 55);
+  --accent-300: oklch(0.85 0.12 55);
+  --accent-400: oklch(0.76 0.15 55);
+  --accent-500: oklch(0.7 0.17 55);
+  --accent-600: oklch(0.64 0.18 55);
+  --accent-700: oklch(0.55 0.165 52);
+  --accent-800: oklch(0.46 0.135 49);
+  --accent-900: oklch(0.38 0.1 47);
+  --accent-950: oklch(0.26 0.06 45);
+  --accent-contrast: oklch(0.22 0.025 45);
+}
+
+[data-skin="cyan"] {
+  --accent-50: oklch(0.975 0.014 215);
+  --accent-100: oklch(0.945 0.032 215);
+  --accent-200: oklch(0.895 0.065 215);
+  --accent-300: oklch(0.825 0.105 215);
+  --accent-400: oklch(0.74 0.13 215);
+  --accent-500: oklch(0.67 0.135 215);
+  --accent-600: oklch(0.61 0.12 215);
+  --accent-700: oklch(0.52 0.105 215);
+  --accent-800: oklch(0.44 0.085 215);
+  --accent-900: oklch(0.36 0.06 215);
+  --accent-950: oklch(0.24 0.035 215);
+}
+
+[data-skin="graphite"] {
+  --accent-50: oklch(0.97 0.005 260);
+  --accent-100: oklch(0.93 0.009 260);
+  --accent-200: oklch(0.85 0.014 260);
+  --accent-300: oklch(0.74 0.02 260);
+  --accent-400: oklch(0.62 0.028 260);
+  --accent-500: oklch(0.53 0.032 260);
+  --accent-600: oklch(0.45 0.032 260);
+  --accent-700: oklch(0.38 0.03 260);
+  --accent-800: oklch(0.31 0.027 260);
+  --accent-900: oklch(0.25 0.022 260);
+  --accent-950: oklch(0.18 0.016 260);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    /* Keep off-canvas UI and wide table contents from expanding the document.
+       Tables retain their own .table-scroll / overflow-x-auto scrolling. */
+    max-width: 100%;
+    overflow-x: clip;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv02", "cv03";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-foreground);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(
+      in oklab,
+      var(--color-muted-foreground) 30%,
+      transparent
+    );
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@utility edzen-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+}
+
+@utility icon-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ApexCharts tone-down */
+.apexcharts-tooltip {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: var(--shadow-pop) !important;
+  background: var(--color-popover) !important;
+  color: var(--color-popover-foreground) !important;
+}
+.apexcharts-tooltip-title {
+  background: var(--color-muted) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  font-weight: 600 !important;
+}
+.apexcharts-legend-text {
+  color: var(--color-muted-foreground) !important;
+}
+
+/* ---- Dark sidebar tone (independent of the app color mode) ---- */
+.edzen-sidebar[data-tone="dark"],
+html[data-sidebar-color="dark"] .edzen-sidebar {
+  --sidebar: #151c29;
+  --sidebar-foreground: #bccfc8;
+  --sidebar-accent: #28473e;
+  --sidebar-accent-foreground: #087f75;
+  --sidebar-border: #344055;
+  --foreground: #e8f1ee;
+  --muted-foreground: #acbfba;
+  --border: #344055;
+  --card: #1e302e;
+  --card-foreground: #e8f1ee;
+}
+
+/* ---- Tables ---- */
+@utility table-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+
+  /* Tables in legacy screens use this same containment behavior without requiring
+   each screen to be migrated at once. */
+  @layer base {
+    [class~="overflow-x-auto"]:has(> table) {
+      width: 100%;
+      max-width: 100%;
+      overscroll-behavior-inline: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+  }
+}
+
+@utility edzen-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+
+  & thead th {
+    background: var(--color-muted);
+    color: var(--color-muted-foreground);
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: start;
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  & tbody td {
+    padding: 0.75rem 1rem;
+    color: var(--color-card-foreground);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  & tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  & tbody tr:hover td {
+    background: color-mix(in oklab, var(--color-muted) 60%, transparent);
+  }
+}
+
+/* ---- Native form controls follow the active theme + skin ---- */
+@layer base {
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+    color-scheme: inherit;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    border-color: var(--color-input);
+    caret-color: var(--color-primary);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-muted-foreground);
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    border-color: var(--color-primary);
+  }
+
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  progress {
+    accent-color: var(--color-primary);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary) 26%, transparent);
+    color: var(--color-foreground);
+  }
+}
+
+/* ApexCharts follows the tokens for chrome the JS options do not cover */
+.apexcharts-canvas text {
+  fill: var(--color-muted-foreground) !important;
+}
+.apexcharts-canvas .apexcharts-title-text,
+.apexcharts-canvas .apexcharts-datalabel-value {
+  fill: var(--color-foreground) !important;
+}
+.apexcharts-gridline,
+.apexcharts-xaxis line,
+.apexcharts-yaxis line {
+  stroke: var(--color-border) !important;
+}
+.apexcharts-radialbar-track .apexcharts-radialbar-area {
+  stroke: var(--color-muted) !important;
+}
+
+/* Screenshot reference: neutral white surfaces with purposeful color accents. */
+/* Theme selection updates chart tokens as well as the primary accent.
+   Multicolor retains its independently chosen reference palette. */
+[data-skin]:not([data-skin="multicolor"]) {
+  --chart-1: var(--accent-600);
+  --chart-2: var(--accent-400);
+  --chart-3: var(--accent-800);
+  --chart-4: var(--accent-500);
+  --chart-5: var(--accent-700);
+  --chart-6: var(--accent-300);
+  --chart-7: var(--accent-900);
+  --chart-8: var(--accent-200);
+}
+.dark[data-skin]:not([data-skin="multicolor"]) {
+  --chart-1: var(--accent-400);
+  --chart-2: var(--accent-500);
+  --chart-3: var(--accent-300);
+  --chart-4: var(--accent-600);
+  --chart-5: var(--accent-200);
+  --chart-6: var(--accent-700);
+  --chart-7: var(--accent-100);
+  --chart-8: var(--accent-800);
+}
+:root {
+  --radius: 0.5rem;
+  --background: #f7f8fa;
+  --foreground: #334155;
+  --card: #ffffff;
+  --card-foreground: #334155;
+  --popover: #ffffff;
+  --popover-foreground: #334155;
+  --secondary: #f1f3f6;
+  --secondary-foreground: #475569;
+  --muted: #f3f5f8;
+  --muted-foreground: #697586;
+  --accent: #edf7f6;
+  --accent-foreground: #0e7974;
+  --success: #008c6c;
+  --success-foreground: #ffffff;
+  --destructive: #d43e50;
+  --destructive-foreground: #ffffff;
+  --warning: #a95d08;
+  --warning-foreground: #ffffff;
+  --info: #087fac;
+  --info-foreground: #ffffff;
+  --border: #e5e7eb;
+  --input: #e0e4ea;
+  --chart-1: #009e7a;
+  --chart-2: #f26509;
+  --chart-3: #7932b1;
+  --chart-4: #0d9dd3;
+  --chart-5: #d3860c;
+  --chart-6: #519792;
+  --chart-7: #e6954b;
+  --chart-8: #4569ce;
+  --header: #ffffff;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #667085;
+  --sidebar-accent: #edf7f6;
+  --sidebar-accent-foreground: #087f79;
+  --sidebar-border: #e5e7eb;
+  --shadow-xs: 0 1px 2px rgb(31 41 55 / 0.02);
+  --shadow-sm: 0 2px 6px rgb(31 41 55 / 0.04);
+  --shadow-md: 0 4px 12px rgb(31 41 55 / 0.06);
+}
+
+:root:not([data-skin]),
+[data-skin="multicolor"] {
+  --accent-50: #f1faf9;
+  --accent-100: #e4f4f2;
+  --accent-200: #c1e7e2;
+  --accent-300: #8acfc7;
+  --accent-400: #50b3a9;
+  --accent-500: #22978d;
+  --accent-600: #0e7974;
+  --accent-700: #0a6661;
+  --accent-800: #0a5450;
+  --accent-900: #10443f;
+  --accent-950: #082b28;
+}
+
+.dark {
+  --background: #151c29;
+  --foreground: #e5eaf2;
+  --card: #202a3a;
+  --card-foreground: #e5eaf2;
+  --popover: #202a3a;
+  --popover-foreground: #e5eaf2;
+  --secondary: #2a3547;
+  --secondary-foreground: #c3ccdc;
+  --muted: #273244;
+  --muted-foreground: #a9b4c6;
+  --accent: #233f43;
+  --accent-foreground: #88d7cf;
+  --border: #344055;
+  --input: #3c495e;
+  --success: #61cfaa;
+  --destructive: #f08b9b;
+  --warning: #edbb68;
+  --info: #6bc9ee;
+  --success-foreground: #172d25;
+  --destructive-foreground: #351b24;
+  --warning-foreground: #33250f;
+  --info-foreground: #142c39;
+  --chart-1: #45cba8;
+  --chart-2: #f6a064;
+  --chart-3: #b184e4;
+  --chart-4: #58c6ed;
+  --chart-5: #ed79d7;
+  --chart-6: #7bc2bc;
+  --chart-7: #eeb476;
+  --chart-8: #8fa6f4;
+  --header: #202a3a;
+  --sidebar: #202a3a;
+  --sidebar-foreground: #aebacd;
+  --sidebar-accent: #263c42;
+  --sidebar-accent-foreground: #88d7cf;
+  --sidebar-border: #344055;
+}
+.edzen-sidebar[data-tone="dark"] {
+  --sidebar: #151c29;
+  --sidebar-foreground: #bccfc8;
+  --sidebar-accent: #28473e;
+  --sidebar-accent-foreground: #087f75;
+  --sidebar-border: #344055;
+  --foreground: #e8f1ee;
+  --muted-foreground: #acbfba;
+  --border: #344055;
+  --card: #1e302e;
+  --card-foreground: #e8f1ee;
+}
+
+/* Reference metrics: white cards, solid circular icons, and unboxed trends. */
+.metric-card {
+  --metric-color: var(--chart-1);
+  --metric-icon-color: var(--primary);
+  background: var(--card) !important;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.metric-card:nth-child(4n + 2) {
+  --metric-color: var(--chart-3);
+  --metric-icon-color: var(--chart-3);
+}
+.metric-card:nth-child(4n + 3) {
+  --metric-color: var(--chart-4);
+  --metric-icon-color: var(--chart-4);
+}
+.metric-card:nth-child(4n + 4) {
+  --metric-color: var(--chart-5);
+  --metric-icon-color: var(--chart-5);
+}
+.metric-card .metric-icon,
+.metric-card .icon-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50% !important;
+  background: var(--metric-icon-color) !important;
+  color: #ffffff !important;
+}
+.metric-card .metric-icon svg,
+.metric-card .icon-tile svg {
+  width: 20px;
+  height: 20px;
+}
+.metric-card .metric-trend > span:first-child {
+  background: transparent;
+  padding-inline: 0;
+}
+.metric-card .metric-sparkline {
+  margin-bottom: -1px;
+}
+.reference-chart-card > .reference-card-header {
+  border-bottom: 0;
+}
+[class*="backdrop-blur"] {
+  backdrop-filter: none;
+}
+.absolute[class*="blur-"]:not([class*="backdrop-blur"]) {
+  display: none;
+}
+button[class*="hover:-translate-y"],
+a[class*="hover:-translate-y"] {
+  transform: none !important;
+}
+/* Large summaries share the reference's white card surfaces. */
+.reference-hero {
+  background: var(--primary);
+  color: #fff;
+  border: 1px solid var(--border);
+}
+.reference-hero [class*="text-primary-foreground"] {
+  color: var(--muted-foreground);
+}
+.reference-hero [class*="bg-white"] {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+/* Preserve the existing header and sidebar independently of content colors. */
+.edzen-sidebar {
+  --radius: 0.375rem;
+  --primary: #087f75;
+  --primary-foreground: #ffffff;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #49635f;
+  --sidebar-accent: #e7f3ef;
+  --sidebar-accent-foreground: #176b60;
+  --sidebar-border: #d9e3e0;
+  --foreground: #243b3a;
+  --muted-foreground: #586e6c;
+  --border: #d9e3e0;
+  --chart-1: #087f75;
+  --chart-2: #e47751;
+  --chart-3: #8762c7;
+  --chart-4: #d49a2c;
+  --chart-5: #3984c5;
+  --shadow-card: none;
+}
+.edzen-sidebar[data-tone="dark"] {
+  --sidebar: #151c29;
+  --sidebar-foreground: #bccfc8;
+  --sidebar-accent: #28473e;
+  --sidebar-accent-foreground: #087f75;
+  --sidebar-border: #344055;
+  --foreground: #e8f1ee;
+  --muted-foreground: #acbfba;
+  --border: #344055;
+  --card: #1e302e;
+  --card-foreground: #e8f1ee;
+}
+.edzen-sidebar nav > div > p {
+  color: var(--muted-foreground);
+}
+.edzen-sidebar nav a[aria-current="page"],
+.edzen-sidebar nav button[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--primary) 12%, var(--sidebar));
+  color: var(--primary);
+  border-inline-start: 3px solid var(--primary);
+}
+.edzen-sidebar nav svg {
+  color: var(--primary);
+}
+
+.edzen-sidebar nav > div:nth-child(5n + 1) {
+  --nav-color: var(--chart-1);
+}
+.edzen-sidebar nav > div:nth-child(5n + 2) {
+  --nav-color: var(--chart-3);
+}
+.edzen-sidebar nav > div:nth-child(5n + 3) {
+  --nav-color: var(--chart-2);
+}
+.edzen-sidebar nav > div:nth-child(5n + 4) {
+  --nav-color: var(--chart-5);
+}
+.edzen-sidebar nav > div:nth-child(5n + 5) {
+  --nav-color: var(--chart-4);
+}
+.edzen-sidebar [class*="shadow"]:not(:focus-visible) {
+  box-shadow: none !important;
+}
+header.bg-header {
+  --radius: 0.375rem;
+  --primary: #087f75;
+  --primary-foreground: #ffffff;
+  --foreground: #243b3a;
+  --muted-foreground: #586e6c;
+  --border: #d9e3e0;
+  --header: #ffffff;
+  --accent: #eee9fb;
+  --accent-foreground: #6842b6;
+}
+.dark header.bg-header {
+  --foreground: #e8f1ee;
+  --muted-foreground: #acbfba;
+  --border: #344055;
+  --header: #151c29;
+  --primary: #087f75;
+  --primary-foreground: #ffffff;
+  background-color: #151c29;
+}
+/* Existing dark navigation accents remain independent of the content theme. */
+/* Inner active links use text emphasis without a filled row or edge marker. */
+.edzen-sidebar nav :is(a[aria-current="page"], button.text-primary)[data-nav-depth]:not([data-nav-depth="0"]),
+.edzen-sidebar nav :is(a, button)[data-nav-depth]:not([data-nav-depth="0"]):hover {
+  background: transparent !important;
+  border-inline-start: 0;
+  box-shadow: none;
+}
+.edzen-sidebar[data-tone="dark"] {
+  --primary: #087f75;
+  --primary-foreground: #ffffff;
+  --chart-1: #63d4ba;
+  --chart-2: #f49b7e;
+  --chart-3: #b899ed;
+  --chart-4: #edc267;
+  --chart-5: #80b7ee;
+}
+
+/* Keep the requested chart palette consistent in dark mode for every skin.
+   System mode uses these tokens whenever the OS preference resolves to dark. */
+.dark[data-skin]:not([data-skin="multicolor"]),
+.dark[data-skin="multicolor"] {
+  --chart-1: #009e7a;
+  --chart-2: #f26509;
+  --chart-3: #7932b1;
+  --chart-4: #0d9dd3;
+  --chart-5: #d3860c;
+  --chart-6: #519792;
+  --chart-7: #e6954b;
+  --chart-8: #4569ce;
+}
+
+/* The first KPI icon uses primary instead of a chart token; keep its light
+   multicolor accent in dark mode to match the light dashboard. */
+.dark[data-skin="multicolor"] .metric-card:nth-child(4n + 1) {
+  --metric-icon-color: #0e7974;
+}
+
+/* SSR can emit the light sidebar tone before client settings hydrate. */
+html.dark .edzen-sidebar[data-tone="light"] {
+  --sidebar: #151c29;
+  --sidebar-foreground: #bccfc8;
+  --sidebar-accent: #28473e;
+  --sidebar-accent-foreground: #087f75;
+  --sidebar-border: #37504a;
+  --foreground: #e8f1ee;
+  --muted-foreground: #acbfba;
+  --border: #37504a;
+  --card: #1e302e;
+  --card-foreground: #e8f1ee;
+}
+.edzen-sidebar > [data-tone="dark"],
+html.dark .edzen-sidebar > [data-tone="light"] {
+  background-color: var(--sidebar);
+}
+
+.brand-logo .brand-logo-dark-symbol,
+.brand-logo .brand-logo-dark-lettering {
+  display: none;
+}
+.brand-logo[data-dark-surface="true"] .brand-logo-light {
+  display: none;
+}
+.brand-logo[data-dark-surface="true"] .brand-logo-dark-symbol,
+.brand-logo[data-dark-surface="true"] .brand-logo-dark-lettering {
+  display: inline;
+}
+html.dark .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-light,
+html[data-sidebar-color="dark"] .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-light {
+  display: none;
+}
+html.dark .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-symbol,
+html.dark .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-lettering,
+html[data-sidebar-color="dark"] .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-symbol,
+html[data-sidebar-color="dark"] .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-lettering {
+  display: inline;
+}
+
+.edzen-sidebar[data-tone="dark"] nav,
+html.dark .edzen-sidebar[data-tone="light"] nav {
+  scrollbar-color: color-mix(in oklab, var(--sidebar-foreground) 38%, var(--sidebar)) var(--sidebar);
+  scrollbar-width: thin;
+}
+.edzen-sidebar[data-tone="dark"] nav::-webkit-scrollbar,
+html.dark .edzen-sidebar[data-tone="light"] nav::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.edzen-sidebar[data-tone="dark"] nav::-webkit-scrollbar-track,
+html.dark .edzen-sidebar[data-tone="light"] nav::-webkit-scrollbar-track {
+  background: var(--sidebar);
+}
+.edzen-sidebar[data-tone="dark"] nav::-webkit-scrollbar-thumb,
+html.dark .edzen-sidebar[data-tone="light"] nav::-webkit-scrollbar-thumb {
+  border: 2px solid var(--sidebar);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--sidebar-foreground) 38%, var(--sidebar));
+}
+
+.edzen-sidebar nav[data-tone="dark"] :is(a, button)[data-nav-depth]:not([aria-current="page"]):not([aria-expanded="true"]):hover svg {
+  color: var(--sidebar-accent-foreground) !important;
+}
+
+.edzen-sidebar nav[data-tone="dark"] :is(a[aria-current="page"], button[aria-expanded="true"]) svg {
+  color: var(--sidebar-accent-foreground) !important;
+}
+
+.edzen-sidebar nav[data-tone="dark"] :is(a, button)[data-nav-depth="0"]:not([aria-current="page"]):not([aria-expanded="true"]):hover,
+.edzen-sidebar nav[data-tone="dark"] :is(a[aria-current="page"], button[aria-expanded="true"]),
+html.dark .edzen-sidebar[data-tone="light"] nav :is(a, button)[data-nav-depth="0"]:not([aria-current="page"]):not([aria-expanded="true"]):hover,
+html.dark .edzen-sidebar[data-tone="light"] nav :is(a[aria-current="page"], button[aria-expanded="true"]) {
+  background: color-mix(in srgb, var(--primary) 12%, var(--sidebar)) !important;
+  color: var(--sidebar-accent-foreground) !important;
+}

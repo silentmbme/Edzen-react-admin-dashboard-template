@@ -1,0 +1,1 @@
+import{t as e}from"./HospitalManagementDashboard-C4kWU4HX.js";var t=e;export{t as component};

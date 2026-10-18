@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-DxjG8tPc.js";import{i as t}from"./sophia-carter-CgBbJ8K6.js";import{t as n}from"./index-RZffZpV5.js";import{t as r}from"./EmailTemplatesApp-BOcnccDq.js";var i=e();function a(){let{template:e}=n.useParams();return(0,i.jsx)(t,{children:(0,i.jsx)(r,{id:e})})}export{a as component};

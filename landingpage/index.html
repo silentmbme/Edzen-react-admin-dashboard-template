@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edzen – React 19 Tailwind CSS Admin Dashboard Template</title>
+    <meta
+      name="description"
+      content="Edzen is a modern React 19, TypeScript and Tailwind CSS v4 admin dashboard template for SaaS, eCommerce, CRM, analytics and business applications. Version 2.0.0 includes 16 dashboards, eight apps, Finance, Crypto, AI Analytics, School, HRM, Hospital workspaces, and LTR/RTL customization."
+    />
+    <meta
+      name="keywords"
+      content="react admin dashboard, react dashboard template, react admin template, tailwind css admin dashboard, tailwind dashboard template, react 19 admin template, typescript admin dashboard, vite admin template, saas dashboard, ecommerce dashboard, crm dashboard, analytics dashboard, responsive admin template, dark mode dashboard, admin panel template"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="assets/logos/favicon.png" />
+    <link rel="stylesheet" href="css/style.css" />
+
+    <meta
+      property="og:title"
+      content="Edzen – React 19 Tailwind CSS Admin Dashboard Template"
+    />
+    <meta
+      property="og:description"
+      content="Edzen is a modern React 19, TypeScript and Tailwind CSS v4 admin dashboard template for SaaS, eCommerce, CRM, analytics and business applications. Version 2.0.0 includes 16 dashboards, eight apps, Finance, Crypto, AI Analytics, School, HRM, Hospital workspaces, and LTR/RTL customization."
+    />
+    <meta
+      name="twitter:title"
+      content="Edzen – React 19 Tailwind CSS Admin Dashboard Template"
+    />
+    <meta
+      name="twitter:description"
+      content="Edzen is a modern React 19, TypeScript and Tailwind CSS v4 admin dashboard template for SaaS, eCommerce, CRM, analytics and business applications. Version 2.0.0 includes 16 dashboards, eight apps, Finance, Crypto, AI Analytics, School, HRM, Hospital workspaces, and LTR/RTL customization."
+    />
+  </head>
+
+  <body>
+    <header class="nav">
+      <div class="container nav-inner">
+        <a class="brand" href="#home" aria-label="Edzen home"
+          ><img src="assets/logos/edzen-logo.png" alt="Edzen"
+        /></a>
+        <nav class="nav-links" id="nav-links" aria-label="Primary navigation">
+          <a href="#home">Home</a>
+          <a href="#platform">Platform</a>
+          <a href="#demos">Demos</a>
+          <a href="#stack">Stack</a>
+          <a href="../../documentation/support.html" target="_blank">Support</a>
+        </nav>
+        <div class="nav-actions">
+          <a
+            class="button nav-docs"
+            target="_blank"
+            href="../../documentation/index.html"
+            ><svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              width="15"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"
+              />
+            </svg>
+            Documentation</a
+          ><a
+            class="button primary"
+            href="#"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              width="15"
+              stroke="currentColor"
+              class="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+              /></svg
+            >Buy Now</a
+          ><button
+            class="button menu"
+            type="button"
+            aria-label="Open menu"
+            aria-expanded="false"
+          >
+            Menu
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="home">
+        <div class="hero-orb hero-orb-one"></div>
+        <div class="hero-orb hero-orb-two"></div>
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <span class="eyebrow"
+              ><i></i> The modern admin foundation · Version 2.0.0</span
+            >
+            <h1>One calm place to run your <em>entire business.</em></h1>
+            <p class="lead">
+              Edzen gives product teams a highly considered admin template for
+              building SaaS, finance, CRM, commerce, and operational workflows
+              without starting from zero.
+            </p>
+            <div class="hero-actions">
+              <a class="button primary button-large" href="#demos"
+                >Explore Demos </a
+              ><a
+                class="button button-large"
+                href="../../documentation/index.html"
+                target="_blank"
+                >Documentation
+              </a>
+            </div>
+          </div>
+          <div class="hero-stage">
+            <div class="stage-top">
+              <span class="live-dot"></span><span>Executive command centre</span
+              ><span class="stage-date">September 2026</span>
+            </div>
+            <img
+              src="assets/screenshots/dashboard-executive-v2.png"
+              alt="Edzen Executive dashboard preview"
+            />
+            <div class="metric-float metric-revenue">
+              <small>Monthly revenue</small><strong>$842.4k</strong
+              ><span>&uarr; 18.4%</span>
+            </div>
+            <div class="metric-float metric-team">
+              <span class="people"><i>AJ</i><i>RK</i><i>+8</i></span
+              ><b>12 teammates online</b>
+            </div>
+          </div>
+        </div>
+        <div class="container logo-line">
+          <span>Built with a production-grade stack</span>
+          <div>
+            <b>React 19</b><b>TanStack Start</b><b>Tailwind CSS</b
+            ><b>TypeScript</b><b>Vite</b>
+          </div>
+        </div>
+      </section>
+
+      <section class="section platform-section" id="platform">
+        <div class="container">
+          <div class="section-intro split-intro">
+            <div>
+              <span class="eyebrow"><i></i> The Edzen platform</span>
+              <h2>
+                Everything your operational product needs to feel
+                <em>considered.</em>
+              </h2>
+            </div>
+            <p>
+              From high-level reporting to the smallest workflow detail, Edzen
+              establishes a confident system your team can build on.
+            </p>
+          </div>
+          <div class="bento-grid platform-bento-grid">
+            <article class="bento bento-lead">
+              <div class="bento-card-top">
+                <div class="bento-icon bento-dashboard-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect>
+                    <rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect>
+                    <rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect>
+                    <path
+                      d="M14.5 19.5v-3.1c0-.5.4-.9.9-.9h1.1c.5 0 .9.4.9.9v3.1"
+                    ></path>
+                    <path d="m14.4 14.1 2.1-2 2.1 2"></path>
+                  </svg>
+                </div>
+                <span class="bento-count">16 dashboards</span>
+              </div>
+              <span class="bento-kicker">Visibility</span>
+              <h3>Sixteen dashboards, each designed around a real decision.</h3>
+              <p>
+                Executive, analytics, eCommerce, AI Analytics, crypto, hospital,
+                LMS, CRM, logistics, projects, HRM, school, restaurant POS,
+                finance, marketing, and SaaS views are included.
+              </p>
+              <div class="bento-bars" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </article>
+            <article class="bento bento-stat bento-applications">
+              <div class="bento-card-top">
+                <div class="bento-icon bento-app-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="3.5" y="4.5" width="17" height="15" rx="3"></rect>
+                    <path d="m4.5 7.5 7.5 5 7.5-5"></path>
+                  </svg>
+                </div>
+                <span class="bento-count">Live workflows</span>
+              </div>
+              <span class="bento-kicker">Applications</span><strong>08</strong>
+              <p>Core team workflows, already mapped out.</p>
+              <div class="mini-tags"><b>Email</b><b>Chat</b><b>Tasks</b></div>
+            </article>
+            <article class="bento bento-stat bento-components">
+              <div class="bento-card-top">
+                <div class="bento-icon bento-component-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <rect x="4" y="4" width="6" height="6" rx="1.5"></rect>
+                    <rect x="14" y="4" width="6" height="6" rx="1.5"></rect>
+                    <rect x="4" y="14" width="6" height="6" rx="1.5"></rect>
+                    <rect x="14" y="14" width="6" height="6" rx="1.5"></rect>
+                  </svg>
+                </div>
+                <span class="bento-count">Reusable UI</span>
+              </div>
+              <span class="bento-kicker">Interface system</span
+              ><strong>46</strong>
+              <p>Composable UI primitives for consistent products.</p>
+              <div class="token-row" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+              </div>
+            </article>
+            <article class="bento bento-wide">
+              <div class="bento-wide-copy">
+                <div class="bento-icon bento-adapt-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M4 7h16M4 12h16M4 17h16"></path>
+                    <circle cx="9" cy="7" r="2"></circle>
+                    <circle cx="15" cy="12" r="2"></circle>
+                    <circle cx="11" cy="17" r="2"></circle>
+                  </svg>
+                </div>
+                <span class="bento-kicker">Built to adapt</span>
+                <h3>Make the workspace yours, not just another template.</h3>
+              </div>
+              <ul class="bento-check-list">
+                <li>Light, dark, and system mode</li>
+                <li>Eight theme skins</li>
+                <li>Fluid or boxed layouts</li>
+                <li>LTR and RTL layout direction</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="section proof-section">
+        <div class="container">
+          <div class="edzen-metrics" aria-label="Edzen product metrics">
+            <article><strong>167</strong><span>Routes</span></article>
+            <article><strong>7</strong><span>Skins</span></article>
+            <article><strong>16</strong><span>Dashboards</span></article>
+            <article><strong>46</strong><span>Components</span></article>
+            <article><strong>8</strong><span>Applications</span></article>
+            <article><strong>3</strong><span>Appearance modes</span></article>
+          </div>
+          <p class="metrics-caption">
+            A modern, production-ready foundation for your next product.
+          </p>
+        </div>
+      </section>
+      <section class="section demos-section" id="demos">
+        <div class="container">
+          <div class="section-intro">
+            <span class="eyebrow"><i></i> Dashboard collection</span>
+            <h2>Every dashboard, ready for <em>real work.</em></h2>
+            <p>
+              Explore all sixteen included dashboard experiences, each built for
+              a distinct business workflow.
+            </p>
+          </div>
+          <div class="all-dashboard-grid">
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-executive-v2.png"
+                  alt="Executive dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Executive</h3>
+                <p>High-level business performance.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/analytics"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-analytics-v2.png"
+                  alt="Analytics dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Analytics</h3>
+                <p>Traffic and conversion signals.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/ecommerce"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-ecommerce-v2.png"
+                  alt="eCommerce dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>eCommerce</h3>
+                <p>Sales and fulfilment operations.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/crm"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-crm-v2.png"
+                  alt="CRM dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>CRM</h3>
+                <p>Pipeline and relationship health.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/projects"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-projects-v2.png"
+                  alt="Projects dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Projects</h3>
+                <p>Delivery and team performance.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/finance"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-finance-v2.png"
+                  alt="Finance dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Finance</h3>
+                <p>Financial planning and reporting.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/marketing"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-marketing-v2.png"
+                  alt="Marketing dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Marketing</h3>
+                <p>Campaign and channel insights.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/saas"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-saas-v2.png"
+                  alt="SaaS dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>SaaS</h3>
+                <p>Subscription and MRR reporting.</p>
+                <b>Open preview </b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/ai-analytics"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-ai-analytics-v2.png"
+                  alt="AI Analytics dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>AI Analytics</h3>
+                <p>Insights, forecasts, model activity, and AI usage.</p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/crypto"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-crypto-v2.png"
+                  alt="Crypto dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Crypto</h3>
+                <p>Market movements, portfolio activity, and asset insights.</p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/hospital-management"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-hospital-management-v2.png"
+                  alt="Hospital Management dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Hospital Management</h3>
+                <p>
+                  Care operations, doctors, appointments, and ward capacity.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/lms-dashboard"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-lms-dashboard-v2.png"
+                  alt="LMS dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>LMS</h3>
+                <p>Course performance, learning progress, and engagement.</p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/logistics-dashboard"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-logistics-dashboard-v2.png"
+                  alt="Logistics dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Logistics</h3>
+                <p>
+                  Shipment status, fleet activity, and delivery performance.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/hrm-dashboard"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-hrm-dashboard-v2.png"
+                  alt="HRM dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>HRM</h3>
+                <p>
+                  Team visibility, attendance, payroll, and people operations.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/school-management"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-school-management-v2.png"
+                  alt="School Management dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>School Management</h3>
+                <p>
+                  Student activity, attendance, classes, and campus planning.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/dashboards/restaurant-pos"
+              ><div class="all-dashboard-shot">
+                <img
+                  src="assets/screenshots/dashboard-restaurant-pos-v2.png"
+                  alt="Restaurant POS dashboard screenshot from the current Edzen project"
+                  loading="lazy"
+                  decoding="async"
+                  width="1440"
+                  height="1000"
+                />
+              </div>
+              <div>
+                <h3>Restaurant POS</h3>
+                <p>Menu browsing, order building, and restaurant operations.</p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="section customize-section" id="customize">
+        <div class="container">
+          <div class="customize-stage">
+            <div class="customize-copy">
+              <span class="eyebrow"><i></i> Make it yours</span>
+              <h2>One foundation. Your product's personality.</h2>
+              <p>
+                Shape the experience around your brand with colors, navigation
+                choices, content widths, and appearance settings that feel
+                native from the first screen.
+              </p>
+              <div class="customize-points">
+                <span><i>&check;</i> Light-first visual system</span
+                ><span><i>&check;</i> Seven curated brand accents</span
+                ><span><i>&check;</i> Flexible workspace layouts</span>
+              </div>
+              <a
+                class="button primary"
+                href="../../documentation/customization.html"
+                >Explore customization <span>&rarr;</span></a
+              >
+            </div>
+            <div class="customize-preview">
+              <div class="preview-browser-bar">
+                <span><i></i><i></i><i></i></span><b>edzen.app / workspace</b
+                ><em>&#9679; Live</em>
+              </div>
+              <img
+                class="customize-dashboard-image"
+                src="assets/screenshots/dashboard-executive-v2.png"
+                data-light-src="assets/screenshots/dashboard-executive-v2.png"
+                data-dark-src="assets/screenshots/dashboard-saas-v2.png"
+                alt="Edzen light dashboard preview"
+              />
+              <div class="preview-glow"></div>
+              <div class="theme-float">
+                <div class="float-heading">
+                  <span>Appearance</span><i>&darr;</i>
+                </div>
+                <div class="mode-tabs" aria-label="Appearance">
+                  <button
+                    class="appearance-option is-active"
+                    type="button"
+                    data-appearance="light"
+                  >
+                    Light</button
+                  ><button
+                    class="appearance-option"
+                    type="button"
+                    data-appearance="dark"
+                  >
+                    Dark</button
+                  ><button
+                    class="appearance-option"
+                    type="button"
+                    data-appearance="system"
+                  >
+                    System
+                  </button>
+                </div>
+                <small>Accent skin</small>
+                <div class="accent-palette">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+              </div>
+              <div class="layout-float">
+                <span>Layout</span><b>Fluid <i>&darr;</i></b>
+              </div>
+              <div class="save-float">
+                <i>&check;</i
+                ><span
+                  ><b>Preferences saved</b
+                  ><small>Changes apply instantly</small></span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="section stack-section" id="stack">
+        <div class="container">
+          <div class="stack-heading">
+            <span class="eyebrow"><i></i> Built for modern product teams</span>
+            <h2>Engineered with a stack that keeps you moving.</h2>
+            <p>
+              Trusted tools work together to give your product a fast, reliable,
+              and flexible foundation.
+            </p>
+          </div>
+          <div class="stack-group">
+            <span class="stack-label">Core technology</span>
+            <div class="stack-pills">
+              <span
+                ><i class="stack-symbol stack-symbol--react"
+                  ><img src="assets/images/tech/react.svg" alt="" /></i
+                >React 19</span
+              ><span
+                ><i class="stack-symbol stack-symbol--vite"
+                  ><img src="assets/images/tech/vite.svg" alt="" /></i
+                >Vite</span
+              ><span
+                ><i class="stack-symbol stack-symbol--typescript"
+                  ><img src="assets/images/tech/typescript.svg" alt="" /></i
+                >TypeScript</span
+              ><span
+                ><i class="stack-symbol stack-symbol--tailwind"
+                  ><img src="assets/images/tech/tailwindcss.svg" alt="" /></i
+                >Tailwind CSS</span
+              ><span
+                ><i class="stack-symbol stack-symbol--tanstack"
+                  ><img src="assets/images/tech/tanstack.ico" alt="" /></i
+                >TanStack Start</span
+              >
+            </div>
+          </div>
+          <div class="stack-group stack-library">
+            <span class="stack-label">Included foundation</span>
+            <div class="stack-pills">
+              <span
+                ><i class="stack-symbol stack-symbol--apex"
+                  ><img src="assets/images/tech/apexcharts.ico" alt="" /></i
+                >ApexCharts</span
+              ><span
+                ><i class="stack-symbol stack-symbol--lucide"
+                  ><img src="assets/images/tech/lucide.svg" alt="" /></i
+                >Lucide icons</span
+              ><span
+                ><i class="stack-symbol stack-symbol--data"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="4" y="4" width="6" height="6" rx="1" />
+                    <rect x="14" y="4" width="6" height="6" rx="1" />
+                    <rect x="4" y="14" width="6" height="6" rx="1" />
+                    <rect x="14" y="14" width="6" height="6" rx="1" /></svg></i
+                >Data views</span
+              ><span
+                ><i class="stack-symbol stack-symbol--forms"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="4" y="4" width="16" height="16" rx="3" />
+                    <path d="m8 12 2.5 2.5L16 9" /></svg></i
+                >Form patterns</span
+              ><span
+                ><i class="stack-symbol stack-symbol--layout"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <path d="M8 4v16M11 8h6M11 12h6M11 16h4" /></svg></i
+                >Responsive layouts</span
+              ><span
+                ><i class="stack-symbol stack-symbol--settings"
+                  ><svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 7h16M4 12h16M4 17h16" />
+                    <circle cx="9" cy="7" r="2" />
+                    <circle cx="15" cy="12" r="2" />
+                    <circle cx="11" cy="17" r="2" /></svg></i
+                >Runtime settings</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section management-collection" id="management">
+        <div class="container">
+          <div class="section-intro">
+            <span class="eyebrow"><i></i> Management workspaces</span>
+            <h2>More ways to manage <em>your operations.</em></h2>
+            <p>
+              Six new workspace collections, with 27 dedicated inner pages for
+              specialized workflows.
+            </p>
+          </div>
+          <div class="management-grid">
+            <article class="management-feature">
+              <span class="management-count">4 pages</span>
+              <h3>Finance</h3>
+              <div>
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/finance/transactions"
+                  >Transactions<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/finance/invoices"
+                  >Invoices<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/finance/budgets"
+                  >Budgets<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/finance/expenses"
+                  >Expenses<span aria-hidden="true">&#8599;</span></a
+                >
+              </div>
+            </article>
+            <article class="management-feature">
+              <span class="management-count">4 pages</span>
+              <h3>Crypto</h3>
+              <div>
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/crypto/market"
+                  >Market<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/crypto/wallet"
+                  >Wallet<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/crypto/exchange"
+                  >Exchange<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/crypto/transactions"
+                  >Transactions<span aria-hidden="true">&#8599;</span></a
+                >
+              </div>
+            </article>
+            <article class="management-feature">
+              <span class="management-count">4 pages</span>
+              <h3>AI Analytics</h3>
+              <div>
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/ai-analytics/insights"
+                  >AI Insights<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/ai-analytics/chatbot-conversations"
+                  >Chatbot Assistant<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/ai-analytics/predictions"
+                  >Predictions<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/ai-analytics/model-settings"
+                  >Model Settings<span aria-hidden="true">&#8599;</span></a
+                >
+              </div>
+            </article>
+            <article class="management-feature">
+              <span class="management-count">4 pages</span>
+              <h3>School Management</h3>
+              <div>
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/school/students"
+                  >Students<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/school/classes"
+                  >Classes<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/school/attendance"
+                  >Attendance<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/school/exams"
+                  >Exams<span aria-hidden="true">&#8599;</span></a
+                >
+              </div>
+            </article>
+            <article class="management-feature">
+              <span class="management-count">4 pages</span>
+              <h3>HRM</h3>
+              <div>
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hrm/employees"
+                  >Employees<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hrm/payroll"
+                  >Payroll<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hrm/leave-requests"
+                  >Leave Requests<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hrm/reviews"
+                  >Performance Reviews<span aria-hidden="true">&#8599;</span></a
+                >
+              </div>
+            </article>
+            <article class="management-feature">
+              <span class="management-count">7 pages</span>
+              <h3>Hospital Management</h3>
+              <div>
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/patients"
+                  >Patients<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/doctors"
+                  >Doctors<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/appointments"
+                  >Appointments<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/wards"
+                  >Wards &amp; Beds<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/pharmacy"
+                  >Pharmacy<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/ambulance"
+                  >Ambulance<span aria-hidden="true">&#8599;</span></a
+                >
+                <a
+                  href="https://edzen.adminsmpixelcraft.workers.dev/hospital/billing"
+                  >Billing<span aria-hidden="true">&#8599;</span></a
+                >
+              </div>
+            </article>
+          </div>
+          <p class="management-note">
+            New workspace actions use local sample data. Connect your APIs for
+            shared records, AI services, payments, and operational workflows.
+          </p>
+        </div>
+      </section>
+      <section class="section modules-section" id="modules">
+        <div class="container">
+          <div class="section-intro">
+            <span class="eyebrow"><i></i> Applications collection</span>
+            <h2>Every essential app, ready for <em>real work.</em></h2>
+            <p>
+              Eight focused workspace applications for communication, planning,
+              delivery, and file operations.
+            </p>
+          </div>
+          <div class="all-dashboard-grid application-collection">
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/email"
+            ><div class="all-dashboard-shot"><img src="assets/screenshots/app-email.png" alt="Email screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>Email</h3>
+                <p>
+                  Organize inboxes, conversations, labels, and follow-ups in one
+                  workspace.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/chat"
+            ><div class="all-dashboard-shot"><img src="assets/screenshots/app-chat.png" alt="Chat screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>Chat</h3>
+                <p>
+                  Keep teams connected through focused conversations, presence,
+                  and shared context.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/calendar"
+            ><div class="all-dashboard-shot"><img src="assets/screenshots/app-calendar.png" alt="Calendar screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>Calendar</h3>
+                <p>
+                  Plan schedules, coordinate key events, and keep work moving on
+                  time.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/tasks"
+            ><div class="all-dashboard-shot"><img src="assets/screenshots/app-tasks.png" alt="Tasks screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>Tasks</h3>
+                <p>
+                  Assign priorities, track progress, and turn plans into
+                  completed work.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/kanban"
+            ><div class="all-dashboard-shot"><img src="assets/screenshots/app-kanban.png" alt="Kanban screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>Kanban</h3>
+                <p>
+                  Visualize every stage of delivery with a clear, collaborative
+                  workflow board.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/files"
+            ><div class="all-dashboard-shot"><img src="assets/screenshots/app-files.png" alt="File Manager screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>File Manager</h3>
+                <p>
+                  Browse folders, manage project assets, and keep shared files
+                  organized.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div>
+            </a>
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/ai-chat"
+              ><div class="all-dashboard-shot"><img src="assets/screenshots/app-ai-chat-v2.png" alt="AI Chat screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>AI Chat</h3>
+                <p>
+                  Local sample conversations with files, links, images, and
+                  browser voice input.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+            <a
+              class="all-dashboard-card"
+              href="https://edzen.adminsmpixelcraft.workers.dev/apps/notes"
+              ><div class="all-dashboard-shot"><img src="assets/screenshots/app-notes-v2.png" alt="Notes screenshot from the current Edzen project" loading="lazy" decoding="async" width="1440" height="1000"></div><div>
+                <h3>Notes</h3>
+                <p>
+                  Create, organize, search, and edit notes in a dedicated
+                  workspace.
+                </p>
+                <b>Open preview <i>&rarr;</i></b>
+              </div></a
+            >
+          </div>
+        </div>
+      </section>
+      <section class="section cta-section">
+        <div class="container">
+          <div class="final-cta">
+            <span class="cta-grid" aria-hidden="true"></span>
+            <div class="cta-content">
+              <h2>Ready to build something remarkable?</h2>
+              <p>
+                Launch your next admin experience on a polished React
+                foundation, with real dashboards and essential workflows already
+                in place.
+              </p>
+              <div class="cta-buttons">
+                <a
+                  class="button primary button-large"
+                  href="https://edzen.adminsmpixelcraft.workers.dev/"
+                  target="_blank"
+                  rel="noreferrer"
+                  >Open live preview
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="15"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                    />
+                  </svg>
+                </a>
+                <a
+                  class="button cta-secondary"
+                  target="_blank"
+                  href="#"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    width="15"
+                    stroke="currentColor"
+                    class="size-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                    />
+                  </svg>
+
+                  Buy Now</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-orb footer-orb--one"></div>
+      <div class="footer-orb footer-orb--two"></div>
+      <div class="container footer-main">
+        <div class="footer-brand-block">
+          <a class="brand" href="#home" aria-label="Edzen home"
+            ><img src="assets/logos/edzen-logo.png" alt="Edzen"
+          /></a>
+          <p>
+            A premium React admin template for teams building focused, capable
+            product experiences.
+          </p>
+          <div class="footer-actions">
+            <a
+              class="footer-button footer-button--primary"
+              href="https://edzen.adminsmpixelcraft.workers.dev/"
+              target="_blank"
+              rel="noreferrer"
+              >Live preview <span>&nearr;</span></a
+            >
+            <a
+              class="footer-button"
+              target="_blank"
+              href="../../documentation/support.html"
+              >Support</a
+            >
+          </div>
+        </div>
+        <div class="footer-navigation">
+          <div>
+            <b>Explore</b>
+            <a href="#demos">Dashboards</a>
+            <a href="#modules">Applications</a
+            ><a href="#management">Management</a>
+            <a href="#platform">Features</a>
+          </div>
+          <div>
+            <b>Resources</b>
+            <a href="../../documentation/index.html">Documentation</a>
+            <a href="../../documentation/changelog.html">Changelog</a>
+            <a href="../../documentation/support.html">Support</a>
+          </div>
+          <div>
+            <b>Built with</b>
+            <a href="#platform">React &amp; TypeScript</a>
+            <a href="#platform">Tailwind CSS</a>
+            <a href="#platform">Responsive layouts</a>
+          </div>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span>&copy; 2026 Edzen. Developed by Srama Tech.</span>
+        <div class="footer-bottom-right">
+          <span class="footer-status"><i></i> Product ready</span
+          ><a href="#home">Back to top &uarr;</a>
+        </div>
+      </div>
+    </footer>
+    <button class="back-top" type="button" aria-label="Back to top">
+      &uarr;
+    </button>
+    <script src="js/main.js"></script>
+  </body>
+</html>

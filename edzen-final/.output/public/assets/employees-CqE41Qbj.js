@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-DxjG8tPc.js";import{t}from"./HrmPages-FxM6Zdz3.js";var n=e(),r=()=>(0,n.jsx)(t,{kind:`employees`});export{r as component};

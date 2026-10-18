@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-DxjG8tPc.js";import{i as t}from"./sophia-carter-CgBbJ8K6.js";import{t as n}from"./WorkspacePages-fscM8Tb8.js";var r=e(),i=()=>(0,r.jsx)(t,{children:(0,r.jsx)(n,{path:`/ecommerce/orders`})});export{i as component};

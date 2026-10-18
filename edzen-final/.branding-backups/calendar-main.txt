@@ -1,0 +1,93 @@
+const CALENDAR_STORAGE = "edzen-calendar-events-v1";
+const localDate = (value: string) => new Date(`${value}T00:00:00`);
+const sortEvents = (items: EventItem[]) => items.slice().sort((a, b) => a.date.localeCompare(b.date) || Number(Boolean(b.allDay)) - Number(Boolean(a.allDay)) || a.start.localeCompare(b.start));
+const periodDays = (date: Date, view: View) => {
+  const start = view === "Month" ? startOfMonth(date) : view === "Day" ? date : startOfWeek(date, { weekStartsOn: 1 });
+  const count = view === "Month" ? endOfMonth(date).getDate() : view === "Day" ? 1 : 7;
+  return Array.from({ length: count }, (_, index) => addDays(start, index));
+};
+
+export function CalendarApp() {
+  const [today] = useState(() => new Date());
+  const [current, setCurrent] = useState(() => new Date());
+  const [events, setEvents] = useState<EventItem[]>(() => {
+    const anchor = startOfWeek(new Date(), { weekStartsOn: 1 });
+    return initialEvents.map((event) => ({ ...event, date: format(addDays(anchor, differenceInCalendarDays(localDate(event.date), new Date(2026, 7, 24))), "yyyy-MM-dd") }));
+  });
+  const [loaded, setLoaded] = useState(false);
+  const [view, setView] = useState<View>("Month");
+  const [visible, setVisible] = useState<Record<Category, boolean>>(() => Object.fromEntries(categories.map((category) => [category, true])) as Record<Category, boolean>);
+  const [search, setSearch] = useState("");
+  const [form, setForm] = useState<EventItem | null>(null);
+  const [detail, setDetail] = useState<EventItem | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [storageBlocked, setStorageBlocked] = useState(false);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(CALENDAR_STORAGE);
+      if (stored) {
+        const parsed: unknown = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.every((item) => item && typeof item.id === "string" && typeof item.title === "string" && typeof item.date === "string" && typeof item.start === "string" && typeof item.end === "string" && typeof item.description === "string" && typeof item.location === "string" && Array.isArray(item.attendees) && item.attendees.every((name: unknown) => typeof name === "string") && categories.includes(item.category) && !validateCalendarEvent(item))) setEvents(parsed as EventItem[]);
+      }
+    } catch { /* Keep the sample schedule if saved data is unavailable. */ }
+    setLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (loaded) try { localStorage.setItem(CALENDAR_STORAGE, JSON.stringify(events)); setStorageBlocked(false); } catch { setStorageBlocked(true); }
+  }, [events, loaded]);
+  const filtered = useMemo(() => sortEvents(events.filter((event) => visible[event.category] && `${event.title} ${event.location} ${event.description} ${event.attendees.join(" ")}`.toLowerCase().includes(search.trim().toLowerCase()))), [events, visible, search]);
+  const days = periodDays(current, view);
+  const first = format(days[0] ?? current, "yyyy-MM-dd"), last = format(days.at(-1) ?? current, "yyyy-MM-dd");
+  const period = filtered.filter((event) => event.date >= first && event.date <= last);
+  const hours = period.reduce((sum, event) => sum + (event.allDay ? 0 : minutes(event.end) - minutes(event.start)), 0) / 60;
+  const create = (date = current, start = "09:00") => {
+    const end = Math.min(minutes(start) + 60, 1439);
+    setForm({ ...emptyEvent(format(date, "yyyy-MM-dd")), start, end: `${Math.floor(end / 60).toString().padStart(2, "0")}:${(end % 60).toString().padStart(2, "0")}` });
+  };
+  const saveEvent = () => {
+    if (!form) return;
+    const error = validateCalendarEvent(form);
+    if (error) { toast.error(error); return; }
+    const isNew = !form.id;
+    const saved = { ...form, title: form.title.trim(), id: form.id || crypto.randomUUID() };
+    const collision = events.some((event) => event.id !== saved.id && event.date === saved.date && !event.allDay && !saved.allDay && minutes(event.start) < minutes(saved.end) && minutes(event.end) > minutes(saved.start));
+    setEvents((all) => isNew ? [...all, saved] : all.map((event) => event.id === saved.id ? saved : event));
+    setCurrent(localDate(saved.date)); setForm(null); setDetail(saved);
+    toast.success(isNew ? "Event created" : "Event updated");
+    if (collision) toast.info("This event overlaps with another item in your schedule.");
+  };
+  const nav = (amount: number) => setCurrent((date) => view === "Month" ? addMonths(date, amount) : addDays(date, view === "Day" ? amount : amount * 7));
+  const exportCalendar = () => {
+    const url = URL.createObjectURL(new Blob([calendarICS(period)], { type: "text/calendar;charset=utf-8" }));
+    const link = document.createElement("a"); link.href = url; link.download = `edzen-calendar-${first}.ics`; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast.success("Calendar exported");
+  };
+  const sidebar = (mobile = false) => <CalendarSidebar current={current} today={today} onDate={(date) => { setCurrent(date); if (mobile) setSidebarOpen(false); }} visible={visible} setVisible={setVisible} events={filtered} allEvents={events} onEvent={(event) => { setDetail(event); setSidebarOpen(false); }} onCreate={() => { create(); setSidebarOpen(false); }} />;
+
+  return (
+    <div className="space-y-5">
+      <PageHeader title="Calendar" subtitle="Make room for focused work, meetings, and everything in between." breadcrumb={["Apps", "Calendar"]} actions={<><Button variant="outline" onClick={exportCalendar} disabled={!period.length}><Icons.Download />Export calendar</Button><Button onClick={() => create()}><Icons.Plus />New event</Button></>} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          { label: "Events in view", value: period.length, caption: `${format(days[0] ?? current, "MMM d")} – ${format(days.at(-1) ?? current, "MMM d")}`, icon: Icons.CalendarDays, color: "bg-primary/10 text-primary" },
+          { label: "Meetings", value: period.filter((event) => event.category === "Meetings").length, caption: "Time to connect and collaborate", icon: Icons.Users, color: "bg-chart-3/10 text-chart-3" },
+          { label: "Scheduled time", value: `${Number(hours.toFixed(1))}h`, caption: "Timed events in this view", icon: Icons.Clock3, color: "bg-chart-4/10 text-chart-4" },
+        ].map((stat) => <div key={stat.label} className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3"><span className={cn("grid size-10 shrink-0 place-items-center rounded-lg", stat.color)}><stat.icon className="size-5" /></span><div><p className="text-xs text-muted-foreground">{stat.label}</p><p className="mt-0.5 text-xl font-semibold tabular-nums">{stat.value}</p><p className="text-[11px] text-muted-foreground">{stat.caption}</p></div></div>)}
+      </div>
+      <div className="flex overflow-hidden rounded-xl border bg-card">
+        <div className="hidden w-[240px] shrink-0 border-e xl:block">{sidebar()}</div>
+        <section aria-label="Calendar workspace" className="min-w-0 flex-1">
+          <CalendarToolbar current={current} view={view} setView={setView} onNav={nav} onToday={() => setCurrent(today)} search={search} setSearch={setSearch} onSidebar={() => setSidebarOpen(true)} />
+          <CalendarGrid view={view} current={current} today={today} events={filtered} onEvent={setDetail} onEmpty={create} onShowDay={(date) => { setCurrent(date); setView("Day"); }} />
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t px-5 py-3 text-[11px] text-muted-foreground"><span className="flex items-center gap-1.5"><Icons.CircleCheck className="size-3.5 text-success" />{storageBlocked ? "Changes are available for this session" : "Changes are saved on this device"}</span><span>{period.length} {period.length === 1 ? "event" : "events"} in view · Local time</span></div>
+        </section>
+      </div>
+      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}><SheetContent side="left" className="overflow-y-auto"><SheetHeader><SheetTitle>Your calendars</SheetTitle><SheetDescription>Choose dates and filter your schedule.</SheetDescription></SheetHeader><div className="mt-4">{sidebar(true)}</div></SheetContent></Sheet>
+      <EventForm open={Boolean(form)} event={form} setEvent={setForm} onClose={() => setForm(null)} onSave={saveEvent} />
+      <Sheet open={Boolean(detail)} onOpenChange={(open) => !open && setDetail(null)}><SheetContent className="w-full overflow-y-auto sm:max-w-md"><SheetHeader><SheetTitle>Event details</SheetTitle><SheetDescription>View and manage this calendar event.</SheetDescription></SheetHeader><EventDetails event={detail} onEdit={() => { setForm(detail); setDetail(null); }} onDuplicate={() => { if (detail) setForm({ ...detail, id: "", title: `${detail.title} copy` }); setDetail(null); }} onDelete={() => setDeleteOpen(true)} /></SheetContent></Sheet>
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}><DialogContent><DialogHeader><DialogTitle>Delete this event?</DialogTitle><DialogDescription>This removes the event from your saved calendar.</DialogDescription></DialogHeader><DialogFooter><Button variant="outline" onClick={() => setDeleteOpen(false)}>Keep event</Button><Button variant="destructive" onClick={() => { if (detail) setEvents((all) => all.filter((event) => event.id !== detail.id)); setDeleteOpen(false); setDetail(null); toast.success("Event deleted"); }}>Delete event</Button></DialogFooter></DialogContent></Dialog>
+    </div>
+  );
+}

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="145 131 1882 503" role="img" aria-label="Edzen">
+  <defs>
+    <clipPath id="wordmark" clipPathUnits="userSpaceOnUse"><rect x="680" y="0" width="1442" height="741" /></clipPath>
+    <filter id="white" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1 0" />
+    </filter>
+  </defs>
+  <image href="edzen-logo.png" width="2122" height="741" />
+  <image href="edzen-logo.png" width="2122" height="741" clip-path="url(#wordmark)" filter="url(#white)" />
+</svg>
