@@ -1,1 +1,0 @@
-import{o as e}from"./useStore-DxjG8tPc.js";import{t}from"./CryptoPages-BIFdS6GU.js";var n=e(),r=()=>(0,n.jsx)(t,{kind:`exchange`});export{r as component};

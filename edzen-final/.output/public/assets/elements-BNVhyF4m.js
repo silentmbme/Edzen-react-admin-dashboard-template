@@ -1,1 +1,0 @@
-import{o as e}from"./useStore-DxjG8tPc.js";import{i as t}from"./sophia-carter-CgBbJ8K6.js";import{t as n}from"./UiElementDetailApp-CI6kA9Q2.js";var r=e(),i=()=>(0,r.jsx)(t,{children:(0,r.jsx)(n,{element:`buttons`})});export{i as component};

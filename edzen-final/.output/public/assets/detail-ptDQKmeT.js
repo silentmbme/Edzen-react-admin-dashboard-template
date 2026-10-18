@@ -1,1 +1,0 @@
-import{o as e}from"./useStore-DxjG8tPc.js";import{i as t}from"./sophia-carter-CgBbJ8K6.js";import{t as n}from"./ProjectDetailsApp-BO4aYY8T.js";var r=e(),i=()=>(0,r.jsx)(t,{children:(0,r.jsx)(n,{})});export{i as component};

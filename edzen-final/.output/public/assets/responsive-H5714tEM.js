@@ -1,1 +1,0 @@
-import{o as e}from"./useStore-DxjG8tPc.js";import{i as t}from"./sophia-carter-CgBbJ8K6.js";import{t as n}from"./TablesModuleApp-Br5Dsz_Z.js";var r=e(),i=()=>(0,r.jsx)(t,{children:(0,r.jsx)(n,{mode:`responsive`})});export{i as component};
