@@ -1,9 +1,17 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import {
   ArrowRight,
+  ArrowUpRight,
   CalendarDays,
+  CheckCircle2,
+  ChevronRight,
+  CircleDollarSign,
+  Clock3,
   Copy,
   Download,
+  FileText,
+  Flame,
+  Layers3,
   Megaphone,
   MousePointer2,
   Plus,
@@ -18,126 +26,63 @@ import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
 import { Badge, Card, PageHeader } from "./widgets";
 import { Button } from "@/components/ui/button";
 
-const campaigns = [
-  [
-    "Autumn product launch",
-    "Paid social  Email",
-    "$18,420",
-    "4.8x",
-    "Live",
-    "success",
-  ],
-  [
-    "Workflow playbook",
-    "Content  Organic",
-    "$7,860",
-    "3.2x",
-    "Live",
-    "success",
-  ],
-  [
-    "Partner co-marketing",
-    "Events  Partner",
-    "$5,400",
-    "2.1x",
-    "Review",
-    "warning",
-  ],
-  [
-    "Enterprise retargeting",
-    "Paid search",
-    "$12,770",
-    "3.9x",
-    "Optimizing",
-    "info",
-  ],
+const flights = [
+  ["Concept", "Aug 01", "Approved", "success"],
+  ["Creative", "Aug 12", "In review", "warning"],
+  ["Launch", "Aug 22", "Live", "primary"],
+  ["Retarget", "Sep 03", "Queued", "info"],
 ] as const;
 
 export function MarketingDashboard() {
   const { base } = useChartTheme();
-  const [period, setPeriod] = useState("This month");
-  const [campaignLive, setCampaignLive] = useState(true);
+  const [period, setPeriod] = useState("August");
+  const [flightLive, setFlightLive] = useState(true);
+  const [activeAudience, setActiveAudience] = useState("Operations leaders");
 
-  const demandChart = useMemo(
+  const liftChart = useMemo(
     () =>
       mergeOptions(base, {
-        chart: {
-          type: "area",
-          toolbar: { show: false },
-        },
-        colors: [token("--chart-1"), token("--chart-2")],
-        stroke: {
-          curve: "smooth",
-          width: [3, 2],
-        },
-        fill: { opacity: 0.18, type: "solid" },
+        chart: { type: "line", toolbar: { show: false } },
+        colors: [token("--chart-1"), token("--chart-2"), token("--chart-3")],
+        stroke: { curve: "smooth", width: [3, 2, 2] },
+        dataLabels: { enabled: false },
+        legend: { position: "top", horizontalAlign: "left" },
         xaxis: {
           categories: [
-            "Aug 1",
-            "Aug 5",
-            "Aug 9",
-            "Aug 13",
-            "Aug 17",
-            "Aug 21",
-            "Aug 25",
-            "Aug 29",
+            "Week 1",
+            "Week 2",
+            "Week 3",
+            "Week 4",
+            "Week 5",
+            "Week 6",
           ],
         },
-        yaxis: {
-          labels: {
-            formatter: (value: number) => `${Math.round(value / 1000)}k`,
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        grid: {
-          borderColor: token("--border"),
-          strokeDashArray: 4,
-        },
-        legend: {
-          position: "top",
-          horizontalAlign: "left",
-        },
+        yaxis: { labels: { formatter: (value: number) => `${value}k` } },
+        grid: { borderColor: token("--border"), strokeDashArray: 4 },
       }),
     [base],
   );
-
-  const channelChart = useMemo(
+  const budgetChart = useMemo(
     () =>
       mergeOptions(base, {
-        chart: {
-          type: "donut",
-        },
-        labels: ["Paid social", "Organic", "Email", "Partners", "Direct"],
+        chart: { type: "donut", toolbar: { show: false } },
+        labels: ["Paid social", "Search", "Content", "Partner"],
         colors: [
           token("--chart-1"),
           token("--chart-2"),
           token("--chart-3"),
-          token("--warning"),
-          token("--muted-foreground"),
+          token("--chart-4"),
         ],
-        stroke: {
-          colors: [token("--card")],
-          width: 4,
-        },
-        legend: {
-          position: "bottom",
-        },
-        dataLabels: {
-          enabled: false,
-        },
+        legend: { show: false },
+        dataLabels: { enabled: false },
+        stroke: { colors: [token("--card")], width: 4 },
         plotOptions: {
           pie: {
             donut: {
               size: "68%",
               labels: {
                 show: true,
-                total: {
-                  show: true,
-                  label: "Qualified leads",
-                  formatter: () => "2,846",
-                },
+                total: { show: true, label: "used", formatter: () => "$34.6K" },
               },
             },
           },
@@ -146,45 +91,11 @@ export function MarketingDashboard() {
     [base],
   );
 
-  const conversionChart = useMemo(
-    () =>
-      mergeOptions(base, {
-        chart: {
-          type: "bar",
-          toolbar: { show: false },
-        },
-        colors: [token("--chart-2")],
-        plotOptions: {
-          bar: {
-            horizontal: true,
-            borderRadius: 6,
-            barHeight: "54%",
-          },
-        },
-        xaxis: {
-          categories: ["Visits", "Engaged", "Leads", "Meetings", "Won"],
-          max: 100,
-          labels: {
-            formatter: (value: string) => `${value}%`,
-          },
-        },
-        dataLabels: {
-          enabled: true,
-          formatter: (value: number) => `${value}%`,
-        },
-        grid: {
-          borderColor: token("--border"),
-          strokeDashArray: 4,
-        },
-      }),
-    [base],
-  );
-
   return (
     <>
       <PageHeader
-        title="Marketing command center"
-        subtitle="Plan campaigns, measure demand, and turn attention into qualified pipeline."
+        title="Marketing"
+        subtitle="Run the launch, learn from attention, and turn signals into pipeline."
         breadcrumb={["Edzen", "Dashboards", "Marketing"]}
         actions={
           <>
@@ -194,95 +105,348 @@ export function MarketingDashboard() {
               onChange={(event) => setPeriod(event.target.value)}
               className="h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
             >
-              <option>This month</option>
-              <option>Last month</option>
+              <option>August</option>
+              <option>July</option>
               <option>Quarter to date</option>
             </select>
-
             <Button
               variant="outline"
               size="sm"
               onClick={() => toast.success("Marketing report exported")}
             >
-              <Download />
-              Export
+              <Download /> Export
             </Button>
-
             <Button
               size="sm"
               onClick={() => toast.success("Campaign draft created")}
             >
-              <Plus />
-              Create campaign
+              <Plus /> New campaign
             </Button>
           </>
         }
       />
 
       <div className="grid gap-4 xl:grid-cols-12">
-        <section className="reference-hero relative overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground shadow-card xl:col-span-7 sm:p-8">
-          <div className="absolute -end-20 -top-20 size-72 rounded-full border-[28px] border-white/10" />
-          <div className="absolute bottom-[-110px] end-28 size-64 rounded-full bg-white/10 blur-3xl" />
-
-          <div className="relative flex h-full flex-col justify-between gap-8">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold">
-                <Sparkles className="size-3.5" />
-                Campaign focus
-              </span>
-
-              <h2 className="mt-5 max-w-xl text-3xl text-white font-semibold tracking-tight">
-                The autumn launch is building momentum.
-              </h2>
-
-              <p className="mt-3 max-w-lg text-sm leading-6 text-white/80">
-                Audience engagement is 18% above plan. Move the best-performing
-                social segment into the retargeting workflow today.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                className="bg-white text-primary hover:bg-white/90"
-                onClick={() => setCampaignLive((value) => !value)}
-              >
-                <Megaphone />
-                {campaignLive ? "Campaign live" : "Resume campaign"}
-              </Button>
-
+        <Card
+          className="xl:col-span-4"
+          title="Campaign flight"
+          description="Autumn product launch"
+          action={
+            <Badge tone={flightLive ? "success" : "warning"}>
+              {flightLive ? "Live" : "Paused"}
+            </Badge>
+          }
+        >
+          <div className="space-y-1">
+            {flights.map(([phase, date, status, tone], index) => (
               <button
+                key={phase}
                 type="button"
-                onClick={() => toast.info("Campaign brief copied")}
-                className="inline-flex items-center gap-2 text-sm font-semibold text-white/85 hover:text-white"
+                onClick={() => toast.info(`${phase} phase opened`)}
+                className="group flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-muted/50"
               >
-                <Copy className="size-4" />
-                Copy brief
+                <span
+                  className={
+                    (index < 2
+                      ? "bg-success"
+                      : index === 2
+                        ? "bg-primary"
+                        : "bg-muted-foreground/35") +
+                    " grid size-7 place-items-center rounded-full text-[10px] font-bold text-primary-foreground"
+                  }
+                >
+                  {index + 1}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <b className="block text-sm">{phase}</b>
+                  <small className="text-xs text-muted-foreground">
+                    {date}
+                  </small>
+                </span>
+                <Badge tone={tone}>{status}</Badge>
               </button>
+            ))}
+          </div>
+          <div className="mt-5 flex gap-2">
+            <Button
+              className="flex-1"
+              size="sm"
+              variant={flightLive ? "outline" : "default"}
+              onClick={() => setFlightLive((value) => !value)}
+            >
+              <Megaphone /> {flightLive ? "Pause flight" : "Resume flight"}
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => toast.info("Campaign brief copied")}
+            >
+              <Copy className="size-4" />
+            </Button>
+          </div>
+        </Card>
+        <section className="overflow-hidden rounded-2xl border border-border bg-card xl:col-span-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/20 px-5 py-4">
+            <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              <Sparkles className="size-4 text-primary" /> Signal board
+            </span>
+            <Badge tone="success" variant="dot">
+              Live intent feed
+            </Badge>
+          </div>
+          <div className="grid lg:grid-cols-[1.12fr_.88fr]">
+            <div className="border-b border-border p-5 lg:border-b-0 lg:border-e">
+              <div className="flex items-start gap-3">
+                <div>
+                  <span className="grid size-11 place-items-center rounded-2xl bg-primary/10 text-primary">
+                  <Flame className="size-5" />
+                  </span>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    Strongest signal
+                  </p>
+                  <h2 className="mt-1 text-lg font-semibold">
+                    Social video is pulling in enterprise demand
+                  </h2>
+                </div>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                Operations-leader accounts that watched the launch cut-down are
+                returning to pricing pages 2.4× more often than the campaign
+                average.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Button
+                  size="sm"
+                  onClick={() => toast.info("Retargeting audience created")}
+                >
+                  <Target /> Build retargeting audience
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => toast.info("Signal evidence opened")}
+                  className="text-xs font-semibold text-primary"
+                >
+                  View evidence <ArrowRight className="ms-1 inline size-3.5" />
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 divide-x divide-y divide-border">
+              {[
+                ["426", "accounts warming", UsersRound, "bg-chart-1"],
+                ["7.4%", "engagement", MousePointer2, "bg-chart-2"],
+                ["$426K", "pipeline touched", CircleDollarSign, "bg-chart-3"],
+                ["3.8×", "return on spend", Target, "bg-chart-4"],
+              ].map(([value, label, Icon, color]) => (
+                <div key={label as string} className="p-4">
+                  <span
+                    className={
+                      (color as string) +
+                      " grid size-9 place-items-center rounded-xl text-primary-foreground"
+                    }
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <p className="mt-5 text-xl font-semibold tabular-nums">
+                    {value as string}
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {label as string}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-3 text-xs">
+            <span className="text-muted-foreground">
+              {period} signal confidence
+            </span>
+            <span className="font-semibold text-success">
+              High · 94% data coverage
+            </span>
+          </div>
         </section>
+      </div>
 
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-8"
+          title="Demand lift by touchpoint"
+          description="Pipeline response after each campaign release"
+          action={<Badge tone="primary">+18% above plan</Badge>}
+        >
+          <ApexChart
+            type="line"
+            height={295}
+            options={liftChart}
+            series={[
+              { name: "Paid social", data: [14, 18, 24, 31, 37, 43] },
+              { name: "Lifecycle email", data: [11, 14, 16, 22, 25, 30] },
+              { name: "Partner", data: [5, 8, 12, 13, 18, 22] },
+            ]}
+          />
+        </Card>
+        <Card
+          className="xl:col-span-4"
+          title="Audience heatmap"
+          description="Accounts showing repeated intent"
+        >
+          <div className="grid grid-cols-5 gap-2">
+            {[
+              1, 2, 3, 4, 5, 2, 4, 1, 3, 5, 5, 3, 2, 4, 1, 2, 5, 4, 1, 3, 3, 1,
+              5, 2, 4,
+            ].map((level, index) => (
+              <button
+                type="button"
+                aria-label={`Intent cell ${index + 1}`}
+                onClick={() =>
+                  setActiveAudience(
+                    index % 2 ? "Scaling SaaS" : "Operations leaders",
+                  )
+                }
+                key={index}
+                className={
+                  (level > 4
+                    ? "bg-primary"
+                    : level > 3
+                      ? "bg-chart-2"
+                      : level > 2
+                        ? "bg-chart-3"
+                        : level > 1
+                          ? "bg-chart-4"
+                          : "bg-muted") +
+                  " aspect-square rounded-lg transition hover:scale-105"
+                }
+              />
+            ))}
+          </div>
+          <div className="mt-5 rounded-xl border border-border bg-muted/15 p-3">
+            <p className="text-xs text-muted-foreground">Most active segment</p>
+            <p className="mt-1 text-sm font-semibold">{activeAudience}</p>
+            <p className="mt-1 text-xs text-success">
+              418 accounts showed repeat activity
+            </p>
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
           className="xl:col-span-5"
-          title="Growth scoreboard"
-          description={period}
+          title="Attribution paths"
+          description="Journeys creating the strongest hand-raise"
         >
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-4">
             {[
-              ["Pipeline influenced", "$426K", "+14.8%", "text-success"],
-              ["Qualified leads", "2,846", "+9.2%", "text-success"],
-              ["Cost per lead", "$34.20", "6.1%", "text-success"],
-              ["Campaign ROI", "3.8x", "+0.4x", "text-primary"],
-            ].map(([label, value, delta, color]) => (
-              <div key={label} className="rounded-xl border bg-muted/20 p-4">
-                <p className="text-xs text-muted-foreground">{label}</p>
-
-                <p className="mt-2 text-2xl font-semibold">{value}</p>
-
-                <p className={`mt-1 text-xs font-semibold ${color}`}>
-                  {delta} vs previous period
+              [
+                "Social → Playbook → Demo",
+                "38%",
+                "124 opportunities",
+                "bg-primary",
+              ],
+              [
+                "Webinar → Nurture → Demo",
+                "26%",
+                "86 opportunities",
+                "bg-chart-2",
+              ],
+              [
+                "Partner → Case study → Demo",
+                "18%",
+                "54 opportunities",
+                "bg-chart-3",
+              ],
+            ].map(([path, share, detail, color]) => (
+              <button
+                type="button"
+                key={path as string}
+                onClick={() => toast.info(`${path} attribution opened`)}
+                className="w-full rounded-xl border border-border p-3 text-left transition hover:border-primary/35"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={(color as string) + " size-2.5 rounded-full"}
+                  />
+                  <b className="flex-1 text-sm">{path as string}</b>
+                  <span className="text-sm font-semibold">
+                    {share as string}
+                  </span>
+                </div>
+                <p className="mt-2 pl-4.5 text-xs text-muted-foreground">
+                  {detail as string}
                 </p>
-              </div>
+              </button>
+            ))}
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-7"
+          title="Launch room"
+          description="The next work that affects campaign readiness"
+        >
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              [
+                "Today · 10:30",
+                "Approve social cut-downs",
+                "6 variants need a final decision",
+                "warning",
+                Clock3,
+              ],
+              [
+                "Today · 15:00",
+                "Brief sales on target accounts",
+                "48 accounts matched to the launch",
+                "primary",
+                UsersRound,
+              ],
+              [
+                "Aug 28",
+                "Send customer proof sequence",
+                "Lifecycle email · segment A",
+                "success",
+                Send,
+              ],
+              [
+                "Sep 03",
+                "Open partner retargeting",
+                "Partner channel · phase 4",
+                "info",
+                Layers3,
+              ],
+            ].map(([time, title, detail, tone, Icon]) => (
+              <button
+                type="button"
+                key={title as string}
+                onClick={() => toast.info(`${title} opened`)}
+                className="flex items-start gap-3 rounded-2xl border border-border p-4 text-left transition hover:border-primary/35 hover:bg-muted/25"
+              >
+                <span
+                  className={
+                    (tone === "success"
+                      ? "bg-success/10 text-success"
+                      : tone === "warning"
+                        ? "bg-warning/10 text-warning"
+                        : tone === "info"
+                          ? "bg-info/10 text-info"
+                          : "bg-primary/10 text-primary") +
+                    " grid size-10 shrink-0 place-items-center rounded-xl"
+                  }
+                >
+                  <Icon className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <small className="text-xs font-semibold text-primary">
+                    {time as string}
+                  </small>
+                  <b className="mt-1 block text-sm">{title as string}</b>
+                  <small className="mt-1 block text-xs text-muted-foreground">
+                    {detail as string}
+                  </small>
+                </span>
+                <ChevronRight className="mt-1 size-4 text-muted-foreground" />
+              </button>
             ))}
           </div>
         </Card>
@@ -291,222 +455,220 @@ export function MarketingDashboard() {
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
           className="xl:col-span-8"
-          title="Demand momentum"
-          description="Qualified demand generated across acquisition and nurture programs"
+          title="Content experiment board"
+          description="Assets that are earning attention and changing behavior"
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => toast.success("Content brief created")}
+            >
+              <FileText /> New brief
+            </Button>
+          }
         >
-          <ApexChart
-            type="area"
-            height={300}
-            options={demandChart}
-            series={[
-              {
-                name: "Pipeline influenced",
-                data: [26, 32, 29, 43, 47, 52, 61, 68],
-              },
-              {
-                name: "Media spend",
-                data: [18, 20, 24, 26, 31, 34, 38, 42],
-              },
-            ]}
-          />
-        </Card>
-
-        <Card
-          className="xl:col-span-4"
-          title="Channel quality"
-          description="Where qualified demand begins"
-        >
-          <ApexChart
-            type="donut"
-            height={288}
-            options={channelChart}
-            series={[34, 27, 18, 12, 9]}
-          />
-        </Card>
-      </div>
-
-      <div className="mt-5 grid gap-4 xl:grid-cols-12">
-        <Card
-          className="xl:col-span-7"
-          title="Campaign portfolio"
-          description="Revenue contribution and next optimization action"
-        >
-          <div className="divide-y rounded-xl border">
-            {campaigns.map(([name, channel, revenue, roi, status, tone]) => (
-              <div
-                key={name}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              [
+                "Benchmark report",
+                "Research",
+                "1,284 reads",
+                "18.2%",
+                "bg-chart-1",
+              ],
+              [
+                "Planning template",
+                "Tool",
+                "764 downloads",
+                "11.4%",
+                "bg-chart-2",
+              ],
+              [
+                "Maturity webinar",
+                "Event",
+                "413 registrations",
+                "8.6%",
+                "bg-chart-3",
+              ],
+            ].map(([title, type, metric, conversion, color]) => (
+              <article
+                key={title as string}
+                className="overflow-hidden rounded-2xl border border-border"
               >
-                <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
-                  <Target className="size-4" />
-                </span>
-
-                <span className="min-w-40 flex-1">
-                  <b className="block text-sm">{name}</b>
-                  <small className="text-xs text-muted-foreground">
-                    {channel}
-                  </small>
-                </span>
-
-                <span className="text-sm">
-                  <small className="block text-xs text-muted-foreground">
-                    Pipeline
-                  </small>
-                  <b>{revenue}</b>
-                </span>
-
-                <span className="text-sm">
-                  <small className="block text-xs text-muted-foreground">
-                    ROI
-                  </small>
-                  <b>{roi}</b>
-                </span>
-
-                <Badge tone={tone}>{status}</Badge>
-
-                <button
-                  type="button"
-                  onClick={() => toast.info(`${name} opened`)}
-                  className="text-xs font-semibold text-primary"
-                >
-                  <ArrowRight className="size-4 rtl:rotate-180" />
-                </button>
-              </div>
+                <div className={(color as string) + " h-2"} />
+                <div className="p-4">
+                  <span className="rounded-md bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {type as string}
+                  </span>
+                  <h3 className="mt-5 text-sm font-semibold">
+                    {title as string}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {metric as string}
+                  </p>
+                  <div className="mt-5 flex items-end justify-between">
+                    <span>
+                      <small className="block text-xs text-muted-foreground">
+                        Conversion
+                      </small>
+                      <b className="text-lg">{conversion as string}</b>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => toast.info(`${title} opened`)}
+                      className="grid size-8 place-items-center rounded-lg bg-muted text-primary transition hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <ArrowUpRight className="size-4" />
+                    </button>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         </Card>
-
         <Card
-          className="xl:col-span-5"
-          title="Conversion ladder"
-          description="The journey from attention to revenue"
+          className="xl:col-span-4"
+          title="Budget guardrail"
+          description="$42K approved media plan"
+          action={<Badge tone="warning">82% used</Badge>}
         >
           <ApexChart
-            type="bar"
-            height={255}
-            options={conversionChart}
-            series={[
-              {
-                name: "Conversion",
-                data: [100, 62, 27, 11, 4],
-              },
-            ]}
+            type="donut"
+            height={200}
+            options={budgetChart}
+            series={[14800, 9300, 6400, 4100]}
           />
+          <div className="mt-2 flex items-center justify-between rounded-xl bg-warning/10 p-3 text-xs">
+            <span className="flex items-center gap-2 font-medium text-warning">
+              <Flame className="size-4" /> Paid social is pacing high
+            </span>
+            <b>$2.4K</b>
+          </div>
         </Card>
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
-          className="xl:col-span-4"
-          title="Audience signals"
-          description="Segments worth activating now"
+          className="xl:col-span-5"
+          title="Creative production desk"
+          description="Assets moving through the launch workflow"
+          action={<Badge tone="info">14 in motion</Badge>}
         >
           <div className="space-y-3">
             {[
               [
-                "Operations leaders",
-                "418 engaged accounts",
-                "High intent",
-                "success",
-                UsersRound,
-              ],
-              [
-                "Scaling SaaS teams",
-                "296 product-page returns",
-                "Rising",
-                "info",
-                MousePointer2,
-              ],
-              [
-                "Agency partners",
-                "18 co-sell opportunities",
+                "Launch film cut-downs",
+                "Social video",
+                "6",
                 "Review",
                 "warning",
-                Send,
               ],
-            ].map(([name, note, status, tone, Icon]) => (
+              [
+                "Enterprise landing page",
+                "Web experience",
+                "2",
+                "Build",
+                "primary",
+              ],
+              [
+                "Customer proof carousel",
+                "Paid social",
+                "4",
+                "Ready",
+                "success",
+              ],
+              ["Partner email kit", "Lifecycle", "2", "Brief", "info"],
+            ].map(([name, format, count, state, tone]) => (
               <button
                 type="button"
-                key={name as string}
-                onClick={() => toast.info(`${name} audience opened`)}
-                className="flex w-full items-center gap-3 rounded-xl border p-3 text-start transition hover:border-primary/30"
+                key={name}
+                onClick={() => toast.info(`${name} opened`)}
+                className="flex w-full items-center gap-3 rounded-xl border border-border p-3 text-left transition hover:border-primary/35 hover:bg-muted/25"
               >
-                <span className="grid size-9 place-items-center rounded-lg bg-muted text-primary">
-                  <Icon className="size-4" />
+                <span className="grid size-9 place-items-center rounded-xl bg-muted text-primary">
+                  <Layers3 className="size-4" />
                 </span>
-
                 <span className="min-w-0 flex-1">
                   <b className="block text-sm">{name}</b>
-                  <small className="block truncate text-xs text-muted-foreground">
-                    {note}
+                  <small className="text-xs text-muted-foreground">
+                    {format} · {count} assets
                   </small>
                 </span>
-
-                <Badge tone={tone as "success" | "info" | "warning"}>
-                  {status}
+                <Badge
+                  tone={tone as "primary" | "success" | "warning" | "info"}
+                >
+                  {state}
                 </Badge>
               </button>
             ))}
           </div>
         </Card>
-
         <Card
           className="xl:col-span-4"
-          title="Content pulse"
-          description="Assets moving prospects forward"
+          title="Market coverage"
+          description="Demand concentration by territory"
         >
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
             {[
-              ["2026 workflow benchmark", "1,284 views", 82],
-              ["Campaign planning template", "764 downloads", 67],
-              ["Operations maturity webinar", "413 registrations", 54],
-            ].map(([title, reach, score]) => (
-              <div key={title as string}>
-                <div className="flex justify-between gap-3 text-sm">
-                  <span className="font-medium">{title}</span>
-                  <b>{score}%</b>
-                </div>
-
-                <p className="mt-1 text-xs text-muted-foreground">{reach}</p>
-
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ width: `${score}%` }}
-                  />
-                </div>
-              </div>
+              ["North America", "1,184", "High", "bg-primary"],
+              ["Europe", "746", "Rising", "bg-chart-2"],
+              ["Asia Pacific", "518", "Watch", "bg-chart-3"],
+              ["LATAM", "212", "Seed", "bg-chart-4"],
+            ].map(([region, accounts, signal, color]) => (
+              <button
+                type="button"
+                key={region}
+                onClick={() => toast.info(`${region} demand opened`)}
+                className="rounded-2xl border border-border bg-muted/15 p-4 text-left transition hover:border-primary/35"
+              >
+                <span
+                  className={(color as string) + " block size-2.5 rounded-full"}
+                />
+                <b className="mt-5 block text-sm">{region}</b>
+                <span className="mt-1 block text-lg font-semibold">
+                  {accounts}
+                </span>
+                <small className="mt-1 block text-xs text-muted-foreground">
+                  engaged accounts · {signal}
+                </small>
+              </button>
             ))}
           </div>
         </Card>
-
         <Card
-          className="xl:col-span-4"
-          title="Next marketing moments"
-          description="Important campaign checkpoints"
+          className="xl:col-span-3"
+          title="Lead routing"
+          description="Handoff readiness today"
         >
-          <ol className="space-y-4 border-s ps-4">
-            {[
-              ["Today", "Social creative approval", "Autumn product launch"],
-              ["Sep 05", "Partner briefing", "Co-marketing campaign"],
-              ["Sep 09", "Nurture sequence review", "Workflow playbook"],
-              ["Sep 12", "Attribution readout", "Growth team"],
-            ].map(([date, event, detail]) => (
-              <li key={event} className="relative">
-                <span className="absolute -start-[21px] top-1 size-2.5 rounded-full bg-primary ring-4 ring-card" />
-
-                <small className="text-xs font-semibold text-primary">
-                  {date}
-                </small>
-
-                <b className="mt-1 block text-sm">{event}</b>
-
-                <small className="text-xs text-muted-foreground">
-                  {detail}
-                </small>
-              </li>
-            ))}
-          </ol>
+          <div className="rounded-2xl bg-success/10 p-4 text-center">
+            <CheckCircle2 className="mx-auto size-7 text-success" />
+            <p className="mt-3 text-2xl font-semibold">94%</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              routed within SLA
+            </p>
+          </div>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Ready for sales</span>
+              <b>68</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Needs enrichment</span>
+              <b className="text-warning">12</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Average response</span>
+              <b>18 min</b>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => toast.info("Lead routing opened")}
+            className="mt-5 flex w-full items-center justify-between rounded-xl border border-dashed border-border p-3 text-xs font-medium transition hover:border-primary/40"
+          >
+            <span>Open routing queue</span>
+            <ArrowRight className="size-4 text-primary" />
+          </button>
         </Card>
       </div>
     </>

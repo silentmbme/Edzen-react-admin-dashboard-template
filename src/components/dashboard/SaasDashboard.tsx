@@ -1,249 +1,81 @@
-import { useMemo, useState } from "react";
-
+﻿import { useMemo, useState } from "react";
 import {
-  Activity,
+  ArrowRight,
   ArrowUpRight,
-  CreditCard,
+  Boxes,
+  CalendarDays,
+  CheckCircle2,
+  ChevronRight,
   Download,
+  Flame,
   Gauge,
+  Layers3,
   Plus,
   Rocket,
   ShieldCheck,
+  Sparkles,
+  Target,
   UsersRound,
+  Zap,
 } from "lucide-react";
-
 import { toast } from "sonner";
-
 import { ApexChart } from "@/components/charts/ApexChart";
-
 import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
-
-import { Badge, Card, Delta, PageHeader } from "./widgets";
-
+import { Badge, Card, PageHeader } from "./widgets";
 import { Button } from "@/components/ui/button";
-
-/* =====================================================
-   Customer Accounts
-===================================================== */
-
-const accounts = [
-  {
-    name: "Northstar Labs",
-    plan: "Enterprise",
-    mrr: "$8,400",
-    health: "Excellent",
-    score: 94,
-    owner: "JM",
-  },
-  {
-    name: "Cedar & Co.",
-    plan: "Growth",
-    mrr: "$3,200",
-    health: "Growing",
-    score: 82,
-    owner: "AK",
-  },
-  {
-    name: "Atlas Studio",
-    plan: "Business",
-    mrr: "$2,880",
-    health: "Watch",
-    score: 61,
-    owner: "RL",
-  },
-  {
-    name: "Kinetic Systems",
-    plan: "Enterprise",
-    mrr: "$12,400",
-    health: "Excellent",
-    score: 96,
-    owner: "SD",
-  },
-];
-
-/* =====================================================
-   Stat Component
-===================================================== */
-
-interface StatProps {
-  label: string;
-  value: string;
-  delta: number;
-  note: string;
-  icon: typeof Activity;
-  color: string;
-}
-
-function Stat({ label, value, delta, note, icon: Icon, color }: StatProps) {
-  return (
-    <div className="metric-card edzen-card p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-[12.5px] font-medium text-muted-foreground">
-            {label}
-          </p>
-
-          <p className="mt-2 text-[28px] font-semibold leading-none tracking-tight">
-            {value}
-          </p>
-        </div>
-
-        <span
-          className={`metric-icon grid size-10 place-items-center rounded-xl ${color}`}
-        >
-          <Icon className="size-[19px]" />
-        </span>
-      </div>
-
-      <div className="mt-4">
-        <Delta value={delta} caption={note} />
-      </div>
-    </div>
-  );
-}
-
-/* =====================================================
-   SaaS Dashboard
-===================================================== */
 
 export function SaasDashboard() {
   const { base } = useChartTheme();
-
-  const [period, setPeriod] = useState("This month");
-
-  const [segment, setSegment] = useState("All customers");
-
-  /* =====================================================
-     Revenue Chart
-  ===================================================== */
-
-  const revenueOptions = useMemo(
+  const [period, setPeriod] = useState("August");
+  const [activeSegment, setActiveSegment] = useState("Expansion-ready");
+  const usageChart = useMemo(
     () =>
       mergeOptions(base, {
-        chart: {
-          type: "line",
-          toolbar: {
-            show: false,
-          },
+        chart: { type: "area", toolbar: { show: false } },
+        colors: [token("--chart-1"), token("--chart-2")],
+        stroke: { curve: "smooth", width: [3, 2] },
+        fill: {
+          type: "gradient",
+          gradient: { opacityFrom: 0.28, opacityTo: 0.02 },
         },
-
-        colors: [token("--chart-1"), token("--chart-3")],
-
-        stroke: {
-          curve: "smooth",
-          width: [0, 3],
-        },
-
-        plotOptions: {
-          bar: {
-            columnWidth: "48%",
-            borderRadius: 6,
-          },
-        },
-
-        fill: { opacity: 0.18, type: ["solid", "solid"] },
-
-        dataLabels: {
-          enabled: false,
-        },
-
+        dataLabels: { enabled: false },
+        legend: { position: "top", horizontalAlign: "left" },
         xaxis: {
-          categories: ["Mar", "Apr", "May", "Jun", "Jul", "Aug"],
+          categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
         },
-
-        yaxis: {
-          labels: {
-            formatter: (value: number) => `$${value}K`,
-          },
-        },
-
-        tooltip: {
-          y: {
-            formatter: (value: number) => `$${value.toFixed(1)}K`,
-          },
-        },
-
-        grid: {
-          borderColor: token("--border"),
-          strokeDashArray: 4,
-        },
-
-        legend: {
-          position: "top",
-          horizontalAlign: "right",
-          fontSize: "12px",
-        },
+        grid: { borderColor: token("--border"), strokeDashArray: 4 },
       }),
     [base],
   );
-
-  /* =====================================================
-     Retention Cohort Heatmap
-  ===================================================== */
-
-  const cohortOptions = useMemo(
+  const retentionChart = useMemo(
     () =>
       mergeOptions(base, {
-        chart: {
-          type: "heatmap",
-          toolbar: {
-            show: false,
-          },
-        },
-
-        dataLabels: {
-          enabled: false,
-        },
-
-        colors: [token("--chart-1")],
-
+        chart: { type: "radialBar", toolbar: { show: false } },
+        colors: [
+          token("--chart-1"),
+          token("--chart-2"),
+          token("--chart-3"),
+          token("--chart-4"),
+        ],
+        labels: ["Enterprise", "Growth", "Business", "Starter"],
         plotOptions: {
-          heatmap: {
-            shadeIntensity: 0.42,
-            radius: 4,
-
-            colorScale: {
-              ranges: [
-                {
-                  from: 0,
-                  to: 60,
-                  color: token("--muted"),
-                },
-                {
-                  from: 61,
-                  to: 80,
-                  color: token("--chart-2"),
-                },
-                {
-                  from: 81,
-                  to: 100,
-                  color: token("--chart-1"),
-                },
-              ],
+          radialBar: {
+            hollow: { size: "32%" },
+            dataLabels: {
+              total: { show: true, label: "NRR", formatter: () => "116.8%" },
             },
           },
         },
-
-        xaxis: {
-          categories: ["Month 0", "M1", "M2", "M3", "M4", "M5"],
-        },
-
-        legend: {
-          show: false,
-        },
+        legend: { position: "bottom" },
       }),
     [base],
   );
 
   return (
     <>
-      {/* =================================================
-          Page Header
-      ================================================= */}
-
       <PageHeader
-        title="SaaS growth center"
-        subtitle="Recurring revenue, customer health and product adoption in one operating view."
+        title="SaaS"
+        subtitle="A product-led operating view of usage, expansion, and customer momentum."
         breadcrumb={["Edzen", "Dashboards", "SaaS"]}
         actions={
           <>
@@ -251,433 +83,591 @@ export function SaasDashboard() {
               aria-label="Reporting period"
               value={period}
               onChange={(event) => setPeriod(event.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
             >
-              <option>This month</option>
-
-              <option>Last quarter</option>
-
-              <option>Year to date</option>
+              <option>August</option>
+              <option>July</option>
+              <option>Quarter to date</option>
             </select>
-
             <Button
               variant="outline"
               size="sm"
-              onClick={() => toast.success("Revenue report exported")}
+              onClick={() => toast.success("Growth report exported")}
             >
-              <Download />
-              Export
+              <Download /> Export
             </Button>
-
             <Button
               size="sm"
-              onClick={() => toast.success("Customer invite ready")}
+              onClick={() => toast.success("Workspace invite created")}
             >
-              <Plus />
-              Invite customer
+              <Plus /> Invite customer
             </Button>
           </>
         }
       />
 
-      {/* =================================================
-          KPI Cards
-      ================================================= */}
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Stat
-          label="Monthly recurring revenue"
-          value="$184.6K"
-          delta={9.4}
-          note="net growth this month"
-          icon={CreditCard}
-          color="bg-primary/12 text-primary"
-        />
-
-        <Stat
-          label="Net revenue retention"
-          value="116.8%"
-          delta={4.2}
-          note="above 110% target"
-          icon={ArrowUpRight}
-          color="bg-success/14 text-success"
-        />
-
-        <Stat
-          label="Active subscriptions"
-          value="8,462"
-          delta={6.8}
-          note="258 net new accounts"
-          icon={UsersRound}
-          color="bg-info/14 text-info"
-        />
-
-        <Stat
-          label="Account health score"
-          value="88.4"
-          delta={2.1}
-          note="portfolio average"
-          icon={Gauge}
-          color="bg-warning/16 text-warning"
-        />
-      </div>
-
-      {/* =================================================
-          MRR Movement + Forecast
-      ================================================= */}
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-12">
-        {/* MRR Movement */}
-
+      <div className="grid gap-4 xl:grid-cols-12">
         <Card
-          className="xl:col-span-8"
-          title="MRR movement"
-          description={`${period}  expansion is offsetting churn`}
-          action={
-            <Badge variant="dot" tone="success">
-              Forecast on track
-            </Badge>
-          }
+          className="xl:col-span-7"
+          title="Feature adoption control"
+          description="Which product behaviors create the next expansion signal"
+          action={<Badge tone="primary">42 opportunities</Badge>}
         >
-          <div className="grid gap-3 sm:grid-cols-4">
-            {[
-              ["Starting MRR", "$161.3K", "neutral"],
-              ["New business", "+$18.4K", "success"],
-              ["Expansion", "+$12.9K", "success"],
-              ["Churn & contraction", "-$8.0K", "danger"],
-            ].map(([label, value, tone]) => (
-              <div
-                key={label}
-                className="rounded-xl border bg-background/60 p-3"
-              >
-                <p className="text-[11px] text-muted-foreground">{label}</p>
-
-                <p
-                  className={`mt-1 text-lg font-semibold ${
-                    tone === "success"
-                      ? "text-success"
-                      : tone === "danger"
-                        ? "text-destructive"
-                        : ""
-                  }`}
-                >
-                  {value}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5">
-            <ApexChart
-              type="line"
-              height={290}
-              options={revenueOptions}
-              series={[
-                {
-                  name: "MRR",
-                  type: "column",
-                  data: [131, 141, 148, 158, 169, 184.6],
-                },
-                {
-                  name: "MRR target",
-                  type: "area",
-                  data: [132, 140, 149, 160, 171, 184],
-                },
-              ]}
-            />
-          </div>
-        </Card>
-
-        {/* Growth Forecast */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Growth forecast"
-          description="Expected month-end outcome"
-        >
-          <div className="reference-hero rounded-2xl bg-primary p-5 text-primary-foreground">
-            <p className="text-xs font-medium text-primary-foreground/70">
-              Projected MRR
-            </p>
-
-            <p className="mt-2 text-3xl font-semibold">$197.2K</p>
-
-            <p className="mt-2 text-sm text-primary-foreground/80">
-              106.8% of August target
-            </p>
-
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white/20">
-              <div className="h-full w-[86%] rounded-full bg-white" />
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-xl border p-3">
-              <p className="text-xs text-muted-foreground">
-                Expansion pipeline
+          <div className="grid gap-3 md:grid-cols-[.9fr_1.1fr]">
+            <div className="rounded-2xl bg-primary p-5 text-primary-foreground">
+              <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-primary-foreground/70">
+                <Zap className="size-4" /> Highest-impact behavior
+              </span>
+              <h2 className="mt-5 text-2xl font-semibold text-white">
+                Automation usage
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-primary-foreground/75">
+                Accounts with five or more live automations retain 18 points
+                better and expand 2.1× faster.
               </p>
-
-              <b className="mt-1 block text-lg">$28.4K</b>
+              <button
+                type="button"
+                onClick={() => setActiveSegment("Automation power users")}
+                className="mt-6 rounded-xl bg-primary-foreground/15 px-3 py-2 text-xs font-semibold hover:bg-primary-foreground/20"
+              >
+                View power users
+              </button>
             </div>
-
-            <div className="rounded-xl border p-3">
-              <p className="text-xs text-muted-foreground">At-risk MRR</p>
-
-              <b className="mt-1 block text-lg text-warning">$7.9K</b>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                ["Workflow builder", "72%", "4,982 teams", "bg-chart-1", Boxes],
+                ["Automation rules", "63%", "3,844 teams", "bg-chart-2", Zap],
+                [
+                  "Team invites",
+                  "83%",
+                  "5,371 teams",
+                  "bg-chart-3",
+                  UsersRound,
+                ],
+                ["Reports", "48%", "2,941 teams", "bg-chart-4", Gauge],
+              ].map(([feature, rate, teams, color, Icon]) => (
+                <button
+                  type="button"
+                  key={feature as string}
+                  onClick={() => setActiveSegment(feature as string)}
+                  className="rounded-2xl border border-border p-4 text-left transition hover:border-primary/35"
+                >
+                  <span
+                    className={
+                      (color as string) +
+                      " grid size-9 place-items-center rounded-xl text-primary-foreground shadow-sm"
+                    }
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <b className="mt-5 block text-xl">{rate as string}</b>
+                  <span className="mt-1 block text-xs font-medium">
+                    {feature as string}
+                  </span>
+                  <small className="mt-1 block text-[11px] text-muted-foreground">
+                    {teams as string}
+                  </small>
+                </button>
+              ))}
             </div>
           </div>
-
-          <Button
-            variant="outline"
-            className="mt-4 w-full"
-            size="sm"
-            onClick={() => toast.info("Forecast assumptions opened")}
-          >
-            <Rocket />
-            Review forecast
-          </Button>
-        </Card>
-      </div>
-
-      {/* =================================================
-          Customer Portfolio + Activation
-      ================================================= */}
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-12">
-        {/* Customer Portfolio */}
-
-        <Card
-          className="xl:col-span-7"
-          title="Customer portfolio"
-          description="Accounts that need attention and accounts ready to grow"
-          bodyClassName="p-0"
-          action={
-            <select
-              aria-label="Customer segment"
-              value={segment}
-              onChange={(event) => setSegment(event.target.value)}
-              className="h-8 rounded-md border bg-background px-2 text-xs"
-            >
-              <option>All customers</option>
-
-              <option>Enterprise</option>
-
-              <option>Growth</option>
-
-              <option>At risk</option>
-            </select>
-          }
-        >
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[610px] text-start text-sm">
-              <thead className="border-b bg-muted/40 text-[11px] uppercase tracking-wide text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-3">Account</th>
-
-                  <th className="px-3 py-3">Plan</th>
-
-                  <th className="px-3 py-3">MRR</th>
-
-                  <th className="px-3 py-3">Health</th>
-
-                  <th className="px-5 py-3 text-end">Owner</th>
-                </tr>
-              </thead>
-
-              <tbody className="divide-y divide-border">
-                {accounts.map((account) => (
-                  <tr key={account.name} className="hover:bg-muted/35">
-                    <td className="px-5 py-3.5">
-                      <b>{account.name}</b>
-
-                      <small className="mt-0.5 block text-xs text-muted-foreground">
-                        Last active today
-                      </small>
-                    </td>
-
-                    <td className="px-3 py-3.5">
-                      <Badge
-                        tone={
-                          account.plan === "Enterprise" ? "primary" : "info"
-                        }
-                      >
-                        {account.plan}
-                      </Badge>
-                    </td>
-
-                    <td className="px-3 py-3.5 font-semibold">{account.mrr}</td>
-
-                    <td className="px-3 py-3.5">
-                      <Badge
-                        variant="dot"
-                        tone={
-                          account.health === "Watch" ? "warning" : "success"
-                        }
-                      >
-                        {account.health}
-                        {"  "}
-                        {account.score}
-                      </Badge>
-                    </td>
-
-                    <td className="px-5 py-3.5 text-end">
-                      <span className="inline-grid size-8 place-items-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
-                        {account.owner}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-4 flex items-center justify-between rounded-xl border border-border px-3 py-2.5 text-xs">
+            <span className="text-muted-foreground">Active segment</span>
+            <b className="text-primary">{activeSegment}</b>
           </div>
         </Card>
-
-        {/* Activation Journey */}
-
         <Card
           className="xl:col-span-5"
-          title="Activation journey"
-          description="New workspace progress over the last 30 days"
+          title="Revenue cockpit"
+          description="Monthly recurring revenue changes at a glance"
+          action={<Badge tone="success">+$23.3K net</Badge>}
         >
-          <div className="space-y-4">
-            {[
-              ["Trial created", "1,284", "100%", "bg-primary"],
-              ["Team invited", "1,068", "83%", "bg-info"],
-              ["First workflow", "864", "67%", "bg-success"],
-              ["Core feature adopted", "618", "48%", "bg-warning"],
-              ["Converted to paid", "509", "40%", "bg-chart-3"],
-            ].map(([label, count, width, color]) => (
-              <div key={label} className="flex items-center gap-3">
-                <span className={`size-2.5 rounded-full ${color}`} />
-
-                <div className="flex-1">
-                  <div className="flex justify-between text-sm">
-                    <b>{label}</b>
-
-                    <span className="text-muted-foreground">{width}</span>
-                  </div>
-
-                  <div className="mt-2 h-1.5 rounded-full bg-muted">
-                    <div
-                      className={`h-full rounded-full ${color}`}
-                      style={{
-                        width,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <b className="w-10 text-end text-sm">{count}</b>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5 rounded-xl border border-success/25 bg-success/8 p-3 text-sm">
-            <b className="text-success">Activation insight</b>
-
-            <p className="mt-1 text-muted-foreground">
-              Teams that invite 3+ members in week one convert 2.4 more often.
+          <div className="rounded-2xl border border-border bg-muted/20 p-4">
+            <p className="text-xs text-muted-foreground">Closing MRR</p>
+            <p className="mt-1 text-4xl font-semibold tracking-tight">
+              $184.6K
+            </p>
+            <p className="mt-2 text-xs font-medium text-success">
+              Up 9.4% from the previous month
             </p>
           </div>
-        </Card>
-      </div>
-
-      {/* =================================================
-          Retention + Product Health
-      ================================================= */}
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-12">
-        {/* Retention Cohorts */}
-
-        <Card
-          className="xl:col-span-7"
-          title="Retention cohorts"
-          description="Percentage of customers active after joining"
-        >
-          <ApexChart
-            type="heatmap"
-            height={265}
-            options={cohortOptions}
-            series={[
-              {
-                name: "Mar cohort",
-                data: [100, 94, 90, 88, 87, 86],
-              },
-              {
-                name: "Apr cohort",
-                data: [100, 93, 89, 87, 85, 0],
-              },
-              {
-                name: "May cohort",
-                data: [100, 95, 91, 89, 0, 0],
-              },
-              {
-                name: "Jun cohort",
-                data: [100, 94, 92, 0, 0, 0],
-              },
-              {
-                name: "Jul cohort",
-                data: [100, 96, 0, 0, 0, 0],
-              },
-            ]}
-          />
-        </Card>
-
-        {/* Product Health */}
-
-        <Card
-          className="xl:col-span-5"
-          title="Product health"
-          description="Signals from the active customer base"
-        >
-          <div className="grid grid-cols-2 gap-3">
+          <div className="mt-4 space-y-2">
             {[
-              ["Weekly active teams", "4,982", "+11.2%", "success"],
-              ["Feature adoption", "72.4%", "+5.1 pts", "success"],
-              ["Support response", "8 min", "within SLA", "info"],
-              ["Open incidents", "2", "being resolved", "warning"],
-            ].map(([label, value, detail, tone]) => (
-              <div key={label} className="rounded-xl border p-4">
-                <p className="text-xs text-muted-foreground">{label}</p>
-
-                <b className="mt-2 block text-xl">{value}</b>
-
-                <small
+              ["New business", "+$18.4K", "bg-chart-1"],
+              ["Expansion", "+$12.9K", "bg-chart-2"],
+              ["Contraction", "-$3.2K", "bg-chart-3"],
+              ["Churn", "-$4.8K", "bg-chart-4"],
+            ].map(([label, value, color]) => (
+              <div
+                key={label as string}
+                className="flex items-center gap-3 rounded-xl border border-border px-3 py-2.5 text-sm"
+              >
+                <span
+                  className={(color as string) + " size-2.5 rounded-full"}
+                />
+                <span className="flex-1">{label as string}</span>
+                <b
                   className={
-                    tone === "success"
+                    (value as string).startsWith("+")
                       ? "text-success"
-                      : tone === "warning"
-                        ? "text-warning"
-                        : "text-info"
+                      : "text-destructive"
                   }
                 >
-                  {detail}
-                </small>
+                  {value as string}
+                </b>
               </div>
             ))}
           </div>
+        </Card>
+      </div>
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-7"
+          title="Workspace pulse"
+          description={`${period} active seats and automation runs`}
+          action={<Badge tone="success">+11.2% weekly</Badge>}
+        >
+          <ApexChart
+            type="area"
+            height={285}
+            options={usageChart}
+            series={[
+              { name: "Active seats", data: [42, 48, 51, 55, 59, 47, 53] },
+              { name: "Automation runs", data: [27, 31, 35, 39, 43, 34, 41] },
+            ]}
+          />
+          <div className="grid grid-cols-3 border-t border-border pt-4 text-xs">
+            <span>
+              <b className="block text-sm">4,982</b>
+              <small className="text-muted-foreground">
+                weekly active teams
+              </small>
+            </span>
+            <span>
+              <b className="block text-sm">72.4%</b>
+              <small className="text-muted-foreground">
+                core-feature adoption
+              </small>
+            </span>
+            <span>
+              <b className="block text-sm">18 min</b>
+              <small className="text-muted-foreground">
+                time to first value
+              </small>
+            </span>
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-5"
+          title="Expansion radar"
+          description="Accounts earning a proactive growth motion"
+        >
+          <div className="space-y-3">
+            {[
+              [
+                "Northstar Labs",
+                "Enterprise · $8.4K MRR",
+                "94",
+                "Automation use up 34%",
+                "success",
+              ],
+              [
+                "Cedar & Co.",
+                "Growth · $3.2K MRR",
+                "82",
+                "Seat limit reached",
+                "primary",
+              ],
+              [
+                "Atlas Studio",
+                "Business · $2.8K MRR",
+                "61",
+                "Usage needs attention",
+                "warning",
+              ],
+            ].map(([name, detail, score, reason, tone]) => (
+              <button
+                type="button"
+                key={name as string}
+                onClick={() => toast.info(`${name} account opened`)}
+                className="flex w-full items-center gap-3 rounded-xl border border-border p-3 text-left transition hover:border-primary/35"
+              >
+                <span
+                  className={
+                    (tone === "success"
+                      ? "bg-success/10 text-success"
+                      : tone === "warning"
+                        ? "bg-warning/10 text-warning"
+                        : "bg-primary/10 text-primary") +
+                    " grid size-10 place-items-center rounded-xl font-semibold"
+                  }
+                >
+                  {score}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <b className="block text-sm">{name as string}</b>
+                  <small className="block text-xs text-muted-foreground">
+                    {detail as string}
+                  </small>
+                  <small className="mt-1 block text-xs text-primary">
+                    {reason as string}
+                  </small>
+                </span>
+                <ArrowRight className="size-4 text-muted-foreground" />
+              </button>
+            ))}
+          </div>
+        </Card>
+      </div>
 
-          {/* Platform Status */}
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-4"
+          title="Activation map"
+          description="Where new workspaces are stalling"
+        >
+          <div className="space-y-2">
+            {[
+              ["Workspace created", "1,284", "100%", "bg-chart-1"],
+              ["Team invited", "1,068", "83%", "bg-chart-2"],
+              ["First workflow", "864", "67%", "bg-chart-3"],
+              ["Automation live", "618", "48%", "bg-chart-4"],
+              ["Paid conversion", "509", "40%", "bg-success"],
+            ].map(([label, value, rate, color]) => (
+              <div
+                key={label as string}
+                className="flex items-center gap-3 rounded-xl bg-muted/25 p-2.5"
+              >
+                <span
+                  className={(color as string) + " size-2.5 rounded-full"}
+                />
+                <span className="flex-1 text-xs">{label as string}</span>
+                <b className="text-xs">{value as string}</b>
+                <span className="w-9 text-right text-xs text-muted-foreground">
+                  {rate as string}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-xl bg-warning/10 p-3 text-xs text-warning">
+            <Flame className="me-2 inline size-4" />
+            Member invitation is the biggest conversion lever.
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-5"
+          title="Retention by plan"
+          description="Net retention across customer segments"
+        >
+          <ApexChart
+            type="radialBar"
+            height={270}
+            options={retentionChart}
+            series={[124, 116, 108, 96]}
+          />
+        </Card>
+        <Card
+          className="xl:col-span-3"
+          title="Release adoption"
+          description="Automation Studio v2"
+        >
+          <div className="rounded-2xl bg-chart-2/10 p-4">
+            <Boxes className="size-6 text-chart-2" />
+            <p className="mt-5 text-3xl font-semibold">63%</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              eligible teams activated
+            </p>
+          </div>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Launched</span>
+              <b>Aug 16</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">New automations</span>
+              <b>1,842</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">NPS impact</span>
+              <b className="text-success">+6 pts</b>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => toast.info("Release detail opened")}
+            className="mt-5 flex w-full items-center justify-between rounded-xl border border-dashed border-border p-3 text-xs font-medium"
+          >
+            View release detail <ArrowUpRight className="size-4 text-primary" />
+          </button>
+        </Card>
+      </div>
 
-          <div className="mt-4 flex items-center justify-between rounded-xl bg-muted/55 p-4">
-            <span className="flex items-center gap-3">
-              <span className="grid size-9 place-items-center rounded-lg bg-success/14 text-success">
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-8"
+          title="Customer signal stream"
+          description="Important activity from the account portfolio"
+        >
+          <div className="divide-y divide-border">
+            {[
+              [
+                "Northstar Labs added 24 seats",
+                "Expansion signal",
+                "8 min ago",
+                "success",
+                UsersRound,
+              ],
+              [
+                "Cedar & Co. hit the workflow limit",
+                "Upgrade opportunity",
+                "42 min ago",
+                "primary",
+                Zap,
+              ],
+              [
+                "Atlas Studio adoption dipped",
+                "Success intervention",
+                "2 hr ago",
+                "warning",
+                Gauge,
+              ],
+              [
+                "Kinetic Systems renewed early",
+                "Retention win",
+                "Today",
+                "success",
+                CheckCircle2,
+              ],
+            ].map(([event, type, time, tone, Icon]) => (
+              <button
+                type="button"
+                key={event as string}
+                onClick={() => toast.info(`${event} opened`)}
+                className="flex w-full items-center gap-3 px-2 py-3 text-left transition hover:bg-muted/30"
+              >
+                <span
+                  className={
+                    (tone === "success"
+                      ? "bg-success/10 text-success"
+                      : tone === "warning"
+                        ? "bg-warning/10 text-warning"
+                        : "bg-primary/10 text-primary") +
+                    " grid size-9 place-items-center rounded-xl"
+                  }
+                >
+                  <Icon className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <b className="block text-sm">{event as string}</b>
+                  <small className="text-xs text-muted-foreground">
+                    {type as string}
+                  </small>
+                </span>
+                <small className="text-xs text-muted-foreground">
+                  {time as string}
+                </small>
+              </button>
+            ))}
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-4"
+          title="Operator calendar"
+          description="Upcoming customer moments"
+        >
+          <div className="space-y-3">
+            {[
+              ["Today", "Renewal review", "Northstar Labs"],
+              ["Aug 28", "Office hours", "Automation Studio"],
+              ["Sep 01", "QBR prep", "Kinetic Systems"],
+            ].map(([date, event, account]) => (
+              <button
+                type="button"
+                key={event as string}
+                onClick={() => toast.info(`${event} opened`)}
+                className="flex w-full items-center gap-3 rounded-xl border border-border p-3 text-left"
+              >
+                <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <CalendarDays className="size-4" />
+                </span>
+                <span>
+                  <small className="text-xs font-semibold text-primary">
+                    {date as string}
+                  </small>
+                  <b className="block text-sm">{event as string}</b>
+                  <small className="text-xs text-muted-foreground">
+                    {account as string}
+                  </small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-4"
+          title="Support load"
+          description="Customer effort and product friction"
+          action={<Badge tone="success">SLA protected</Badge>}
+        >
+          <div className="rounded-2xl border border-border bg-muted/20 p-4">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Customer effort score
+                </p>
+                <p className="mt-1 text-3xl font-semibold">
+                  4.7<span className="text-sm text-muted-foreground">/5</span>
+                </p>
+              </div>
+              <span className="grid size-11 place-items-center rounded-2xl bg-success/10 text-success">
                 <ShieldCheck className="size-5" />
               </span>
-
-              <span>
-                <b className="block text-sm">Platform status</b>
-
-                <small className="text-xs text-muted-foreground">
-                  All core systems operational
-                </small>
-              </span>
-            </span>
-
-            <Badge tone="success" variant="dot">
-              99.99%
-            </Badge>
+            </div>
+            <p className="mt-3 text-xs text-success">
+              Response time is 34% faster than the service target.
+            </p>
           </div>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="rounded-xl border border-border p-2.5">
+              <b className="block text-base">42</b>
+              <span className="text-muted-foreground">open</span>
+            </div>
+            <div className="rounded-xl border border-warning/25 bg-warning/5 p-2.5">
+              <b className="block text-base text-warning">6</b>
+              <span className="text-muted-foreground">triage</span>
+            </div>
+            <div className="rounded-xl border border-destructive/25 bg-destructive/5 p-2.5">
+              <b className="block text-base text-destructive">2</b>
+              <span className="text-muted-foreground">escalated</span>
+            </div>
+          </div>
+          <div className="mt-4 space-y-2">
+            {[
+              ["Billing questions", "14 tickets", "bg-chart-1"],
+              ["Automation setup", "11 tickets", "bg-chart-2"],
+              ["Integrations", "9 tickets", "bg-chart-3"],
+            ].map(([topic, count, color]) => (
+              <div
+                key={topic as string}
+                className="flex items-center gap-2 text-xs"
+              >
+                <span className={(color as string) + " size-2 rounded-full"} />
+                <span className="flex-1">{topic as string}</span>
+                <b>{count as string}</b>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => toast.info("Support queue opened")}
+            className="mt-4 flex w-full items-center justify-between rounded-xl border border-dashed border-border p-3 text-xs font-medium"
+          >
+            Open support queue <ArrowRight className="size-4 text-primary" />
+          </button>
+        </Card>
+        <Card
+          className="xl:col-span-5"
+          title="Renewal windows"
+          description="Accounts approaching a commercial moment"
+          action={<Badge tone="primary">$23.6K in view</Badge>}
+        >
+          <div className="mb-4 flex items-center justify-between rounded-xl bg-primary/5 p-3 text-xs">
+            <span className="text-muted-foreground">Next 30 days forecast</span>
+            <b className="text-primary">92% expected to renew</b>
+          </div>
+          <div className="relative space-y-3 before:absolute before:bottom-4 before:start-4 before:top-4 before:w-px before:bg-border">
+            {[
+              [
+                "Northstar Labs",
+                "Sep 03",
+                "$8.4K",
+                "High confidence",
+                "success",
+              ],
+              ["Atlas Studio", "Sep 11", "$2.8K", "Needs plan", "warning"],
+              [
+                "Kinetic Systems",
+                "Sep 19",
+                "$12.4K",
+                "Early renewal",
+                "primary",
+              ],
+            ].map(([account, date, mrr, note, tone]) => (
+              <button
+                type="button"
+                key={account as string}
+                onClick={() => toast.info(`${account} renewal opened`)}
+                className="relative flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:border-primary/35"
+              >
+                <span className="z-10 grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                  <CalendarDays className="size-4" />
+                </span>
+                <span className="flex-1">
+                  <b className="block text-sm">{account as string}</b>
+                  <small className="text-xs text-muted-foreground">
+                    {date as string} · {note as string}
+                  </small>
+                </span>
+                <b>{mrr as string}</b>
+                <span
+                  className={
+                    tone === "success"
+                      ? "size-2.5 rounded-full bg-success"
+                      : tone === "warning"
+                        ? "size-2.5 rounded-full bg-warning"
+                        : "size-2.5 rounded-full bg-primary"
+                  }
+                />
+              </button>
+            ))}
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-3"
+          title="Feedback pulse"
+          description="Voice of customer this week"
+          action={<Badge tone="success">+4 pts</Badge>}
+        >
+          <div className="rounded-2xl bg-chart-3/10 p-4">
+            <div className="flex items-center justify-between">
+              <span className="grid size-10 place-items-center rounded-xl bg-card text-chart-3 shadow-sm">
+                <Sparkles className="size-5" />
+              </span>
+              <span className="text-xs font-semibold text-success">
+                Healthy signal
+              </span>
+            </div>
+            <p className="mt-5 text-3xl font-semibold">48</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              new product responses
+            </p>
+          </div>
+          <div className="mt-4 space-y-3 text-xs">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Top request</span>
+              <b>More integrations</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Product sentiment</span>
+              <b className="text-success">4.6 / 5</b>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">
+                Advocates identified
+              </span>
+              <b>17</b>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => toast.info("Feedback inbox opened")}
+            className="mt-5 flex w-full items-center justify-between rounded-xl border border-dashed border-border p-3 text-xs font-medium transition hover:border-primary/40"
+          >
+            Open feedback inbox <ArrowRight className="size-4 text-primary" />
+          </button>
         </Card>
       </div>
     </>

@@ -2,12 +2,26 @@
   path = require("node:path"),
   os = require("node:os");
 const { spawnSync } = require("node:child_process");
-const folder = path.resolve("landing/edzen-landingpage"),
+const folder = path.resolve("public/landing"),
   base = process.env.DASHBOARD_PREVIEW_URL || "http://localhost:3000";
 const chrome =
   process.env.CHROME_PATH ||
   "C:/Program Files/Google/Chrome/Application/chrome.exe";
 const entries = [
+  { title: "Email", route: "/apps/email", filename: "app-email.png" },
+  { title: "Chat", route: "/apps/chat", filename: "app-chat.png" },
+  {
+    title: "Calendar",
+    route: "/apps/calendar",
+    filename: "app-calendar.png",
+  },
+  { title: "Tasks", route: "/apps/tasks", filename: "app-tasks.png" },
+  { title: "Kanban", route: "/apps/kanban", filename: "app-kanban.png" },
+  {
+    title: "File Manager",
+    route: "/apps/files",
+    filename: "app-files.png",
+  },
   { title: "AI Chat", route: "/apps/ai-chat", filename: "app-ai-chat-v2.png" },
   { title: "Notes", route: "/apps/notes", filename: "app-notes-v2.png" },
 ];
@@ -39,7 +53,7 @@ for (const entry of entries) {
     /<a\b[^>]*class="all-dashboard-card[^\"]*"[^>]*>[\s\S]*?<\/a\s*>/g,
     (card) => {
       const href = card.match(/href="([^"]+)"/)?.[1];
-      if (!href || new URL(href).pathname !== entry.route) return card;
+      if (!href || new URL(href, base).pathname !== entry.route) return card;
       found = true;
       const description = card.match(/<div>\s*<h3>[\s\S]*$/);
       if (!description) throw Error("Missing description");

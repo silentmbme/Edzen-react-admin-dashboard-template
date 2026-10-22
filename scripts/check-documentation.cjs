@@ -4,17 +4,19 @@ const root = path.resolve(__dirname, "..");
 let checks = 0;
 const errors = [];
 function readRoutes(dir) {
-  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory()
-      ? readRoutes(path.join(dir, entry.name))
-      : entry.name.endsWith(".tsx")
-        ? [
-            ...fs
-              .readFileSync(path.join(dir, entry.name), "utf8")
-              .matchAll(/createFileRoute\(\s*["']([^"']+)["']\s*\)/g),
-          ].map((match) => match[1])
-        : [],
-  );
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .flatMap((entry) =>
+      entry.isDirectory()
+        ? readRoutes(path.join(dir, entry.name))
+        : entry.name.endsWith(".tsx")
+          ? [
+              ...fs
+                .readFileSync(path.join(dir, entry.name), "utf8")
+                .matchAll(/createFileRoute\(\s*["']([^"']+)["']\s*\)/g),
+            ].map((match) => match[1])
+          : [],
+    );
 }
 const routes = new Set(readRoutes(path.join(root, "src/routes")));
 for (const folder of ["public/documentation"]) {
@@ -50,6 +52,18 @@ for (const folder of ["public/documentation", "public/landing"]) {
       errors.push(`${folder}/${name}: contains retired hosted preview URL`);
   }
 }
+const documentationIndex = fs.readFileSync(
+  path.join(root, "public/documentation", "index.html"),
+  "utf8",
+);
+if (!documentationIndex.includes("data-live-preview"))
+  errors.push("public/documentation/index.html: missing live preview resolver");
+if (
+  !fs
+    .readFileSync(path.join(root, "public/documentation", "js/main.js"), "utf8")
+    .includes("[data-live-preview]")
+)
+  errors.push("public/documentation/js/main.js: missing live preview fallback");
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exitCode = 1;

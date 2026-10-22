@@ -52,6 +52,16 @@ assert.equal(
 );
 assert.equal((html.match(/class="management-feature"/g) || []).length, 6);
 assert.ok(html.includes("<strong>167</strong><span>Routes</span>"));
+assert.equal(
+  (html.match(/data-live-preview/g) || []).length,
+  2,
+  "Expected both live preview links to use the local-preview resolver",
+);
+assert.match(
+  fs.readFileSync(path.join(folder, "js/main.js"), "utf8"),
+  /\[data-live-preview\]/,
+  "Landing script must resolve live preview links outside a web server",
+);
 assert.ok(
   !html.includes("edzen.adminsmpixelcraft.workers.dev"),
   "Landing page must not link to the retired hosted preview domain",

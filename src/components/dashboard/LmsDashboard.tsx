@@ -1,11 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent } from "react";
 import {
-  Award,
   BookOpen,
   CalendarDays,
   Check,
   ChevronRight,
-  CircleDollarSign,
   Clock3,
   Code2,
   GraduationCap,
@@ -18,9 +16,10 @@ import {
   TrendingUp,
   UsersRound,
   Download,
+  CircleDollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
-import { ApexChart } from "@/components/charts/ApexChart";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,14 +37,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
 import {
   LMS_CATEGORIES,
   LMS_COURSES,
@@ -57,9 +49,34 @@ import {
   type LmsCourse,
 } from "@/data/lms-dashboard-data";
 import { getUserImage } from "@/lib/user-images";
-import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
-import { Badge, Card, PageHeader } from "./widgets";
 
+import { Badge, Card, PageHeader } from "./widgets";
+import { LmsAdvancedWidgets } from "./LmsAdvancedWidgets";
+
+const lmsField =
+  "h-9 max-w-full cursor-pointer rounded-md border border-border bg-card px-3 text-xs";
+const lmsAccents = [
+  {
+    bg: "bg-[var(--chart-1)]",
+    text: "text-[var(--chart-1)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-1)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-2)]",
+    text: "text-[var(--chart-2)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-2)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-3)]",
+    text: "text-[var(--chart-3)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-3)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-4)]",
+    text: "text-[var(--chart-4)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-4)_10%,transparent)]",
+  },
+];
 function CategoryIcon({
   category,
   className = "size-6",
@@ -76,36 +93,6 @@ function CategoryIcon({
           ? Layers3
           : TrendingUp;
   return <Icon className={className} />;
-}
-function Metric({
-  label,
-  value,
-  icon,
-  tone,
-  note,
-}: {
-  label: string;
-  value: string;
-  icon: ReactNode;
-  tone: string;
-  note: string;
-}) {
-  return (
-    <section className="metric-card edzen-card p-5">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <span
-          className={`metric-icon grid size-10 place-items-center rounded-xl ${tone}`}
-        >
-          {icon}
-        </span>
-      </div>
-      <p className="mt-2 text-[28px] font-semibold tracking-tight tabular-nums">
-        {value}
-      </p>
-      <p className="mt-3 text-xs text-muted-foreground">{note}</p>
-    </section>
-  );
 }
 export function LmsDashboard() {
   const [courses, setCourses] = useState(LMS_COURSES);
@@ -125,7 +112,7 @@ export function LmsDashboard() {
   const [selectedSession, setSelectedSession] = useState<
     (typeof LMS_SESSIONS)[number] | null
   >(null);
-  const { base } = useChartTheme();
+
   const data = getLmsOverview(courses, period, category);
   const visibleCourses = data.selected.filter(
     (course) =>
@@ -143,63 +130,6 @@ export function LmsDashboard() {
   const instructors = LMS_INSTRUCTORS.filter((instructor) =>
     data.selected.some((course) => course.instructorId === instructor.id),
   );
-  const growthOptions = mergeOptions(base, {
-    colors: [token("--chart-1"), token("--chart-2")],
-    stroke: { curve: "smooth", width: 2 },
-    fill: { opacity: 0.18, type: "solid" },
-    xaxis: { categories: data.labels },
-    yaxis: {
-      min: 0,
-      labels: { formatter: (value: number) => Math.round(value).toString() },
-    },
-    legend: { horizontalAlign: "left", position: "top" },
-    tooltip: {
-      y: {
-        formatter: (value: number) =>
-          Math.round(value).toLocaleString("en-US") + " learners",
-      },
-    },
-  });
-  const completionOptions = mergeOptions(base, {
-    colors: [token("--success"), token("--chart-1")],
-    labels: ["Completed", "In progress"],
-    stroke: { width: 3, colors: [token("--card")] },
-    legend: { show: false },
-    dataLabels: {
-      enabled: true,
-      formatter: (value) => Number(value).toFixed(1) + "%",
-    },
-    tooltip: {
-      y: {
-        formatter: (value: number) =>
-          value.toLocaleString("en-US") + " learners",
-      },
-    },
-  });
-  const categoryOptions = mergeOptions(base, {
-    colors: [token("--chart-1")],
-    stroke: { width: 2 },
-    fill: { opacity: 0.2 },
-    markers: { size: 4 },
-    plotOptions: {
-      radar: {
-        polygons: {
-          strokeColors: token("--border"),
-          connectorColors: token("--border"),
-          fill: { colors: [token("--card"), token("--muted")] },
-        },
-      },
-    },
-    xaxis: { categories: [...LMS_CATEGORIES] },
-    yaxis: { min: 0, labels: { show: false } },
-    legend: { show: false },
-    tooltip: {
-      y: {
-        formatter: (value: number) =>
-          value.toLocaleString("en-US") + " enrollments",
-      },
-    },
-  });
   function createCourse(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const count = Number(lessons),
@@ -310,11 +240,12 @@ export function LmsDashboard() {
         breadcrumb={["Dashboards", "LMS"]}
         actions={
           <>
-            <Button variant="outline" onClick={exportReport}>
+            <Button variant="outline" size="sm" onClick={exportReport}>
               <Download className="size-4" />
               Export report
             </Button>
             <Button
+              size="sm"
               onClick={() => {
                 setCourseTitle("");
                 setFormError("");
@@ -327,508 +258,493 @@ export function LmsDashboard() {
           </>
         }
       />
-      <div className="mb-6 flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-sm">
-            <GraduationCap className="size-7" />
-          </span>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-sm font-semibold">
-                Build skills. Inspire progress.
-              </h2>
-              <Badge tone="primary" size="sm">
-                Sample data
-              </Badge>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Learning operations overview · Period ending October 9, 2026
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Select value={category} onValueChange={setCategory}>
-            <SelectTrigger
-              aria-label="Learning category"
-              className="w-[160px] bg-card"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
-              {LMS_CATEGORIES.map((name) => (
-                <SelectItem key={name} value={name}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={period}
-            onValueChange={(value) => setPeriod(value as "7" | "30")}
+      <Card bodyClassName="p-0">
+        <div className="grid lg:grid-cols-[230px_1fr]">
+          <div
+            className={`border-b border-border p-5 lg:border-b-0 lg:border-e ${lmsAccents[2]!.soft}`}
           >
-            <SelectTrigger
-              aria-label="Learning reporting period"
-              className="w-[140px] bg-card"
+            <GraduationCap className={`size-7 ${lmsAccents[2]!.text}`} />
+            <h2 className="mt-3 text-lg font-semibold">Academy overview</h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              Sample learning programs · period ending Oct 9, 2026
+            </p>
+            <select
+              aria-label="LMS reporting period"
+              className={`${lmsField} mt-4 w-full`}
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as "7" | "30")}
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric
-          label="Course enrollments"
-          value={data.enrollments.toLocaleString("en-US")}
-          icon={<UsersRound className="size-5" />}
-          tone="bg-primary/10 text-primary"
-          note={`Across the last ${period} days`}
-        />
-        <Metric
-          label="Published courses"
-          value={String(
-            data.selected.filter((course) => course.status === "Published")
-              .length,
-          )}
-          icon={<BookOpen className="size-5" />}
-          tone="bg-info/10 text-info"
-          note={`${data.selected.filter((course) => course.status === "Draft").length} draft courses in progress`}
-        />
-        <Metric
-          label="Course completions"
-          value={data.completions.toLocaleString("en-US")}
-          icon={<Award className="size-5" />}
-          tone="bg-success/10 text-success"
-          note={`${data.completionRate.toFixed(1)}% completion rate`}
-        />
-        <Metric
-          label="Sample course revenue"
-          value={lmsMoney(data.revenue)}
-          icon={<CircleDollarSign className="size-5" />}
-          tone="bg-warning/10 text-warning"
-          note={`Enrollment revenue over ${period} days`}
-        />
-      </div>
-      <div className="mb-6 grid gap-6 xl:grid-cols-3">
-        <Card
-          title="Learning journey"
-          description={`Completed and continuing learners over ${period} days`}
-          className="xl:col-span-2"
-          bodyClassName="px-3 pb-2 pt-4"
-          action={
-            <Badge tone="primary">
-              {data.enrollments.toLocaleString("en-US")} enrollments
-            </Badge>
-          }
-        >
-          <div className="mb-2 flex gap-6 px-3">
-            <div>
-              <p className="text-2xl font-semibold">
-                {data.enrollments.toLocaleString("en-US")}
-              </p>
-              <p className="text-xs text-muted-foreground">Enrollments</p>
-            </div>
-            <div>
-              <p className="text-2xl font-semibold">
-                {data.completions.toLocaleString("en-US")}
-              </p>
-              <p className="text-xs text-muted-foreground">Completions</p>
-            </div>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+            </select>
           </div>
-          <ApexChart
-            type="area"
-            height={285}
-            options={growthOptions}
-            series={[
-              { name: "Completed", data: data.completionSeries },
-              {
-                name: "In progress",
-                data: data.enrollmentSeries.map(
-                  (value, index) => value - (data.completionSeries[index] ?? 0),
-                ),
-              },
-            ]}
-          />
-        </Card>
-        <Card
-          title="Learning outcomes"
-          description="Completion across selected courses"
-          bodyClassName="px-5 pb-5 pt-2"
-        >
-          <ApexChart
-            type="pie"
-            height={255}
-            options={completionOptions}
-            series={[data.completions, data.enrollments - data.completions]}
-          />
-          <div className="grid grid-cols-2 gap-3 text-center">
-            <div className="rounded-lg bg-success/5 p-3">
-              <p className="text-lg font-semibold text-success">
-                {data.completions}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Completed
-              </p>
+          <div className="flex flex-col justify-between p-5">
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+              {[
+                {
+                  label: "Enrollments",
+                  icon: UsersRound,
+                  value: data.enrollments.toLocaleString("en-US"),
+                },
+                {
+                  label: "Completions",
+                  icon: GraduationCap,
+                  value: data.completions.toLocaleString("en-US"),
+                },
+                {
+                  label: "Completion rate",
+                  icon: Target,
+                  value: `${data.completionRate.toFixed(1)}%`,
+                },
+                {
+                  label: "Course sales",
+                  value: lmsMoney(data.revenue),
+                  icon: CircleDollarSign,
+                },
+              ].map((m, i) => {
+                const Icon = m.icon;
+                return (
+                  <div key={m.label}>
+                    <div className="p-3 rounded-xl border text-center">
+                      <span
+                        className={`flex mx-auto mb-3 size-8 shrink-0 items-center justify-center rounded-full text-white ${lmsAccents[i]!.bg}`}
+                        aria-hidden="true"
+                      >
+                        <Icon className="size-4" />
+                      </span>
+                      <p className="text-xs text-muted-foreground">{m.label}</p>
+                       <p
+                          className={`mt-2 text-[22px] font-semibold ${lmsAccents[i]!.text}`}
+                        >
+                          {m.value}
+                        </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-            <div className="rounded-lg bg-primary/5 p-3">
-              <p className="text-lg font-semibold text-primary">
-                {data.enrollments - data.completions}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                In progress
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-[15px] font-semibold">Course catalog</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Discover, review, and manage your learning content.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <div className="relative">
-            <Search className="absolute start-3 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              aria-label="Search LMS courses"
-              placeholder="Search courses..."
-              className="w-[190px] ps-9"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </div>
-          <Select value={courseStatus} onValueChange={setCourseStatus}>
-            <SelectTrigger aria-label="Course status" className="w-[135px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="Published">Published</SelectItem>
-              <SelectItem value="Draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {visibleCourses.map((course) => (
-          <section key={course.id} className="edzen-card overflow-hidden">
-            <div
-              className="relative flex h-28 items-center justify-between overflow-hidden p-5"
-              style={{
-                background: `color-mix(in oklch, var(${course.color}) 7%, var(--card))`,
-              }}
-            >
-              <span
-                className="absolute -end-5 -top-8 size-36 rounded-full border-[20px] opacity-5"
-                style={{ borderColor: `var(${course.color})` }}
-              />
-              <span
-                className="relative grid size-14 place-items-center rounded-xl bg-card/80 shadow-sm"
-                style={{ color: `var(${course.color})` }}
-              >
-                <CategoryIcon category={course.category} className="size-8" />
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
+              <span>
+                <b className="text-foreground">
+                  {data.selected.filter((c) => c.status === "Published").length}
+                </b>{" "}
+                published courses
               </span>
-              <span className="relative self-start">
-                <Badge
-                  size="sm"
-                  tone={course.status === "Published" ? "success" : "warning"}
-                >
-                  {course.status}
-                </Badge>
+              <span>
+                <b className="text-foreground">
+                  {data.selected.filter((c) => c.status === "Draft").length}
+                </b>{" "}
+                drafts in development
+              </span>
+              <span>
+                <b className="text-foreground">{instructors.length}</b>{" "}
+                instructors
+              </span>
+              <span>
+                <b className="text-foreground">{sessions.length}</b> upcoming
+                sessions
               </span>
             </div>
-            <div className="p-5">
-              <p className="text-[11px] font-medium text-primary">
-                {course.category}
-              </p>
-              <h3 className="mt-1 min-h-10 text-sm font-semibold leading-5">
-                {course.title}
-              </h3>
-              <div className="mt-3 flex items-center gap-2">
-                <img
-                  src={getUserImage(
-                    LMS_INSTRUCTORS.find(
-                      (item) => item.id === course.instructorId,
-                    )?.imageName,
-                  )}
-                  alt=""
-                  className="size-6 rounded-full object-cover"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {
-                    LMS_INSTRUCTORS.find(
-                      (item) => item.id === course.instructorId,
-                    )?.name
-                  }
-                </p>
-              </div>
-              <div className="my-4 flex flex-wrap gap-4 text-[11px] text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <BookOpen className="size-3.5" />
-                  {course.lessons} lessons
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <UsersRound className="size-3.5" />
-                  {course.students} enrollments
-                </span>
-              </div>
-              <div className="flex items-center justify-between border-t border-border pt-3">
-                <span className="text-base font-semibold">
-                  {lmsMoney(course.price)}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedCourse(course)}
-                  aria-label={`View ${course.title}`}
-                >
-                  View course
-                  <ChevronRight className="size-3.5 rtl:rotate-180" />
-                </Button>
-              </div>
-            </div>
-          </section>
-        ))}
-        {visibleCourses.length === 0 && (
-          <p className="col-span-full rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No courses match your filters.
-          </p>
-        )}
-      </div>
-      <Card
-        title="Learner progress"
-        description="Track sample students and mark their next lesson complete"
-        bodyClassName="p-0"
-        className="mb-6"
-        action={<Badge tone="primary">{visibleLearners.length} learners</Badge>}
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="ps-5">Learner</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Last active</TableHead>
-              <TableHead className="pe-5">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visibleLearners.map((learner) => {
-              const course = courses.find(
-                (item) => item.id === learner.courseId,
-              );
-              if (!course) return null;
-              const percent = Math.round(
-                (learner.finished / course.lessons) * 100,
-              );
-              return (
-                <TableRow key={learner.id}>
-                  <TableCell className="ps-5 py-4">
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src={getUserImage(learner.name)}
-                        alt=""
-                        className="size-9 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="whitespace-nowrap text-xs font-semibold">
-                          {learner.name}
-                        </p>
-                        <p className="mt-1 text-[11px] text-muted-foreground">
-                          {learner.id}
-                        </p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-xs">{course.title}</TableCell>
-                  <TableCell>
-                    <div className="min-w-[130px]">
-                      <div className="mb-1.5 flex justify-between text-[11px]">
-                        <span className="text-muted-foreground">
-                          {learner.finished}/{course.lessons} lessons
-                        </span>
-                        <span className="font-medium">{percent}%</span>
-                      </div>
-                      <div
-                        className="h-1.5 overflow-hidden rounded-full bg-muted"
-                        role="progressbar"
-                        aria-label={`${learner.name} course progress`}
-                        aria-valuenow={percent}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                      >
-                        <div
-                          className={`h-full rounded-full ${percent === 100 ? "bg-success" : "bg-primary"}`}
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                    {learner.lastActive}
-                  </TableCell>
-                  <TableCell className="pe-5">
-                    {percent === 100 ? (
-                      <Badge tone="success" size="sm">
-                        Completed
-                      </Badge>
-                    ) : (
-                      <Button
-                        variant="soft"
-                        size="sm"
-                        aria-label={`Complete next lesson for ${learner.name}`}
-                        onClick={() => completeLesson(learner.id)}
-                      >
-                        <Check className="size-3.5" />
-                        Complete lesson
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-            {visibleLearners.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="py-8 text-center text-muted-foreground"
-                >
-                  No learners in this category.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
-          Sample learner records · Changes stay in this page session
+          </div>
         </div>
       </Card>
-      <div className="mb-6 grid gap-6 xl:grid-cols-3">
+      <LmsAdvancedWidgets
+        courses={courses}
+        learners={learners}
+        period={period}
+        category={category}
+        onCourse={setSelectedCourse}
+      />
+      <div className="mt-4 grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Card
-          title="Learning landscape"
-          description={`Compare category enrollments over ${period} days`}
-          bodyClassName="px-3 pb-2 pt-3"
-        >
-          <ApexChart
-            type="radar"
-            height={265}
-            options={categoryOptions}
-            series={[
-              {
-                name: "Enrollments",
-                data: LMS_CATEGORIES.map((name) =>
-                  data.selected
-                    .filter((course) => course.category === name)
-                    .reduce(
-                      (sum, course) =>
-                        sum +
-                        Math.round((course.students * Number(period)) / 30),
-                      0,
-                    ),
-                ),
-              },
-            ]}
-          />
-        </Card>
-        <Card
-          title="Upcoming live sessions"
-          description="Sample workshop schedule · Times in IST"
-          className="xl:col-span-2"
-          bodyClassName="p-5"
-        >
-          <div className="space-y-4">
-            {sessions.map((session) => (
-              <div
-                key={session.id}
-                className="flex items-center gap-3 rounded-lg border border-border p-3"
+          title="Course studio"
+          description="Your curriculum, organized by learning program"
+          bodyClassName="p-0"
+          action={
+            <div className="flex flex-wrap gap-2">
+              <select
+                aria-label="LMS category"
+                className={lmsField}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
               >
-                <div className="grid w-12 shrink-0 place-items-center rounded-lg bg-primary/5 py-2 text-primary">
-                  <span className="text-[10px] font-semibold">
-                    {session.month}
-                  </span>
-                  <span className="text-xl font-semibold">{session.day}</span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-xs font-semibold">{session.title}</h3>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {
-                      LMS_INSTRUCTORS.find(
-                        (item) => item.id === session.instructorId,
-                      )?.name
-                    }
-                  </p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {session.time}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`View ${session.title} session`}
-                  onClick={() => setSelectedSession(session)}
+                <option value="all">All categories</option>
+                {LMS_CATEGORIES.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+              <select
+                aria-label="Course status"
+                className={lmsField}
+                value={courseStatus}
+                onChange={(e) => setCourseStatus(e.target.value)}
+              >
+                <option value="all">All statuses</option>
+                <option>Published</option>
+                <option>Draft</option>
+              </select>
+              <input
+                aria-label="Search LMS courses"
+                placeholder="Find a course"
+                className={`${lmsField} w-32`}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+          }
+        >
+          <div className="divide-y divide-border">
+            {visibleCourses.map((c, i) => {
+              const index = Math.max(
+                0,
+                LMS_CATEGORIES.findIndex((cat) => cat === c.category),
+              );
+              const instructor = LMS_INSTRUCTORS.find(
+                (p) => p.id === c.instructorId,
+              );
+              return (
+                <article
+                  key={c.id}
+                  className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center"
                 >
-                  <ChevronRight className="size-4 rtl:rotate-180" />
-                </Button>
-              </div>
-            ))}
-            {sessions.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No upcoming sample sessions for this category.
-              </p>
-            )}
+                  <span className="hidden w-6 shrink-0 text-xs font-medium text-muted-foreground sm:block">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    className={`flex size-12 shrink-0 items-center justify-center rounded-lg ${lmsAccents[index]!.soft} ${lmsAccents[index]!.text}`}
+                  >
+                    <CategoryIcon category={c.category} className="size-6" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[11px] text-muted-foreground">
+                        {c.category}
+                      </span>
+                      <span
+                        className={`text-[11px] font-medium ${lmsAccents[c.status === "Draft" ? 1 : 0]!.text}`}
+                      >
+                        {c.status}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setSelectedCourse(c)}
+                      className="mt-1 cursor-pointer text-start text-sm font-semibold hover:underline"
+                    >
+                      {c.title}
+                    </button>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {instructor?.name} · {c.lessons} lessons · {c.students}{" "}
+                      enrolled
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:gap-1">
+                    <span className="text-sm font-semibold">
+                      {lmsMoney(c.price)}
+                    </span>
+                    <button
+                      onClick={() => setSelectedCourse(c)}
+                      className="inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-primary"
+                    >
+                      Open course
+                      <ChevronRight className="size-3.5" />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
           </div>
+          {visibleCourses.length === 0 && (
+            <p className="p-6 text-sm text-muted-foreground">
+              No courses match your filters.
+            </p>
+          )}
+        </Card>
+        <Card
+          title="Classroom planner"
+          description="Upcoming instructor-led sessions"
+          bodyClassName="p-0"
+        >
+          <ol className="divide-y divide-border">
+            {sessions.map((s, i) => (
+              <li key={s.id} className="p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={`text-lg font-semibold ${lmsAccents[i % 4]!.text}`}
+                  >
+                    {s.month} {s.day}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {s.duration}
+                  </span>
+                </div>
+                <h3 className="mt-3 text-sm font-semibold">{s.title}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{s.time}</p>
+                <div className="mt-4 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={getUserImage(
+                        LMS_INSTRUCTORS.find((p) => p.id === s.instructorId)
+                          ?.imageName ?? "",
+                      )}
+                      alt="Session instructor"
+                      className="size-6 rounded-full object-cover"
+                    />
+                    <span className="text-[11px] text-muted-foreground">
+                      {
+                        LMS_INSTRUCTORS.find((p) => p.id === s.instructorId)
+                          ?.name
+                      }
+                    </span>
+                  </div>
+                  <button
+                    aria-label={`View ${s.title}`}
+                    onClick={() => setSelectedSession(s)}
+                    className="cursor-pointer rounded-full border border-border p-1.5 hover:bg-muted"
+                  >
+                    <ChevronRight className="size-3.5" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ol>
+          {sessions.length === 0 && (
+            <p className="p-5 text-sm text-muted-foreground">
+              No sessions for this category.
+            </p>
+          )}
         </Card>
       </div>
-      <div className="mb-4 flex items-center gap-2">
-        <GraduationCap className="size-4 text-primary" />
-        <h2 className="text-[15px] font-semibold">Meet your instructors</h2>
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        {instructors.map((instructor) => (
-          <section className="edzen-card p-5" key={instructor.id}>
-            <div className="flex items-center gap-3">
-              <img
-                src={getUserImage(instructor.imageName)}
-                alt={instructor.name}
-                loading="lazy"
-                className="size-12 rounded-full object-cover"
-              />
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold">{instructor.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {instructor.specialty}
-                </p>
-              </div>
-              <span className="ms-auto inline-flex items-center gap-1 text-xs font-semibold">
-                <Star className="size-3.5 fill-warning text-warning" />
-                {instructor.rating}
-              </span>
-            </div>
-            <div className="mt-4 flex justify-between border-t border-border pt-3 text-xs text-muted-foreground">
-              <span>
-                {
-                  data.selected.filter(
-                    (course) => course.instructorId === instructor.id,
-                  ).length
-                }{" "}
-                courses
-              </span>
-              <span>
-                {data.selected
-                  .filter((course) => course.instructorId === instructor.id)
-                  .reduce((sum, course) => sum + course.students, 0)}{" "}
-                enrollments
-              </span>
-            </div>
-          </section>
-        ))}
-      </div>
+      <Card
+        className="mt-4"
+        title="Learning pathway board"
+        description="Individual lesson progress · select the next milestone to advance"
+        bodyClassName="p-5"
+      >
+        <div className="grid gap-5 md:grid-cols-2">
+          {visibleLearners.map((learner, i) => {
+            const course = courses.find((c) => c.id === learner.courseId)!;
+            const complete = learner.finished >= course.lessons;
+            return (
+              <article
+                key={learner.id}
+                className="rounded-xl border border-border p-4"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={getUserImage(learner.name)}
+                    alt={learner.name}
+                    className="size-10 rounded-full object-cover"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold">{learner.name}</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {course.title}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-sm font-semibold ${lmsAccents[i % 4]!.text}`}
+                  >
+                    {Math.round((learner.finished / course.lessons) * 100)}%
+                  </span>
+                </div>
+                <div
+                  className="my-4 flex flex-wrap gap-1"
+                  role="img"
+                  aria-label={`${learner.name}: ${learner.finished} of ${course.lessons} lessons complete`}
+                >
+                  {Array.from({ length: course.lessons }, (_, j) => (
+                    <span
+                      key={j}
+                      className={`h-2 w-4 rounded-sm ${j < learner.finished ? lmsAccents[i % 4]!.bg : "bg-muted"}`}
+                    />
+                  ))}
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
+                  <span className="text-xs text-muted-foreground">
+                    {learner.finished} / {course.lessons} lessons
+                  </span>
+                  <button
+                    disabled={complete}
+                    aria-label={`Complete next lesson for ${learner.name}`}
+                    onClick={() => completeLesson(learner.id)}
+                    className="cursor-pointer text-xs font-semibold text-primary disabled:cursor-default disabled:text-muted-foreground"
+                  >
+                    {complete ? "Course completed" : "Complete next lesson →"}
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        {visibleLearners.length === 0 && (
+          <p className="text-sm text-muted-foreground">
+            No sample learners in this category.
+          </p>
+        )}
+      </Card>
+      <Card
+        className="mt-4"
+        title="Program completion report"
+        description="Completion outcomes across published courses · 30-day sample"
+        bodyClassName="p-0"
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[580px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-xs text-muted-foreground">
+                {[
+                  "Program",
+                  "Enrollments",
+                  "Completed",
+                  "Completion",
+                  "Remaining",
+                ].map((h) => (
+                  <th key={h} className="px-5 py-3 text-start font-medium">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.selected
+                .filter((c) => c.status === "Published")
+                .map((c) => (
+                  <tr
+                    key={c.id}
+                    className="border-b border-border last:border-0"
+                  >
+                    <td className="px-5 py-4 font-medium">{c.title}</td>
+                    <td className="px-5 py-4">{c.students}</td>
+                    <td className="px-5 py-4">{c.completed}</td>
+                    <td className="px-5 py-4 font-semibold">
+                      {c.students
+                        ? ((c.completed / c.students) * 100).toFixed(1)
+                        : 0}
+                      %
+                    </td>
+                    <td className="px-5 py-4 text-muted-foreground">
+                      {c.students - c.completed}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+      <Card
+        className="mt-4"
+        title="Your teaching team"
+        description="Meet the specialists behind your learning programs"
+        bodyClassName="p-5"
+        action={
+          <span className="text-xs text-muted-foreground">
+            {instructors.length} instructors in view
+          </span>
+        }
+      >
+        <div className="grid gap-4 md:grid-cols-3">
+          {instructors.map((instructor, i) => {
+            const assigned = data.selected.filter(
+              (c) => c.instructorId === instructor.id,
+            );
+            const enrollments = assigned.reduce(
+              (sum, c) => sum + c.students,
+              0,
+            );
+            return (
+              <article
+                key={instructor.id}
+                className="flex flex-col overflow-hidden rounded-xl border border-border"
+              >
+                <div
+                  className={`flex items-center justify-between gap-3 px-4 py-3 ${lmsAccents[i % 4]!.soft}`}
+                >
+                  <span
+                    className={`inline-flex items-center gap-1 text-xs font-medium ${lmsAccents[i % 4]!.text}`}
+                  >
+                    <GraduationCap className="size-3.5" />
+                    Teaching specialist
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-card px-2 py-1 text-xs font-semibold">
+                    <Star className="size-3 fill-current text-[var(--chart-2)]" />
+                    {instructor.rating}
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={getUserImage(instructor.imageName)}
+                      alt={instructor.name}
+                      loading="lazy"
+                      className="size-14 shrink-0 rounded-xl object-cover"
+                    />
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold">
+                        {instructor.name}
+                      </h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        {instructor.specialty}
+                      </p>
+                    </div>
+                  </div>
+                  <dl className="my-4 grid grid-cols-2 gap-3 border-y border-border py-3">
+                    <div>
+                      <dt className="text-[11px] text-muted-foreground">
+                        Programs
+                      </dt>
+                      <dd className="mt-1 text-lg font-semibold">
+                        {assigned.length}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[11px] text-muted-foreground">
+                        Enrollments
+                      </dt>
+                      <dd className="mt-1 text-lg font-semibold">
+                        {enrollments.toLocaleString("en-US")}
+                      </dd>
+                    </div>
+                  </dl>
+                  <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+                    TEACHING CATEGORIES
+                  </p>
+                  <div className="mb-4 flex flex-wrap gap-1.5">
+                    {[...new Set(assigned.map((c) => c.category))].map(
+                      (name) => (
+                        <span
+                          key={name}
+                          className="rounded-md bg-muted px-2 py-1 text-[11px] text-muted-foreground"
+                        >
+                          {name}
+                        </span>
+                      ),
+                    )}
+                  </div>
+                  <button
+                    className="mt-auto flex cursor-pointer items-center justify-between rounded-lg border border-border px-3 py-2 text-xs font-medium hover:bg-muted disabled:cursor-default disabled:text-muted-foreground"
+                    disabled={!assigned.length}
+                    onClick={() =>
+                      setSelectedCourse(
+                        assigned.find((c) => c.status === "Published") ??
+                          assigned[0] ??
+                          null,
+                      )
+                    }
+                  >
+                    View featured course
+                    <ChevronRight className="size-3.5" />
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        {instructors.length === 0 && (
+          <p className="py-4 text-sm text-muted-foreground">
+            No instructors assigned to this category yet.
+          </p>
+        )}
+      </Card>
       <Dialog open={newCourseOpen} onOpenChange={setNewCourseOpen}>
         <DialogContent>
           <DialogHeader>

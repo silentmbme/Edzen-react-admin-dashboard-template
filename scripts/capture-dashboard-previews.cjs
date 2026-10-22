@@ -3,7 +3,7 @@
   os = require("node:os");
 const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, ".."),
-  folder = path.join(root, "landing/edzen-landingpage/assets/screenshots");
+  folder = path.join(root, "public/landing/assets/screenshots");
 const chrome =
   process.env.CHROME_PATH ||
   "C:/Program Files/Google/Chrome/Application/chrome.exe";

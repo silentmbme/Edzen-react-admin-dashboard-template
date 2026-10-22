@@ -1,20 +1,15 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent } from "react";
 import {
-  Activity,
-  ArrowUpRight,
   BedDouble,
   CalendarDays,
   Check,
   ClipboardList,
-  Clock3,
   Download,
   Eye,
-  HeartPulse,
   Hospital,
   Package,
   Plus,
   Search,
-  ShieldCheck,
   Stethoscope,
   UsersRound,
 } from "lucide-react";
@@ -39,14 +34,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   HOSPITAL_APPOINTMENTS,
   HOSPITAL_DEPARTMENTS,
   HOSPITAL_DOCTORS,
@@ -56,8 +43,32 @@ import {
   type HospitalAppointment,
 } from "@/data/hospital-dashboard-data";
 import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
-import { Badge, Card, PageHeader } from "./widgets";
+import { Card, PageHeader } from "./widgets";
 
+const hospitalField =
+  "h-9 max-w-full cursor-pointer rounded-md border border-border bg-card px-3 text-xs";
+const hospitalAccents = [
+  {
+    bg: "bg-[var(--chart-1)]",
+    text: "text-[var(--chart-1)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-1)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-2)]",
+    text: "text-[var(--chart-2)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-2)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-3)]",
+    text: "text-[var(--chart-3)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-3)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-4)]",
+    text: "text-[var(--chart-4)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-4)_10%,transparent)]",
+  },
+];
 export function HospitalManagementPage() {
   return (
     <AppShell navigationPath="/dashboards/hospital-management">
@@ -100,37 +111,6 @@ function DoctorPortrait({
   );
 }
 
-function Metric({
-  title,
-  value,
-  icon,
-  iconColor,
-  footer,
-}: {
-  title: string;
-  value: string;
-  icon: ReactNode;
-  iconColor: string;
-  footer: ReactNode;
-}) {
-  return (
-    <section className="metric-card edzen-card p-5">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">{title}</p>
-        <span
-          className={`metric-icon grid size-10 place-items-center rounded-xl ${iconColor}`}
-        >
-          {icon}
-        </span>
-      </div>
-      <p className="mt-2 text-[28px] font-semibold tracking-tight tabular-nums">
-        {value}
-      </p>
-      <div className="mt-3 text-xs text-muted-foreground">{footer}</div>
-    </section>
-  );
-}
-
 export function HospitalManagementDashboard() {
   const [period, setPeriod] = useState<"7" | "30">("7");
   const [department, setDepartment] = useState("all");
@@ -164,62 +144,32 @@ export function HospitalManagementDashboard() {
     (item) => item.status === "Scheduled",
   ).length;
   const flowOptions = mergeOptions(base, {
+    chart: { type: "bar", stacked: true },
     colors: [token("--chart-1"), token("--chart-2")],
-    stroke: { curve: "smooth", width: [3, 2], dashArray: [0, 5] },
+    stroke: { width: 0 },
+    plotOptions: { bar: { columnWidth: "40%", borderRadius: 3 } },
     xaxis: { categories: data.labels },
     yaxis: {
-      min: 0,
-      labels: { formatter: (value: number) => Math.round(value).toString() },
+      labels: {
+        formatter: (value: number) => Math.abs(Math.round(value)).toString(),
+      },
     },
     legend: { position: "top", horizontalAlign: "left" },
     tooltip: {
-      y: { formatter: (value: number) => `${Math.round(value)} patients` },
-    },
-  });
-  const departmentOptions = mergeOptions(base, {
-    colors: data.departments.map((item) => token(item.color)),
-    stroke: { width: 0 },
-    fill: { opacity: 0.95 },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        distributed: true,
-        borderRadius: 4,
-        barHeight: "45%",
-      },
-    },
-    legend: { show: false },
-    xaxis: {
-      categories: data.departments.map((item) => item.name),
-      labels: {
-        formatter: (value: string) => Math.round(Number(value)).toString(),
-      },
-    },
-    yaxis: { labels: { maxWidth: 125 } },
-    tooltip: { y: { formatter: (value: number) => `${value} visits` } },
-  });
-  const occupancyOptions = mergeOptions(base, {
-    colors: [token("--chart-1")],
-    labels: ["Beds occupied"],
-    stroke: { lineCap: "round" },
-    plotOptions: {
-      radialBar: {
-        startAngle: -125,
-        endAngle: 125,
-        hollow: { size: "70%" },
-        track: { background: token("--muted") },
-        dataLabels: {
-          name: { offsetY: 25, fontSize: "12px" },
-          value: {
-            offsetY: -15,
-            fontSize: "28px",
-            fontWeight: 600,
-            formatter: (value: number) => value.toFixed(1) + "%",
-          },
-        },
+      y: {
+        formatter: (value: number) => `${Math.abs(Math.round(value))} patients`,
       },
     },
   });
+  const [supplyRequests, setSupplyRequests] = useState<string[]>([]);
+  function completeVisit(id: string) {
+    setAppointments((current) =>
+      current.map((item) =>
+        item.id === id ? { ...item, status: "Completed" } : item,
+      ),
+    );
+    toast.success("Sample visit completed");
+  }
   function openBooking(id = "dr-01") {
     setDoctorId(id);
     setPatient("");
@@ -328,538 +278,684 @@ export function HospitalManagementDashboard() {
         breadcrumb={["Dashboards", "Hospital Management"]}
         actions={
           <>
-            <Button variant="outline" onClick={exportAppointments}>
+            <Button variant="outline" size="sm" onClick={exportAppointments}>
               <Download className="size-4" />
-              Export report
+              Export appointments
             </Button>
-            <Button onClick={() => openBooking()}>
+            <Button size="sm" onClick={() => openBooking()}>
               <Plus className="size-4" />
               New appointment
             </Button>
           </>
         }
       />
-      <div className="mb-6 flex flex-col gap-4 rounded-xl border border-primary/20 bg-primary/10 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-sm">
-            <Hospital className="size-6" />
-          </span>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-sm font-semibold">Carewell Medical Center</h2>
-              <Badge tone="primary" size="sm">
-                Sample data
-              </Badge>
+      <Card bodyClassName="p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span
+              className={`rounded-lg p-2 ${hospitalAccents[0]!.soft} ${hospitalAccents[0]!.text}`}
+            >
+              <Hospital className="size-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Operations desk</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Sample hospital · October 9, 2026
+              </p>
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Friday, October 9, 2026 · Hospital operations overview
-            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <select
+              aria-label="Hospital department"
+              className={hospitalField}
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+            >
+              <option value="all">All departments</option>
+              {HOSPITAL_DEPARTMENTS.map((d) => (
+                <option key={d.name} value={d.name}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+            <select
+              aria-label="Hospital reporting period"
+              className={hospitalField}
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as "7" | "30")}
+            >
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+            </select>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Select value={department} onValueChange={setDepartment}>
-            <SelectTrigger
-              aria-label="Hospital department"
-              className="h-9 w-[190px] bg-card"
+      </Card>
+      <div className="mt-4 grid gap-4 xl:grid-cols-12">
+        <Card
+          title="Hospital capacity"
+          description="Inpatient census and availability across selected wards"
+          className="xl:col-span-8"
+          bodyClassName="flex flex-col p-5"
+          action={
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${hospitalAccents[3]!.soft} ${hospitalAccents[3]!.text}`}
             >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All departments</SelectItem>
-              {HOSPITAL_DEPARTMENTS.map((item) => (
-                <SelectItem key={item.name} value={item.name}>
-                  {item.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={period}
-            onValueChange={(value) => setPeriod(value as "7" | "30")}
-          >
-            <SelectTrigger
-              aria-label="Hospital reporting period"
-              className="h-9 w-[140px] bg-card"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric
-          title="Patient visits"
-          iconColor="bg-primary/10 text-primary"
-          value={data.visits.toLocaleString("en-US")}
-          icon={<UsersRound className="size-5" />}
-          footer={
-            <span className="flex items-center gap-1.5">
-              <ArrowUpRight className="size-3.5 text-success" />
-              Across the last {period} days
+              <Hospital className="size-3.5" />
+              {data.departments.length} wards
             </span>
           }
-        />
-        <Metric
-          title="Appointments"
-          iconColor="bg-info/10 text-info"
-          value={String(departmentAppointments.length)}
-          icon={<CalendarDays className="size-5" />}
-          footer={`${scheduled} scheduled · ${departmentAppointments.filter((item) => item.status === "Checked in").length} checked in`}
-        />
-        <Metric
-          title="Available beds"
-          iconColor="bg-success/10 text-success"
-          value={String(data.available)}
-          icon={<BedDouble className="size-5" />}
-          footer={`${data.occupied} occupied of ${data.beds} total beds`}
-        />
-        <Metric
-          title="Sample revenue"
-          iconColor="bg-warning/10 text-warning"
-          value={hospitalMoney(data.revenue)}
-          icon={<ClipboardList className="size-5" />}
-          footer={`Visit revenue over ${period} days`}
-        />
-      </div>
-      <div className="mb-6 grid gap-6 xl:grid-cols-3">
-        <Card
-          title="Patient flow"
-          description={`Arrivals and discharges over the last ${period} days`}
-          className="xl:col-span-2"
-          bodyClassName="px-3 pb-2 pt-4"
-          action={
-            <Badge tone="primary">
-              {data.visits.toLocaleString("en-US")} arrivals
-            </Badge>
-          }
         >
-          <div className="mb-2 flex gap-6 px-3">
-            <div>
-              <p className="text-xl font-semibold">
-                {data.visits.toLocaleString("en-US")}
+          <div className="grid gap-4 sm:grid-cols-[1fr_1fr]">
+            <div className={`rounded-xl p-4 ${hospitalAccents[0]!.soft}`}>
+              <div className="flex items-center gap-2 text-xs font-medium">
+                <BedDouble className={`size-4 ${hospitalAccents[0]!.text}`} />
+                Beds ready for admission
+              </div>
+              <p className="mt-3 text-[32px] font-semibold leading-tight tabular-nums">
+                {data.available}
+                <span className="ms-2 text-sm font-normal text-muted-foreground">
+                  of {data.beds}
+                </span>
               </p>
-              <p className="text-xs text-muted-foreground">Patient arrivals</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {((data.available / data.beds) * 100).toFixed(1)}% of capacity
+                available
+              </p>
             </div>
-            <div>
-              <p className="text-xl font-semibold">
-                {data.discharged
-                  .reduce((sum, value) => sum + value, 0)
-                  .toLocaleString("en-US")}
+            <div className="rounded-xl border border-border p-4">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-medium">Current occupancy</span>
+                <span
+                  className={`rounded-lg p-1.5 ${hospitalAccents[2]!.soft} ${hospitalAccents[2]!.text}`}
+                >
+                  <UsersRound className="size-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-[26px] font-semibold tabular-nums">
+                {data.occupancy.toFixed(1)}
+                <span className="text-sm font-normal text-muted-foreground">
+                  %
+                </span>
               </p>
-              <p className="text-xs text-muted-foreground">Discharged</p>
+              <div
+                className="mt-3 flex gap-1"
+                role="img"
+                aria-label={`${data.occupancy.toFixed(1)} percent of beds occupied`}
+              >
+                {Array.from({ length: 20 }, (_, i) => (
+                  <span
+                    key={i}
+                    className={`h-2 flex-1 rounded-sm ${i < Math.round(data.occupancy / 5) ? hospitalAccents[2]!.bg : "bg-muted"}`}
+                  />
+                ))}
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {data.occupied} beds occupied at this snapshot
+              </p>
             </div>
           </div>
-          <ApexChart
-            type="line"
-            height={290}
-            options={flowOptions}
-            series={[
-              { name: "Arrivals", data: data.admissions },
-              { name: "Discharged", data: data.discharged },
-            ]}
-          />
-        </Card>
-        <Card
-          title="Bed occupancy"
-          description="Current capacity in selected departments"
-          bodyClassName="px-5 pb-5 pt-2"
-        >
-          <ApexChart
-            type="radialBar"
-            height={255}
-            options={occupancyOptions}
-            series={[data.occupancy]}
-          />
-          <div className="grid grid-cols-3 gap-2 text-center">
-            {[
-              ["Total beds", data.beds],
-              ["Occupied", data.occupied],
-              ["Available", data.available],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-lg bg-muted/40 p-3">
-                <p className="text-lg font-semibold">{value}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {label}
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-border pt-4">
+            <div className="flex items-center gap-3">
+              <span
+                className={`rounded-lg p-2 ${hospitalAccents[3]!.soft} ${hospitalAccents[3]!.text}`}
+              >
+                <ClipboardList className="size-4" />
+              </span>
+              <div>
+                <p className="text-xs text-muted-foreground">Patient visits</p>
+                <p className="mt-0.5 text-lg font-semibold">
+                  {data.visits.toLocaleString("en-US")}
+                  <span className="ms-1 text-[11px] font-normal text-muted-foreground">
+                    / {period} days
+                  </span>
                 </p>
               </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span
+                className={`rounded-lg p-2 ${hospitalAccents[1]!.soft} ${hospitalAccents[1]!.text}`}
+              >
+                <CalendarDays className="size-4" />
+              </span>
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Expected arrivals
+                </p>
+                <p className="mt-0.5 text-lg font-semibold">
+                  {scheduled}
+                  <span className="ms-1 text-[11px] font-normal text-muted-foreground">
+                    scheduled
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+        <Card
+          title="Clinic readiness"
+          description="Live status of the sample appointment queue"
+          className="xl:col-span-4"
+          bodyClassName="flex flex-col p-5"
+        >
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground">
+                Visits coordinated
+              </p>
+              <p className="mt-1 text-[32px] font-semibold leading-tight tabular-nums">
+                {departmentAppointments.length}
+              </p>
+            </div>
+            <div className="text-end">
+              <p
+                className={`text-lg font-semibold ${hospitalAccents[0]!.text}`}
+              >
+                {departmentAppointments.length
+                  ? (
+                      (departmentAppointments.filter(
+                        (a) => a.status === "Completed",
+                      ).length /
+                        departmentAppointments.length) *
+                      100
+                    ).toFixed(0)
+                  : "0"}
+                %
+              </p>
+              <p className="text-[11px] text-muted-foreground">completed</p>
+            </div>
+          </div>
+          <div
+            className="my-4 flex h-2 overflow-hidden rounded-full bg-muted"
+            role="img"
+            aria-label="Appointment status distribution"
+          >
+            {[
+              { status: "Scheduled", i: 3 },
+              { status: "Checked in", i: 1 },
+              { status: "Completed", i: 0 },
+            ].map((s) => (
+              <span
+                key={s.status}
+                className={hospitalAccents[s.i]!.bg}
+                style={{
+                  width: `${departmentAppointments.length ? (departmentAppointments.filter((a) => a.status === s.status).length / departmentAppointments.length) * 100 : 0}%`,
+                }}
+              />
             ))}
           </div>
-          <p className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <ShieldCheck className="size-3.5 text-success" />
-            {data.available} beds available for allocation
+          <div className="space-y-2">
+            {[
+              {
+                label: "Expected",
+                status: "Scheduled",
+                icon: CalendarDays,
+                i: 3,
+              },
+              {
+                label: "Checked in",
+                status: "Checked in",
+                icon: UsersRound,
+                i: 1,
+              },
+              { label: "Completed", status: "Completed", icon: Check, i: 0 },
+            ].map((s) => {
+              const Icon = s.icon;
+              const count = departmentAppointments.filter(
+                (a) => a.status === s.status,
+              ).length;
+              return (
+                <div
+                  key={s.status}
+                  className="flex items-center gap-2.5 rounded-lg border border-border px-3 py-2"
+                >
+                  <span
+                    className={`rounded-md p-1.5 ${hospitalAccents[s.i]!.soft} ${hospitalAccents[s.i]!.text}`}
+                  >
+                    <Icon className="size-3.5" />
+                  </span>
+                  <span className="flex-1 text-xs font-medium">{s.label}</span>
+                  <span className="text-sm font-semibold tabular-nums">
+                    {count}
+                  </span>
+                  <span className="w-9 text-end text-[11px] tabular-nums text-muted-foreground">
+                    {departmentAppointments.length
+                      ? Math.round(
+                          (count / departmentAppointments.length) * 100,
+                        )
+                      : 0}
+                    %
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-4 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+            <span
+              className={`size-1.5 rounded-full ${hospitalAccents[0]!.bg}`}
+            />
+            Updates with booking and check-in actions
           </p>
         </Card>
       </div>
-
       <Card
-        title="Appointments"
-        description="Manage sample patient visits and check-ins"
-        bodyClassName="p-0"
-        className="mb-6"
+        className="mt-4"
+        title="Ward capacity matrix"
+        description="Each cell represents one bed · occupied and available"
+        bodyClassName="p-5"
         action={
-          <Badge tone="primary">
-            {visibleAppointments.length} appointments
-          </Badge>
+          <div className="flex gap-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className={`size-2 rounded-sm ${hospitalAccents[0]!.bg}`} />
+              Occupied
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2 rounded-sm border border-border bg-muted" />
+              Available
+            </span>
+          </div>
         }
       >
-        <div className="flex flex-wrap gap-3 border-b border-border px-5 py-3">
-          <div className="relative min-w-0 flex-1">
-            <Search className="absolute start-3 top-2.5 size-4 text-muted-foreground" />
-            <Input
-              aria-label="Search hospital appointments"
-              className="ps-9"
-              placeholder="Search patient, appointment, or department..."
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-            />
-          </div>
-          <Select value={status} onValueChange={setStatus}>
-            <SelectTrigger
-              aria-label="Appointment status"
-              className="w-[150px]"
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              {["Scheduled", "Checked in", "Completed"].map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="ps-5">Patient</TableHead>
-              <TableHead>Doctor / department</TableHead>
-              <TableHead>Appointment</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="pe-5">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visibleAppointments.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="ps-5 py-4">
-                  <div className="flex items-center gap-2.5">
-                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                      {item.patient
-                        .split(" ")
-                        .map((part) => part[0])
-                        .slice(0, 2)
-                        .join("")}
-                    </span>
-                    <div>
-                      <p className="whitespace-nowrap text-[13px] font-semibold">
-                        {item.patient}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        {item.id}
-                        {item.age !== null ? ` · ${item.age} years` : ""}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2.5">
-                    <DoctorPortrait doctorId={item.doctorId} small />
-                    <div>
-                      <p className="whitespace-nowrap text-xs font-medium">
-                        {
-                          HOSPITAL_DOCTORS.find(
-                            (doctor) => doctor.id === item.doctorId,
-                          )?.name
-                        }
-                      </p>
-                      <p className="mt-1 text-[11px] text-muted-foreground">
-                        {item.department}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="whitespace-nowrap text-xs">
-                  <p>{item.time}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    {item.date}
-                  </p>
-                </TableCell>
-                <TableCell className="text-xs">{item.type}</TableCell>
-                <TableCell>
-                  <Badge
-                    size="sm"
-                    tone={
-                      item.status === "Completed"
-                        ? "success"
-                        : item.status === "Checked in"
-                          ? "info"
-                          : "warning"
-                    }
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {data.departments.map((d) => {
+            const index =
+              HOSPITAL_DEPARTMENTS.findIndex((item) => item.name === d.name) %
+              4;
+            return (
+              <section
+                key={d.name}
+                className="rounded-xl border border-border p-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-sm font-semibold">{d.name}</h3>
+                  <span
+                    className={`text-xs font-semibold ${hospitalAccents[index]!.text}`}
                   >
-                    {item.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="pe-5">
-                  <div className="flex items-center gap-1">
-                    {item.status === "Scheduled" && (
-                      <Button
-                        size="sm"
-                        variant="soft"
-                        aria-label={`Check in ${item.patient}`}
-                        onClick={() => checkIn(item.id)}
-                      >
-                        <Check className="size-3.5" />
-                        Check in
-                      </Button>
-                    )}
-                    <Button
-                      size="iconSm"
-                      variant="ghost"
-                      aria-label={`View ${item.patient} appointment`}
-                      onClick={() => setDetails(item)}
-                    >
-                      <Eye className="size-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {visibleAppointments.length === 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="py-10 text-center text-muted-foreground"
-                >
-                  No appointments match your filters.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
-          Showing {visibleAppointments.length} of{" "}
-          {departmentAppointments.length} appointments · Changes stay in this
-          demo session
-        </div>
-      </Card>
-
-      <div className="mb-6 grid gap-6 xl:grid-cols-3">
-        <Card
-          title="Visits by department"
-          description={`Department activity over ${period} days`}
-          bodyClassName="px-3 pb-2 pt-3"
-        >
-          <ApexChart
-            type="bar"
-            height={285}
-            options={departmentOptions}
-            series={[
-              {
-                name: "Visits",
-                data: data.departments.map((item) =>
-                  Math.round((item.visits * Number(period)) / 7),
-                ),
-              },
-            ]}
-          />
-        </Card>
-        <Card
-          title="Ward capacity"
-          description="Occupied and available beds by ward"
-          className="xl:col-span-2"
-          bodyClassName="p-5"
-        >
-          <div className="grid gap-5 sm:grid-cols-2">
-            {data.departments.map((item) => (
-              <div key={item.name}>
-                <div className="mb-2 flex items-center justify-between gap-2 text-xs">
-                  <span className="font-medium">{item.name}</span>
-                  <span className="text-muted-foreground">
-                    {item.occupied} / {item.beds} beds
+                    {d.beds - d.occupied} free
                   </span>
                 </div>
                 <div
-                  className="h-2 overflow-hidden rounded-full bg-muted"
-                  role="progressbar"
-                  aria-label={`${item.name} occupancy`}
-                  aria-valuenow={item.occupied}
-                  aria-valuemin={0}
-                  aria-valuemax={item.beds}
+                  className="my-4 grid grid-cols-12 gap-1"
+                  role="img"
+                  aria-label={`${d.name}: ${d.occupied} occupied and ${d.beds - d.occupied} available beds`}
                 >
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${(item.occupied / item.beds) * 100}%`,
-                      background: `var(${item.color})`,
-                    }}
-                  />
+                  {Array.from({ length: d.beds }, (_, i) => (
+                    <span
+                      key={i}
+                      className={`h-3 rounded-sm ${i < d.occupied ? hospitalAccents[index]!.bg : "border border-border bg-muted/50"}`}
+                    />
+                  ))}
                 </div>
-                <p className="mt-1.5 text-[11px] text-muted-foreground">
-                  {item.beds - item.occupied} beds available
-                </p>
-              </div>
-            ))}
+                <div className="flex justify-between text-[11px] text-muted-foreground">
+                  <span>
+                    {d.occupied} / {d.beds} occupied
+                  </span>
+                  <span>{((d.occupied / d.beds) * 100).toFixed(0)}%</span>
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      </Card>
+      <div className="mt-4 grid gap-4 xl:grid-cols-12">
+        <Card
+          title="Patient movement"
+          description="Recorded arrivals and discharges by reporting interval"
+          className="xl:col-span-8"
+          bodyClassName="p-3"
+        >
+          <ApexChart
+            type="bar"
+            height={280}
+            options={flowOptions}
+            series={[
+              { name: "Arrivals", data: data.admissions },
+              { name: "Discharges", data: data.discharged.map((v) => -v) },
+            ]}
+          />
+          <div className="mx-2 flex flex-wrap justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+            <span>Above zero: arrivals · below zero: discharges</span>
+            <span className="font-medium text-foreground">
+              {data.visits.toLocaleString("en-US")} arrivals in period
+            </span>
           </div>
         </Card>
-      </div>
-
-      <div className="mb-6 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Stethoscope className="size-4 text-primary" />
-          <h2 className="text-[15px] font-semibold">Doctor availability</h2>
-        </div>
-        <span className="text-xs text-muted-foreground">
-          {doctors.filter((item) => item.available).length} available
-        </span>
-      </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {doctors.map((doctor) => (
-          <section key={doctor.id} className="edzen-card p-5">
-            <div className="mb-4 flex items-center justify-between gap-2">
-              <DoctorPortrait doctorId={doctor.id} />
-              <Badge size="sm" tone={doctor.available ? "success" : "warning"}>
-                {doctor.available ? "Available" : "In surgery"}
-              </Badge>
-            </div>
-            <h3 className="text-sm font-semibold">{doctor.name}</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {doctor.department}
-            </p>
-            <p className="mt-1 text-[11px] text-muted-foreground">
-              {doctor.role}
-            </p>
-            <div className="my-4 flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-              <UsersRound className="size-3.5" />
-              {doctor.patients} patients assigned
-            </div>
-            <Button
-              variant="outline"
-              className="w-full"
-              size="sm"
-              disabled={!doctor.available}
-              onClick={() => openBooking(doctor.id)}
-            >
-              <CalendarDays className="size-3.5" />
-              Book appointment
-            </Button>
-          </section>
-        ))}
-        {doctors.length === 0 && (
-          <p className="col-span-full rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-            No doctors are listed for this department in the sample roster.
-          </p>
-        )}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
         <Card
-          title="Supply inventory"
-          description="Stock levels for daily hospital operations"
-          action={<Package className="size-4 text-muted-foreground" />}
+          title="Department workload"
+          description="Relative visit volume across the selected departments"
+          className="xl:col-span-4"
           bodyClassName="p-5"
         >
-          <div className="space-y-4">
-            {HOSPITAL_SUPPLIES.map((item) => (
-              <div key={item.name}>
-                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-xs font-medium">{item.name}</p>
-                  <Badge
-                    size="sm"
-                    tone={
-                      item.remaining / item.target < 0.3 ? "warning" : "success"
-                    }
-                  >
-                    {item.remaining / item.target < 0.3
-                      ? "Low stock"
-                      : "In stock"}
-                  </Badge>
+          <ul className="space-y-4">
+            {data.departments.map((d, i) => (
+              <li key={d.name}>
+                <div className="mb-2 flex items-center justify-between gap-2 text-xs">
+                  <span className="font-medium">{d.name}</span>
+                  <span className="text-muted-foreground">
+                    {Math.round((d.visits * Number(period)) / 7)} visits
+                  </span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                   <div
-                    className={`h-full rounded-full ${item.remaining / item.target < 0.3 ? "bg-warning" : "bg-primary"}`}
+                    className={`h-full rounded-full ${hospitalAccents[i % 4]!.bg}`}
                     style={{
-                      width: `${(item.remaining / item.target) * 100}%`,
+                      width: `${(d.visits / Math.max(...data.departments.map((item) => item.visits))) * 100}%`,
                     }}
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-muted-foreground">
-                  {item.remaining.toLocaleString("en-US")} of{" "}
-                  {item.target.toLocaleString("en-US")} {item.unit}
-                </p>
-              </div>
+              </li>
             ))}
+          </ul>
+          <p className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
+            Relative visit volume across the selected departments.
+          </p>
+        </Card>
+      </div>
+      <Card
+        className="mt-4"
+        title="Patient appointment queue"
+        description="Coordinate scheduled arrivals, check-in and visit completion"
+        bodyClassName="p-0"
+        action={
+          <div className="flex flex-wrap gap-2">
+            <label className="relative">
+              <Search className="absolute start-2.5 top-2.5 size-3.5 text-muted-foreground" />
+              <input
+                aria-label="Search hospital appointments"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Patient or appointment"
+                className={`${hospitalField} w-44 ps-8`}
+              />
+            </label>
+            <select
+              aria-label="Appointment status filter"
+              className={hospitalField}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="all">All statuses</option>
+              <option>Scheduled</option>
+              <option>Checked in</option>
+              <option>Completed</option>
+            </select>
+          </div>
+        }
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="border-b border-border text-xs text-muted-foreground">
+                {[
+                  "Patient",
+                  "Appointment",
+                  "Care team",
+                  "Department",
+                  "Status",
+                  "Actions",
+                ].map((h) => (
+                  <th key={h} className="px-5 py-3 text-start font-medium">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {visibleAppointments.map((item) => {
+                const doctor = HOSPITAL_DOCTORS.find(
+                  (d) => d.id === item.doctorId,
+                );
+                return (
+                  <tr
+                    key={item.id}
+                    className="border-b border-border last:border-0 hover:bg-muted/40"
+                  >
+                    <td className="px-5 py-4">
+                      <p className="font-medium">{item.patient}</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {item.id}
+                        {item.age !== null ? ` · ${item.age} years` : ""}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4">
+                      <p className="text-xs font-semibold">{item.time}</p>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        {item.date} · {item.type}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <DoctorPortrait doctorId={item.doctorId} small />
+                        <span className="text-xs">{doctor?.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-xs text-muted-foreground">
+                      {item.department}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span
+                        className={`rounded-md px-2 py-1 text-xs ${hospitalAccents[item.status === "Completed" ? 0 : item.status === "Checked in" ? 3 : 1]!.soft} ${hospitalAccents[item.status === "Completed" ? 0 : item.status === "Checked in" ? 3 : 1]!.text}`}
+                      >
+                        {item.status}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        {item.status === "Scheduled" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => checkIn(item.id)}
+                          >
+                            Check in
+                          </Button>
+                        )}
+                        {item.status === "Checked in" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => completeVisit(item.id)}
+                          >
+                            Complete
+                          </Button>
+                        )}
+                        <button
+                          className="cursor-pointer rounded-md p-2 hover:bg-muted"
+                          aria-label={`View ${item.id}`}
+                          onClick={() => setDetails(item)}
+                        >
+                          <Eye className="size-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {visibleAppointments.length === 0 && (
+            <p className="p-6 text-center text-sm text-muted-foreground">
+              No appointments match your filters.
+            </p>
+          )}
+        </div>
+        <div className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
+          {visibleAppointments.length} appointments shown · sample patient data
+        </div>
+      </Card>
+      <Card
+        className="mt-4"
+        title="Care team coverage"
+        description="Consultant availability and clinic assignments"
+        bodyClassName="p-0"
+        action={
+          <span className="text-xs text-muted-foreground">
+            {doctors.filter((d) => d.available).length} available to book
+          </span>
+        }
+      >
+        <div className="grid divide-y divide-border sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4">
+          {doctors.map((doctor, i) => (
+            <article
+              key={doctor.id}
+              className="min-w-0 p-5 sm:border-e sm:border-border last:border-e-0"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <DoctorPortrait doctorId={doctor.id} />
+                <span
+                  className={`rounded-full px-2 py-1 text-[11px] font-medium ${hospitalAccents[doctor.available ? 0 : 1]!.soft} ${hospitalAccents[doctor.available ? 0 : 1]!.text}`}
+                >
+                  {doctor.available ? "Available" : "In procedure"}
+                </span>
+              </div>
+              <h3 className="mt-4 text-sm font-semibold">{doctor.name}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {doctor.department}
+              </p>
+              <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                <Stethoscope
+                  className={`size-3.5 ${hospitalAccents[i % 4]!.text}`}
+                />
+                {doctor.patients} assigned patients
+              </p>
+              <Button
+                className="mt-4 w-full"
+                variant="outline"
+                size="sm"
+                disabled={!doctor.available}
+                onClick={() => openBooking(doctor.id)}
+              >
+                {doctor.available ? "Book appointment" : "Unavailable"}
+              </Button>
+            </article>
+          ))}
+        </div>
+        {doctors.length === 0 && (
+          <p className="p-6 text-sm text-muted-foreground">
+            No consultants listed for this department in the sample roster.
+          </p>
+        )}
+      </Card>
+      <div className="mt-4 grid gap-4 xl:grid-cols-12">
+        <Card
+          title="Supply watch"
+          description="Current stock against replenishment targets"
+          className="xl:col-span-7"
+          bodyClassName="p-5"
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            {HOSPITAL_SUPPLIES.map((s, i) => {
+              const low = s.remaining / s.target < 0.3;
+              const requested = supplyRequests.includes(s.name);
+              return (
+                <div
+                  key={s.name}
+                  className="rounded-xl border border-border p-4"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <Package
+                      className={`size-4 ${hospitalAccents[low ? 1 : i % 4]!.text}`}
+                    />
+                    <span
+                      className={`text-[11px] font-medium ${hospitalAccents[low ? 1 : 0]!.text}`}
+                    >
+                      {low ? "Replenish soon" : "In stock"}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-sm font-medium">{s.name}</h3>
+                  <p className="mt-2 text-xl font-semibold">
+                    {s.remaining.toLocaleString("en-US")}
+                    <span className="ms-1 text-xs font-normal text-muted-foreground">
+                      {s.unit}
+                    </span>
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Target: {s.target.toLocaleString("en-US")} {s.unit}
+                  </p>
+                  <button
+                    disabled={requested}
+                    className="mt-4 cursor-pointer text-xs font-semibold text-primary disabled:cursor-not-allowed disabled:text-muted-foreground"
+                    onClick={() => {
+                      setSupplyRequests((v) => [...v, s.name]);
+                      toast.success(
+                        `Replenishment request recorded for ${s.name}`,
+                      );
+                    }}
+                  >
+                    {requested ? "Request recorded" : "Request replenishment"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </Card>
         <Card
-          title="Operations activity"
-          description="Sample updates from the hospital team"
-          action={<Activity className="size-4 text-muted-foreground" />}
+          title="Shift handover"
+          description="Operational notes for the next team"
+          className="xl:col-span-5"
           bodyClassName="p-5"
         >
-          <div className="space-y-5">
+          <ol className="space-y-5">
             {[
               {
-                title: "Morning ward review completed",
-                text: "Capacity and staffing reviewed across all six departments.",
-                time: "09:15",
-                icon: <HeartPulse className="size-4" />,
-                tone: "bg-primary/10 text-primary",
-              },
-              {
-                title: "Supply stock review",
-                text: "PPE kits and dressing packs marked for replenishment.",
-                time: "09:40",
-                icon: <Package className="size-4" />,
-                tone: "bg-warning/10 text-warning",
-              },
-              {
-                title: "Afternoon clinic schedule ready",
-                text: "Available doctors are accepting sample appointment bookings.",
-                time: "10:00",
-                icon: <Clock3 className="size-4" />,
-                tone: "bg-success/10 text-success",
-              },
-              {
-                title: "Bed allocation updated",
-                text: "Available beds confirmed with ward coordinators for incoming patients.",
+                title: "Bed census reconciled",
+                detail: `${data.occupied} occupied beds confirmed in selected wards.`,
                 time: "10:20",
-                icon: <BedDouble className="size-4" />,
-                tone: "bg-info/10 text-info",
+                icon: BedDouble,
+                i: 0,
               },
               {
-                title: "Staff handover completed",
-                text: "The afternoon team received appointment and department updates.",
-                time: "10:45",
-                icon: <UsersRound className="size-4" />,
-                tone: "bg-primary/10 text-primary",
+                title: "Clinic roster confirmed",
+                detail: `${doctors.filter((d) => d.available).length} consultants accepting appointments.`,
+                time: "10:30",
+                icon: Stethoscope,
+                i: 3,
               },
-            ].map((item) => (
-              <div key={item.title} className="flex gap-3">
-                <span
-                  className={`grid size-9 shrink-0 place-items-center rounded-lg ${item.tone}`}
-                >
-                  {item.icon}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap justify-between gap-2">
-                    <h3 className="text-xs font-semibold">{item.title}</h3>
-                    <span className="text-[11px] text-muted-foreground">
-                      {item.time}
-                    </span>
+              {
+                title: "Supply review due",
+                detail:
+                  "PPE kits and sterile dressing packs are below 30% of target.",
+                time: "10:45",
+                icon: Package,
+                i: 1,
+              },
+            ].map((note) => {
+              const Icon = note.icon;
+              return (
+                <li key={note.title} className="flex gap-3">
+                  <span
+                    className={`h-fit rounded-lg p-2 ${hospitalAccents[note.i]!.soft} ${hospitalAccents[note.i]!.text}`}
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <p className="text-sm font-medium">{note.title}</p>
+                      <time className="text-[11px] text-muted-foreground">
+                        {note.time}
+                      </time>
+                    </div>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      {note.detail}
+                    </p>
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    {item.text}
-                  </p>
-                </div>
-              </div>
-            ))}
+                </li>
+              );
+            })}
+          </ol>
+          <div className="mt-5 rounded-lg bg-muted/40 p-4">
+            <p className="flex items-center gap-2 text-xs font-medium">
+              <ClipboardList className="size-4" />
+              Reporting snapshot
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Sample billed services:{" "}
+              <span className="font-semibold text-foreground">
+                {hospitalMoney(data.revenue)}
+              </span>
+            </p>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Last {period} days · selected departments only
+            </p>
           </div>
         </Card>
       </div>

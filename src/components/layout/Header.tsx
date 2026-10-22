@@ -28,6 +28,7 @@ import {
   Settings,
   Globe,
   ChevronDown,
+  ArrowUpRight,
 } from "lucide-react";
 
 import {
@@ -43,6 +44,7 @@ import { Button } from "@/components/ui/button";
 import { notifications } from "@/data/mock-data";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getUserImage } from "@/lib/user-images";
 
 /* =====================================================
    Props
@@ -187,7 +189,14 @@ export function Header({
 
       read: index === 2,
 
-      tone: index === 0 ? "success" : index === 1 ? "primary" : index === 2 ? "info" : "warning",
+      tone:
+        index === 0
+          ? "success"
+          : index === 1
+            ? "primary"
+            : index === 2
+              ? "info"
+              : "warning",
     })),
   );
 
@@ -269,12 +278,12 @@ export function Header({
           flex-wrap
           items-center
           gap-2
-          border-b
+          border
           border-border
           bg-header
           px-4
           backdrop-blur-xl
-          lg:px-6
+          lg:px-6 mt-3 mx-3 rounded-xl
         `,
         fixed ? "sticky top-0" : "relative",
       )}
@@ -418,43 +427,71 @@ export function Header({
               p-0
             "
           >
-            <div className="border-b border-border px-4 py-3">
-              <p className="text-sm font-semibold">Applications</p>
+            <div className="border-b border-border bg-primary/[0.045] px-4 py-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                    <AppWindow className="size-[18px]" />
+                  </span>
 
-              <p className="mt-0.5 text-xs text-muted-foreground">Jump to your workspace tools</p>
+                  <div>
+                    <p className="text-sm font-semibold">Applications</p>
+
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      Jump to your workspace tools
+                    </p>
+                  </div>
+                </div>
+
+                <span className="rounded-full border border-primary/15 bg-background/80 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
+                  6 tools
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-1.5 p-2">
+            <div className="grid grid-cols-2 gap-2 p-3">
               {[
                 {
                   label: "Email",
                   href: "/apps/email",
                   icon: Mail,
+                  description: "Inbox & campaigns",
+                  tone: "bg-chart-1/15 text-chart-1",
                 },
                 {
                   label: "Chat",
                   href: "/apps/chat",
                   icon: CircleHelp,
+                  description: "Team messages",
+                  tone: "bg-chart-2/15 text-chart-2",
                 },
                 {
                   label: "Calendar",
                   href: "/apps/calendar",
                   icon: CalendarDays,
+                  description: "Plans & meetings",
+                  tone: "bg-chart-3/15 text-chart-3",
                 },
                 {
                   label: "Tasks",
                   href: "/apps/tasks",
                   icon: CheckCheck,
+                  description: "Work queue",
+                  tone: "bg-chart-4/15 text-chart-4",
                 },
                 {
                   label: "Files",
                   href: "/apps/files",
                   icon: FileText,
+                  description: "Shared assets",
+                  tone: "bg-chart-5/15 text-chart-5",
                 },
                 {
                   label: "Dashboard",
                   href: "/",
                   icon: Grid2x2,
+                  description: "Business overview",
+                  tone: "bg-primary/12 text-primary",
                 },
               ].map((app) => {
                 const AppIcon = app.icon;
@@ -469,31 +506,34 @@ export function Header({
                       items-center
                       gap-3
                       rounded-xl
+                      border
+                      border-transparent
+                      bg-muted/35
                       p-3
-                      transition-colors
-                      hover:bg-primary/[0.07]
+                      transition-[background-color,border-color,box-shadow]
+                      hover:border-primary/20
+                      hover:bg-primary/[0.055]
+                      hover:shadow-sm
                     "
                   >
                     <span
-                      className="
-                        grid
-                        size-9
-                        place-items-center
-                        rounded-xl
-                        bg-primary/10
-                        text-primary
-                        transition-colors
-                        group-hover:bg-primary
-                        group-hover:text-primary-foreground
-                      "
+                      className={cn(
+                        "grid size-9 shrink-0 place-items-center rounded-lg transition-transform duration-200 group-hover:scale-105",
+                        app.tone,
+                      )}
                     >
                       <AppIcon className="size-4" />
                     </span>
 
-                    <span>
-                      <span className="block text-[13px] font-semibold">{app.label}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between gap-1 text-[13px] font-semibold">
+                        {app.label}
+                        <ArrowUpRight className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                      </span>
 
-                      <span className="block text-[11px] text-muted-foreground">Open app</span>
+                      <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+                        {app.description}
+                      </span>
                     </span>
                   </Link>
                 );
@@ -510,7 +550,10 @@ export function Header({
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className={cn(iconBtn, "hidden min-w-9 gap-1 px-2 sm:inline-flex")}
+              className={cn(
+                iconBtn,
+                "hidden min-w-9 gap-1 px-2 sm:inline-flex",
+              )}
               aria-label="Choose language"
             >
               <Globe className="size-[17px]" />
@@ -614,7 +657,9 @@ export function Header({
                 <p className="text-sm font-semibold">Notifications</p>
 
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {unreadCount ? `${unreadCount} unread updates` : "You are all caught up"}
+                  {unreadCount
+                    ? `${unreadCount} unread updates`
+                    : "You are all caught up"}
                 </p>
               </div>
 
@@ -809,7 +854,11 @@ export function Header({
           className={iconBtn}
           aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
         >
-          {dark ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
+          {dark ? (
+            <Sun className="size-[18px]" />
+          ) : (
+            <Moon className="size-[18px]" />
+          )}
         </button>
 
         {/* =================================================
@@ -849,26 +898,20 @@ export function Header({
               "
               aria-label="Account menu"
             >
-              <span
-                className="
-                  flex
-                  size-8
-                  items-center
-                  justify-center
-                  rounded-lg
-                  bg-primary
-                  text-[12px]
-                  font-semibold
-                  text-primary-foreground
-                "
-              >
-                EM
-              </span>
+              <img
+                src={getUserImage("Elena Mrquez")}
+                alt="Elena Mrquez"
+                className="size-8 rounded-lg object-cover"
+              />
 
               <span className="hidden text-start leading-tight md:block">
-                <span className="block text-[13px] font-semibold">Elena Mrquez</span>
+                <span className="block text-[13px] font-semibold">
+                  Elena Mrquez
+                </span>
 
-                <span className="block text-[11px] text-muted-foreground">Operations Lead</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  Operations Lead
+                </span>
               </span>
 
               <ChevronDown className="hidden size-4 text-muted-foreground md:block" />
@@ -880,12 +923,16 @@ export function Header({
 
             <div className="bg-primary/[0.06] px-4 py-3.5">
               <div className="flex items-center gap-3">
-                <span className="grid size-10 place-items-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">
-                  EM
-                </span>
+                <img
+                  src={getUserImage("Elena Mrquez")}
+                  alt="Elena Mrquez"
+                  className="size-10 rounded-xl object-cover"
+                />
 
                 <span>
-                  <span className="block text-sm font-semibold">Elena Mrquez</span>
+                  <span className="block text-sm font-semibold">
+                    Elena Mrquez
+                  </span>
 
                   <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                     <i
@@ -966,7 +1013,9 @@ export function Header({
                     {status}
                   </span>
 
-                  {presence === status && <Check className="size-4 text-primary" />}
+                  {presence === status && (
+                    <Check className="size-4 text-primary" />
+                  )}
                 </DropdownMenuItem>
               ))}
             </div>

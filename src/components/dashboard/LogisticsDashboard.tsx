@@ -1,13 +1,7 @@
-﻿import { useState } from "react";
-import {
-  Truck,
-  Package,
-  MapPin,
-  CheckCheck,
-  Search,
-  Download,
-} from "lucide-react";
+import { useState } from "react";
+import { Truck, Package, Search, Download } from "lucide-react";
 import { toast } from "sonner";
+import { getUserImage } from "@/lib/user-images";
 import { AppShell } from "@/components/layout/AppShell";
 import { ApexChart } from "@/components/charts/ApexChart";
 import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
@@ -20,15 +14,33 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Card, Badge, PageHeader } from "./widgets";
+
+import { Card, PageHeader } from "./widgets";
+import { LogisticsLocationMap } from "./LogisticsLocationMap";
+const logisticsField =
+  "h-9 max-w-full cursor-pointer rounded-md border border-border bg-card px-3 text-xs";
+const logisticsAccents = [
+  {
+    bg: "bg-[var(--chart-1)]",
+    text: "text-[var(--chart-1)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-1)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-2)]",
+    text: "text-[var(--chart-2)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-2)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-3)]",
+    text: "text-[var(--chart-3)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-3)_10%,transparent)]",
+  },
+  {
+    bg: "bg-[var(--chart-4)]",
+    text: "text-[var(--chart-4)]",
+    soft: "bg-[color-mix(in_oklab,var(--chart-4)_10%,transparent)]",
+  },
+];
 const initialShipments = [
   {
     id: "SHP-1001",
@@ -125,49 +137,21 @@ export function LogisticsDashboard() {
   );
   const statuses = ["Pending", "In transit", "Delayed", "Delivered"];
   const { base } = useChartTheme();
-  const distribution = mergeOptions(base, {
-    labels: statuses,
-    colors: [
-      token("--chart-2"),
-      token("--chart-1"),
-      token("--chart-4"),
-      token("--success"),
-    ],
-    stroke: { width: 2, colors: [token("--card")] },
-    fill: { opacity: 0.8 },
+  const [checklist, setChecklist] = useState<string[]>([]);
+  const origins = [...new Set(shipments.map((s) => s.origin))];
+  const hubOptions = mergeOptions(base, {
+    chart: { type: "bar", stacked: true },
+    colors: [1, 2, 3, 4].map((i) => token(`--chart-${i}`)),
+    stroke: { width: 0 },
     plotOptions: {
-      polarArea: {
-        rings: { strokeWidth: 1, strokeColor: token("--border") },
-        spokes: { strokeWidth: 1, connectorColors: token("--border") },
-      },
+      bar: { horizontal: true, barHeight: "42%", borderRadius: 3 },
     },
-    yaxis: { min: 0, labels: { show: false } },
-    legend: { show: true, position: "bottom" },
-    dataLabels: { enabled: false },
-    tooltip: { y: { formatter: (value: number) => value + " shipments" } },
-  });
-  const loadOptions = mergeOptions(base, {
-    colors: [token("--chart-1"), token("--chart-2")],
-    stroke: { width: [0, 3], curve: "smooth" },
-    markers: { size: [0, 4] },
-    plotOptions: { bar: { columnWidth: "30%", borderRadius: 5 } },
-    xaxis: { categories: visible.map((s) => s.id.replace("SHP-", "")) },
-    yaxis: [
-      {
-        seriesName: "Cargo weight",
-        min: 0,
-        labels: { formatter: (v: number) => Math.round(v) + " kg" },
-      },
-      {
-        seriesName: "Route progress",
-        opposite: true,
-        min: 0,
-        max: 100,
-        labels: { formatter: (v: number) => Math.round(v) + "%" },
-      },
-    ],
-    legend: { position: "top", horizontalAlign: "left" },
-    tooltip: { shared: true, intersect: false },
+    xaxis: {
+      categories: origins,
+      labels: { formatter: (v: string) => `${Math.round(Number(v))} kg` },
+    },
+    legend: { position: "bottom", horizontalAlign: "left" },
+    tooltip: { y: { formatter: (v: number) => `${v} kg` } },
   });
   function exportReport() {
     const rows = [
@@ -220,149 +204,296 @@ export function LogisticsDashboard() {
         subtitle="Keep shipments, routes, and fleet operations moving."
         breadcrumb={["Dashboards", "Logistics"]}
         actions={
-          <Button variant="outline" onClick={exportReport}>
+          <Button variant="outline" size="sm" onClick={exportReport}>
             <Download className="size-4" />
-            Export shipments
+            Export report
           </Button>
         }
       />
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-5">
-        <div className="flex items-center gap-3">
-          <Truck className="size-8 text-primary" />
-          <div>
-            <p className="font-semibold">Every shipment. One clear view.</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Sample operations · October 9, 2026 · Session-only updates
+      <Card bodyClassName="p-5 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span
+              className={`flex size-11 items-center justify-center rounded-xl ${logisticsAccents[3]!.soft} ${logisticsAccents[3]!.text}`}
+            >
+              <Truck className="size-6" />
+            </span>
+            <div>
+              <h2 className="text-[15px] font-semibold">
+                Dispatch command center
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Sample fleet snapshot · October 9, 2026
+              </p>
+            </div>
+          </div>
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+            {origins.length} origin hubs · {shipments.length} assigned vehicles
+          </span>
+        </div>
+        <div className="mt-5 grid gap-5 lg:grid-cols-[220px_1fr]">
+          <div className="rounded-xl bg-muted/40 p-4">
+            <p className="text-xs text-muted-foreground">Cargo in motion</p>
+            <p className="mt-2 text-[32px] font-semibold leading-tight">
+              {shipments
+                .filter((s) => s.status === "In transit")
+                .reduce((sum, s) => sum + s.weight, 0)
+                .toLocaleString("en-US")}
+              <span className="ms-1 text-sm font-normal text-muted-foreground">
+                kg
+              </span>
             </p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {shipments.filter((s) => s.status === "In transit").length} active
+              shipment lanes
+            </p>
+            <div className="mt-4 border-t border-border pt-3 text-xs">
+              <span className="text-muted-foreground">Manifest total </span>
+              <b>
+                {shipments
+                  .reduce((sum, s) => sum + s.weight, 0)
+                  .toLocaleString("en-US")}{" "}
+                kg
+              </b>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {statuses.map((label, i) => {
+              const count = shipments.filter((s) => s.status === label).length;
+              return (
+                <button
+                  key={label}
+                  onClick={() => setStatus(status === label ? "All" : label)}
+                  aria-pressed={status === label}
+                  className={`flex cursor-pointer flex-col rounded-xl border p-4 text-start transition-colors hover:bg-muted/40 ${status === label ? "border-primary bg-primary/5" : "border-border"}`}
+                >
+                  <span
+                    className={`mb-3 flex size-8 items-center justify-center rounded-full text-white ${logisticsAccents[i]!.bg}`}
+                  >
+                    <Package className="size-4" />
+                  </span>
+                  <span className="text-xs text-muted-foreground">{label}</span>
+                  <span className="mt-1 text-[26px] font-semibold">
+                    {count}
+                  </span>
+                  <span className="mt-auto pt-3 text-[11px] text-muted-foreground">
+                    {shipments.length
+                      ? Math.round((count / shipments.length) * 100)
+                      : 0}
+                    % of shipments
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
-        <Badge tone="primary">Demo tracking</Badge>
-      </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Shipments in view",
-            value: visible.length,
-            icon: Package,
-            color: "--primary",
-            note: "Matching your current filters",
-          },
-          {
-            label: "In transit",
-            value: visible.filter((s) => s.status === "In transit").length,
-            icon: Truck,
-            color: "--info",
-            note: "Shipments moving toward destination",
-          },
-          {
-            label: "Delivered",
-            value: visible.filter((s) => s.status === "Delivered").length,
-            icon: CheckCheck,
-            color: "--success",
-            note: "Completed sample deliveries",
-          },
-          {
-            label: "Needs attention",
-            value: visible.filter((s) => s.status === "Delayed").length,
-            icon: MapPin,
-            color: "--warning",
-            note: "Delayed shipments to review",
-          },
-        ].map((m) => (
-          <section key={m.label} className="metric-card edzen-card p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs text-muted-foreground">{m.label}</p>
-                <p className="mt-3 text-3xl font-semibold">{m.value}</p>
-              </div>
-              <span
-                className="metric-icon grid size-12 place-items-center rounded-xl"
-                style={{
-                  color: `var(${m.color})`,
-                  background: `color-mix(in oklch,var(${m.color}) 12%,transparent)`,
-                }}
-              >
-                <m.icon className="size-6" />
-              </span>
-            </div>
-            <p className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
-              {m.note}
-            </p>
-          </section>
-        ))}
-      </div>
-      <div className="mb-6 grid gap-6 xl:grid-cols-3">
+      </Card>
+      <LogisticsLocationMap shipments={shipments} />
+      <div className="mt-4 grid gap-4 xl:grid-cols-12">
         <Card
-          title="Cargo & route progress"
-          description="Weight in kilograms and progress percentage by shipment"
-          className="xl:col-span-2"
+          title="Route network"
+          description="Illustrative lane connections · schematic, not a live map"
+          className="xl:col-span-8"
+          bodyClassName="p-5"
         >
-          {visible.length ? (
-            <ApexChart
-              type="bar"
-              height={300}
-              options={loadOptions}
-              series={[
-                {
-                  name: "Cargo weight",
-                  type: "column",
-                  data: visible.map((s) => s.weight),
-                },
-                {
-                  name: "Route progress",
-                  type: "area",
-                  data: visible.map((s) => s.progress),
-                },
-              ]}
+          <svg
+            viewBox="0 0 700 310"
+            className="h-auto w-full"
+            role="img"
+            aria-label="Mumbai to Pune and Nashik, Delhi to Jaipur and Agra, Bengaluru to Chennai, Hyderabad to Vijayawada route connections"
+          >
+            <defs>
+              <pattern
+                id="logistics-grid"
+                width="24"
+                height="24"
+                patternUnits="userSpaceOnUse"
+              >
+                <circle cx="2" cy="2" r="1" fill="var(--border)" />
+              </pattern>
+            </defs>
+            <rect
+              width="700"
+              height="310"
+              rx="12"
+              fill="url(#logistics-grid)"
             />
-          ) : (
-            <p className="py-20 text-center text-sm text-muted-foreground">
-              No shipments match your filters.
-            </p>
-          )}
+            {[
+              {
+                a: [100, 75],
+                b: [310, 45],
+                origin: "Delhi",
+                destination: "Jaipur",
+                i: 1,
+              },
+              {
+                a: [100, 75],
+                b: [500, 85],
+                origin: "",
+                destination: "Agra",
+                i: 0,
+              },
+              {
+                a: [90, 190],
+                b: [300, 150],
+                origin: "Mumbai",
+                destination: "Nashik",
+                i: 0,
+              },
+              {
+                a: [90, 190],
+                b: [325, 235],
+                origin: "",
+                destination: "Pune",
+                i: 2,
+              },
+              {
+                a: [450, 175],
+                b: [600, 220],
+                origin: "Hyderabad",
+                destination: "Vijayawada",
+                i: 1,
+              },
+              {
+                a: [120, 280],
+                b: [530, 280],
+                origin: "Bengaluru",
+                destination: "Chennai",
+                i: 3,
+              },
+            ].map((lane, index) => (
+              <g key={index}>
+                <path
+                  d={`M${lane.a[0]},${lane.a[1]} Q${(lane.a[0]! + lane.b[0]!) / 2},${lane.a[1]! - 30} ${lane.b[0]},${lane.b[1]}`}
+                  stroke={`var(--chart-${lane.i + 1})`}
+                  strokeWidth="2"
+                  strokeDasharray={lane.i === 1 ? "5 5" : undefined}
+                  fill="none"
+                  opacity="0.65"
+                />
+                <circle
+                  cx={lane.a[0]}
+                  cy={lane.a[1]}
+                  r="5"
+                  fill="var(--card)"
+                  stroke={`var(--chart-${lane.i + 1})`}
+                  strokeWidth="2"
+                />
+                <circle
+                  cx={lane.b[0]}
+                  cy={lane.b[1]}
+                  r="5"
+                  fill={`var(--chart-${lane.i + 1})`}
+                />
+                <text
+                  x={lane.a[0]}
+                  y={lane.a[1]! - 12}
+                  textAnchor="middle"
+                  fontSize="11"
+                  fill="var(--foreground)"
+                >
+                  {lane.origin}
+                </text>
+                <text
+                  x={lane.b[0]}
+                  y={lane.b[1]! - 12}
+                  textAnchor="middle"
+                  fontSize="11"
+                  fill="var(--foreground)"
+                >
+                  {lane.destination}
+                </text>
+              </g>
+            ))}
+          </svg>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
+            <span>4 origin hubs</span>
+            <span>6 destination lanes</span>
+            <span>
+              {shipments.filter((s) => s.status === "In transit").length}{" "}
+              shipments currently in transit
+            </span>
+          </div>
         </Card>
         <Card
-          title="Shipment status"
-          description="Current distribution in your filtered view"
+          title="Exception desk"
+          description="Shipments needing a dispatch decision"
+          className="xl:col-span-4"
+          bodyClassName="p-5"
         >
-          {visible.length ? (
-            <ApexChart
-              type="polarArea"
-              height={300}
-              options={distribution}
-              series={statuses.map(
-                (status) => visible.filter((s) => s.status === status).length,
-              )}
-            />
-          ) : (
-            <p className="py-20 text-center text-sm text-muted-foreground">
-              No shipments in view.
+          <div className="flex items-end gap-2">
+            <p className="text-[32px] font-semibold">
+              {
+                shipments.filter(
+                  (s) => s.status === "Delayed" || s.status === "Pending",
+                ).length
+              }
+            </p>
+            <p className="pb-1 text-xs text-muted-foreground">
+              open exceptions
+            </p>
+          </div>
+          <div className="mt-4 space-y-3">
+            {shipments
+              .filter((s) => s.status === "Delayed" || s.status === "Pending")
+              .map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => setSelected(s)}
+                  className="flex w-full cursor-pointer items-start gap-3 rounded-xl border border-border p-4 text-start hover:bg-muted/40"
+                >
+                  <span
+                    className={`rounded-lg p-2 ${logisticsAccents[1]!.soft} ${logisticsAccents[1]!.text}`}
+                  >
+                    <Package className="size-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-semibold">
+                      {s.origin} → {s.destination}
+                    </span>
+                    <span className="mt-1 block text-[11px] text-muted-foreground">
+                      {s.id} · {s.status}
+                    </span>
+                    <span className="mt-2 block text-xs text-muted-foreground">
+                      {s.status === "Pending"
+                        ? "Awaiting dispatch release"
+                        : "Confirm revised delivery ETA"}
+                    </span>
+                  </span>
+                </button>
+              ))}
+          </div>
+          {!shipments.some(
+            (s) => s.status === "Delayed" || s.status === "Pending",
+          ) && (
+            <p className="mt-5 text-sm text-muted-foreground">
+              No shipments need attention.
             </p>
           )}
         </Card>
       </div>
       <Card
-        title="Shipment tracking"
-        description={`${visible.length} shipments in view`}
-        className="mb-6"
+        className="mt-4"
+        title="Shipment control board"
+        description="Track route progress and act on each shipment"
         bodyClassName="p-0"
         action={
           <div className="flex flex-wrap gap-2">
-            <div className="relative">
-              <Search className="absolute start-3 top-3 size-4 text-muted-foreground" />
+            <label className="relative">
+              <Search className="absolute start-2.5 top-2.5 size-3.5 text-muted-foreground" />
               <Input
-                aria-label="Search shipments"
-                className="ps-9 sm:w-56"
-                placeholder="Search ID, customer, or city…"
+                aria-label="Search logistics shipments"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                className="h-9 w-44 ps-8 text-xs"
+                placeholder="Shipment, customer or city"
               />
-            </div>
+            </label>
             <select
-              aria-label="Shipment status"
+              aria-label="Shipment status filter"
+              className={logisticsField}
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="rounded-lg border border-border bg-card px-3 text-sm"
             >
               <option>All</option>
               {statuses.map((s) => (
@@ -372,282 +503,224 @@ export function LogisticsDashboard() {
           </div>
         }
       >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {["Shipment", "Route", "Status", "Cargo", "ETA", ""].map(
-                (h, i) => (
-                  <TableHead key={i}>{h}</TableHead>
-                ),
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visible.map((s) => (
-              <TableRow key={s.id}>
-                <TableCell>
-                  <p className="font-semibold">{s.id}</p>
+        <div className="divide-y divide-border">
+          {visible.map((s) => {
+            const i = statuses.indexOf(s.status);
+            return (
+              <article
+                key={s.id}
+                className="grid items-center gap-4 p-5 lg:grid-cols-[200px_minmax(0,1fr)_150px_auto]"
+              >
+                <div>
+                  <button
+                    onClick={() => setSelected(s)}
+                    className="cursor-pointer text-sm font-semibold hover:underline"
+                  >
+                    {s.id}
+                  </button>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {s.customer}
                   </p>
-                </TableCell>
-                <TableCell>
-                  <p className="text-xs">
-                    {s.origin} → {s.destination}
-                  </p>
-                  <div className="mt-2 h-1.5 w-32 rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: s.progress + "%" }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    tone={
-                      s.status === "Delivered"
-                        ? "success"
-                        : s.status === "Delayed"
-                          ? "warning"
-                          : "primary"
-                    }
+                  <span
+                    className={`mt-2 inline-block rounded-md px-2 py-1 text-[11px] ${logisticsAccents[i]!.soft} ${logisticsAccents[i]!.text}`}
                   >
                     {s.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>{s.weight} kg</TableCell>
-                <TableCell className="text-xs">{s.eta}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    aria-label={`Track ${s.id}`}
-                    onClick={() => setSelected(s)}
+                  </span>
+                </div>
+                <div className="min-w-0">
+                  <div className="mb-2 flex justify-between gap-2 text-xs font-medium">
+                    <span>{s.origin}</span>
+                    <span>{s.destination}</span>
+                  </div>
+                  <div
+                    className="relative h-2 rounded-full bg-muted"
+                    role="meter"
+                    aria-label={`${s.id} route progress`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={s.progress}
                   >
-                    Track
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-            {!visible.length && (
-              <TableRow>
-                <TableCell
-                  colSpan={6}
-                  className="py-8 text-center text-muted-foreground"
-                >
-                  No matching shipments.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </Card>
-      <div className="grid gap-6 xl:grid-cols-3">
-        <Card
-          title="Fleet overview"
-          description="Vehicles assigned to shipments in view"
-          className="xl:col-span-2"
-          bodyClassName="p-5"
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            {visible.map((s) => (
-              <div
-                key={s.vehicle}
-                className="rounded-xl border border-border p-4"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <Truck className="size-5" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold">{s.vehicle}</p>
-                    <p className="text-xs text-muted-foreground">{s.driver}</p>
-                  </div>
-                </div>
-                <div className="mt-4 flex justify-between gap-2 text-xs">
-                  <span className="text-muted-foreground">
-                    {s.origin} / {s.destination}
-                  </span>
-                  <span>{s.progress}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          {!visible.length && (
-            <p className="text-sm text-muted-foreground">
-              No assigned vehicles in view.
-            </p>
-          )}
-        </Card>
-        <Card
-          title="Dispatch checklist"
-          description="Sample daily operations"
-          bodyClassName="p-5"
-        >
-          <div className="space-y-4">
-            {[
-              "Review delayed shipments",
-              "Confirm driver assignments",
-              "Check cargo documentation",
-              "Prepare next-day dispatch",
-            ].map((item) => (
-              <label key={item} className="flex items-center gap-3 text-sm">
-                <input type="checkbox" className="size-4 accent-primary" />
-                {item}
-              </label>
-            ))}
-          </div>
-          <p className="mt-6 rounded-lg bg-primary/5 p-3 text-xs leading-5 text-muted-foreground">
-            Tracking details are sample records. No live GPS or carrier
-            connection is configured.
-          </p>
-        </Card>
-      </div>
-      <div className="mt-6 grid gap-6 xl:grid-cols-3">
-        <Card
-          title="Delivery performance"
-          description="Current filtered shipments"
-          bodyClassName="p-5"
-        >
-          <div className="flex items-center gap-4">
-            <span className="grid size-14 place-items-center rounded-2xl bg-success/10 text-success">
-              <CheckCheck className="size-7" />
-            </span>
-            <div>
-              <p className="text-3xl font-semibold">
-                {visible.length
-                  ? Math.round(
-                      (visible.filter((s) => s.status === "Delivered").length /
-                        visible.length) *
-                        100,
-                    )
-                  : 0}
-                %
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Shipments completed
-              </p>
-            </div>
-          </div>
-          <div className="mt-5 h-2 overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-success"
-              style={{
-                width:
-                  (visible.length
-                    ? (visible.filter((s) => s.status === "Delivered").length /
-                        visible.length) *
-                      100
-                    : 0) + "%",
-              }}
-            />
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4">
-            <div>
-              <p className="text-lg font-semibold">
-                {visible.reduce((sum, s) => sum + s.weight, 0)} kg
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Total cargo in view
-              </p>
-            </div>
-            <div>
-              <p className="text-lg font-semibold">
-                {visible.length
-                  ? Math.round(
-                      visible.reduce((sum, s) => sum + s.progress, 0) /
-                        visible.length,
-                    )
-                  : 0}
-                %
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Average route progress
-              </p>
-            </div>
-          </div>
-        </Card>
-        <Card
-          title="Origin cargo load"
-          description="Weight allocation across dispatch cities"
-          bodyClassName="p-5"
-        >
-          <div className="space-y-4">
-            {[...new Set(visible.map((s) => s.origin))].map((origin) => {
-              const weight = visible
-                .filter((s) => s.origin === origin)
-                .reduce((sum, s) => sum + s.weight, 0);
-              const total = visible.reduce((sum, s) => sum + s.weight, 0);
-              return (
-                <div key={origin}>
-                  <div className="mb-2 flex items-center justify-between gap-2 text-xs">
-                    <span className="font-medium">{origin}</span>
-                    <span className="text-muted-foreground">{weight} kg</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-muted">
                     <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: (weight / total) * 100 + "%" }}
+                      className={`h-full rounded-full ${logisticsAccents[i]!.bg}`}
+                      style={{ width: `${s.progress}%` }}
+                    />
+                    <span
+                      className={`absolute top-1/2 size-3 -translate-y-1/2 rounded-full border-2 border-card ${logisticsAccents[i]!.bg}`}
+                      style={{
+                        insetInlineStart: `calc(${Math.max(1, Math.min(99, s.progress))}% - 6px)`,
+                      }}
                     />
                   </div>
+                  <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
+                    <span>
+                      {s.weight} kg · {s.vehicle}
+                    </span>
+                    <span>{s.progress}%</span>
+                  </div>
                 </div>
-              );
-            })}
-            {!visible.length && (
-              <p className="text-sm text-muted-foreground">
-                No cargo in this view.
-              </p>
-            )}
-          </div>
+                <div className="flex items-center gap-2">
+                  <img
+                    src={getUserImage(s.driver)}
+                    alt={s.driver}
+                    className="size-8 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-xs font-medium">{s.driver}</p>
+                    <p className="mt-1 text-[11px] text-muted-foreground">
+                      {s.eta.replace("October ", "Oct ")}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelected(s)}
+                >
+                  Track
+                </Button>
+              </article>
+            );
+          })}
+        </div>
+        {!visible.length && (
+          <p className="p-6 text-center text-sm text-muted-foreground">
+            No shipments match your filters.
+          </p>
+        )}
+      </Card>
+      <div className="mt-4 grid gap-4 xl:grid-cols-12">
+        <Card
+          title="Hub cargo balance"
+          description="Cargo weight by origin and shipment status"
+          className="xl:col-span-7"
+          bodyClassName="p-3"
+        >
+          <ApexChart
+            type="bar"
+            height={275}
+            options={hubOptions}
+            series={statuses.map((label) => ({
+              name: label,
+              data: origins.map((origin) =>
+                shipments
+                  .filter((s) => s.origin === origin && s.status === label)
+                  .reduce((sum, s) => sum + s.weight, 0),
+              ),
+            }))}
+          />
+          <p className="mx-2 border-t border-border pt-3 text-[11px] text-muted-foreground">
+            Total cargo:{" "}
+            {shipments
+              .reduce((sum, s) => sum + s.weight, 0)
+              .toLocaleString("en-US")}{" "}
+            kg · current sample manifest
+          </p>
         </Card>
         <Card
-          title="Dispatch attention"
-          description="Pending and delayed shipments in view"
+          title="Dispatch release checklist"
+          description="Confirm the essentials before releasing pending cargo"
+          className="xl:col-span-5"
           bodyClassName="p-5"
         >
           <div className="space-y-3">
-            {visible
-              .filter((s) => s.status === "Delayed" || s.status === "Pending")
-              .map((s) => (
-                <button
-                  key={s.id}
-                  onClick={() => setSelected(s)}
-                  className="flex w-full items-start gap-3 rounded-xl border border-border p-3 text-start transition hover:bg-muted/30"
-                >
-                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-warning/10 text-warning">
-                    <Package className="size-4" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-xs font-semibold">{s.id}</p>
-                      <Badge tone="warning" size="sm">
-                        {s.status}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {s.origin} to {s.destination}
-                    </p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      {s.status === "Pending"
-                        ? "Awaiting dispatch"
-                        : "Review arrival schedule"}
-                    </p>
-                  </div>
-                </button>
-              ))}
-            {!visible.some(
-              (s) => s.status === "Delayed" || s.status === "Pending",
-            ) && (
-              <div className="py-6 text-center">
-                <CheckCheck className="mx-auto mb-2 size-8 text-success" />
-                <p className="text-sm font-medium">
-                  No shipments need attention
-                </p>
-              </div>
-            )}
+            {[
+              "Verify cargo manifest",
+              "Confirm driver assignment",
+              "Check vehicle readiness",
+              "Approve dispatch documents",
+            ].map((label) => (
+              <label
+                key={label}
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3"
+              >
+                <input
+                  type="checkbox"
+                  checked={checklist.includes(label)}
+                  onChange={() =>
+                    setChecklist((v) =>
+                      v.includes(label)
+                        ? v.filter((i) => i !== label)
+                        : [...v, label],
+                    )
+                  }
+                  className="size-4 cursor-pointer accent-primary"
+                />
+                <span className="text-xs font-medium">{label}</span>
+              </label>
+            ))}
           </div>
+          <p className="mt-4 text-xs text-muted-foreground">
+            {checklist.length} / 4 checks complete
+          </p>
+          <Button
+            className="mt-4 w-full"
+            disabled={
+              checklist.length !== 4 ||
+              !shipments.some((s) => s.status === "Pending")
+            }
+            onClick={() => {
+              setShipments((v) =>
+                v.map((s) =>
+                  s.status === "Pending"
+                    ? { ...s, status: "In transit", progress: 10 }
+                    : s,
+                ),
+              );
+              setChecklist([]);
+              toast.success("Pending sample cargo released to transit");
+            }}
+          >
+            Release pending shipments
+          </Button>
         </Card>
       </div>
+      <Card
+        className="mt-4"
+        title="Driver & vehicle roster"
+        description="Assigned routes and current delivery state"
+        bodyClassName="p-5"
+      >
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {shipments.map((s, i) => (
+            <article
+              key={s.vehicle}
+              className="rounded-xl border border-border p-4"
+            >
+              <div className="flex items-center gap-3">
+                <img
+                  src={getUserImage(s.driver)}
+                  alt={s.driver}
+                  loading="lazy"
+                  className="size-11 rounded-xl object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold">{s.driver}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {s.vehicle}
+                  </p>
+                </div>
+                <Truck className={`size-4 ${logisticsAccents[i % 4]!.text}`} />
+              </div>
+              <div className="mt-4 border-t border-border pt-3">
+                <p className="text-xs font-medium">
+                  {s.origin} → {s.destination}
+                </p>
+                <div className="mt-2 flex justify-between text-[11px] text-muted-foreground">
+                  <span>{s.weight} kg assigned</span>
+                  <span
+                    className={
+                      logisticsAccents[statuses.indexOf(s.status)]!.text
+                    }
+                  >
+                    {s.status}
+                  </span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </Card>
+
       <Dialog
         open={!!selected}
         onOpenChange={(open) => {

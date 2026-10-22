@@ -1,416 +1,743 @@
-import { useMemo } from "react";
-import { CalendarDays, Plus, Landmark, ReceiptText } from "lucide-react";
+﻿import { useMemo, useState } from "react";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Banknote,
+  Building2,
+  CalendarDays,
+  CheckCircle2,
+  CircleDollarSign,
+  Clock3,
+  CreditCard,
+  Landmark,
+  Plus,
+  ReceiptText,
+  ShieldCheck,
+  FileCheck2,
+  Target,
+  TrendingUp,
+  Users,
+  WalletCards,
+} from "lucide-react";
 import { ApexChart } from "@/components/charts/ApexChart";
 import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
 import { Badge, Card, PageHeader } from "./widgets";
 import { Button } from "@/components/ui/button";
-function P({ v, t = "bg-primary" }: { v: number; t?: string }) {
-  return (
-    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-      <i
-        className={`block h-full rounded-full ${t}`}
-        style={{ width: `${v}%` }}
-      />
-    </div>
-  );
-}
+
+const money = (value: number) =>
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+
+const cashMovements = [
+  { label: "Subscription settlements", value: 142800, color: "bg-primary" },
+  { label: "Services collections", value: 48600, color: "bg-chart-2" },
+  { label: "Payroll and benefits", value: -68600, color: "bg-destructive" },
+  { label: "Operating spend", value: -31400, color: "bg-warning" },
+];
+
 export function FinanceDashboard() {
   const { base } = useChartTheme();
+  const [range, setRange] = useState<"6M" | "12M">("6M");
+  const [showAllActivity, setShowAllActivity] = useState(false);
+  const labels = useMemo(
+    () =>
+      range === "6M"
+        ? ["Mar", "Apr", "May", "Jun", "Jul", "Aug"]
+        : [
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+          ],
+    [range],
+  );
   const chart = useMemo(
     () =>
       mergeOptions(base, {
-        chart: { type: "bar" },
+        chart: { type: "area", toolbar: { show: false } },
+        colors: [token("--chart-1"), token("--chart-2")],
+        stroke: { curve: "smooth", width: [3, 2] },
+        fill: {
+          type: "gradient",
+          gradient: { opacityFrom: 0.3, opacityTo: 0.02 },
+        },
+        dataLabels: { enabled: false },
+        legend: { position: "top", horizontalAlign: "left" },
+        xaxis: { categories: labels },
+        yaxis: { labels: { formatter: (value: number) => `$${value}k` } },
+      }),
+    [base, labels],
+  );
+  const allocationChart = useMemo(
+    () =>
+      mergeOptions(base, {
+        chart: { type: "donut", toolbar: { show: false } },
+        labels: ["Growth programs", "Platform", "Risk reserve", "Available"],
         colors: [
           token("--chart-1"),
-          token("--destructive"),
+          token("--chart-2"),
           token("--chart-3"),
+          token("--chart-4"),
         ],
-        xaxis: { categories: ["Mar", "Apr", "May", "Jun", "Jul", "Aug"] },
-        plotOptions: { bar: { columnWidth: "44%", borderRadius: 5 } },
-        stroke: { curve: "smooth", width: [0, 0, 3] },
-        legend: { position: "top", horizontalAlign: "left" },
+        legend: { show: false },
+        dataLabels: { enabled: false },
+        stroke: { width: 4, colors: [token("--card")] },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: "68%",
+              labels: {
+                show: true,
+                name: { show: true, offsetY: 18 },
+                value: { show: true, offsetY: -12, fontSize: "22px" },
+                total: {
+                  show: true,
+                  label: "allocated",
+                  formatter: () => "$468K",
+                },
+              },
+            },
+          },
+        },
       }),
     [base],
   );
+  const revenue =
+    range === "6M"
+      ? [138, 149, 156, 167, 179, 194]
+      : [101, 108, 119, 126, 132, 136, 138, 149, 156, 167, 179, 194];
+  const operatingCash =
+    range === "6M"
+      ? [301, 326, 348, 362, 394, 423]
+      : [238, 242, 251, 264, 278, 291, 301, 326, 348, 362, 394, 423];
+
   return (
     <>
       <PageHeader
         title="Finance"
-        subtitle="Cash, profitability and control signals across the business."
+        subtitle="A working view of liquidity, controls, and the decisions ahead."
         breadcrumb={["Edzen", "Dashboards", "Finance"]}
         actions={
           <>
             <Button variant="outline" size="sm">
-              <CalendarDays />
-              August
+              <CalendarDays /> August close
             </Button>
             <Button size="sm">
-              <Plus />
-              New transaction
+              <Plus /> Record transaction
             </Button>
           </>
         }
       />
-      <div className="grid gap-4 xl:grid-cols-12">
-        <Card
-          className="xl:col-span-8 overflow-hidden border-primary/25"
-          title="Cash position"
-          description="Last reconciled today, 09:30 AM"
-          action={<Badge tone="success">+8.6%</Badge>}
-        >
-          <div className="flex flex-wrap items-end justify-between gap-5">
-            <div>
-              <p className="text-4xl font-semibold tracking-tight">$482,640</p>
-              <p className="mt-1 text-sm text-success">
-                Available cash healthy liquidity
+
+      <section>
+        <div className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
+          <div className="relative rounded-xl overflow-hidden bg-primary p-6 text-primary-foreground sm:p-7">
+            <div className="absolute -right-14 -top-14 size-56 rounded-full border-[32px] border-primary-foreground/10" />
+            <div className="relative">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/70">
+                  <WalletCards className="size-4" /> Treasury command
+                </span>
+                <Badge
+                  tone="secondary"
+                  className="border-primary-foreground/15 bg-primary-foreground/10 text-primary-foreground"
+                >
+                  Reconciled 09:30
+                </Badge>
+              </div>
+              <p className="mt-7 text-sm text-primary-foreground/70">
+                Usable cash today
               </p>
-            </div>
-            <div className="grid grid-cols-3 gap-3 text-end text-xs">
-              <span>
-                Bank balance<b className="mt-1 block text-base">$314,800</b>
-              </span>
-              <span>
-                Equivalents<b className="mt-1 block text-base">$112,400</b>
-              </span>
-              <span>
-                Credit<b className="mt-1 block text-base">$55,440</b>
-              </span>
+              <div className="mt-1 flex flex-wrap items-end gap-x-5 gap-y-2">
+                <h2 className="text-4xl text-white font-semibold tracking-tight">
+                  $482,640
+                </h2>
+                <span className="mb-1 flex items-center gap-1 text-sm font-medium text-primary-foreground">
+                  <ArrowUpRight className="size-4" /> 8.6% from July
+                </span>
+              </div>
+              <div className="mt-7 grid max-w-xl grid-cols-3 divide-x divide-primary-foreground/15 text-sm">
+                <div>
+                  <p className="text-primary-foreground/65">Operating</p>
+                  <b className="mt-1 block">$314.8K</b>
+                </div>
+                <div className="ps-4">
+                  <p className="text-primary-foreground/65">Reserve</p>
+                  <b className="mt-1 block">$112.4K</b>
+                </div>
+                <div className="ps-4">
+                  <p className="text-primary-foreground/65">Credit ready</p>
+                  <b className="mt-1 block">$55.4K</b>
+                </div>
+              </div>
             </div>
           </div>
-          <svg viewBox="0 0 600 80" className="mt-6 h-16 w-full text-primary">
-            <path
-              d="M0 68 C70 55 90 70 150 48 S250 45 310 30 S430 48 500 17 S570 23 600 5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-          </svg>
-        </Card>
-        <Card
-          className="xl:col-span-4"
-          title="Profitability"
-          description="This month"
-        >
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 divide-x divide-y divide-border bg-card border rounded-xl sm:grid-cols-4 xl:grid-cols-2">
             {[
-              ["Revenue", "$186,420", "bg-primary"],
-              ["Gross profit", "$92,640", "bg-success"],
-              ["Net profit", "$48,280", "bg-chart-2"],
-            ].map(([n, a, c]) => (
-              <div key={n as string}>
-                <div className="flex justify-between text-sm">
-                  <span>{n}</span>
-                  <b>{a}</b>
-                </div>
-                <P
-                  v={n === "Revenue" ? 100 : n === "Gross profit" ? 50 : 26}
-                  t={c as string}
-                />
+              ["13.4 mo", "cash runway", ShieldCheck, "text-success"],
+              ["25.9%", "net margin", TrendingUp, "text-chart-3"],
+              ["$96.4K", "receivable", ReceiptText, "text-chart-2"],
+              ["$18.3K", "requires review", Clock3, "text-chart-4"],
+            ].map(([value, label, Icon, color]) => (
+              <div key={label as string} className="p-5">
+                <Icon className={(color as string) + " size-5"} />
+                <p className="mt-7 text-xl font-semibold tabular-nums">
+                  {value as string}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {label as string}
+                </p>
               </div>
             ))}
           </div>
-          <p className="mt-5 border-t pt-4 text-sm">
-            <span className="text-muted-foreground">Net margin</span>
-            <b className="float-right text-success">25.9%</b>
-          </p>
-        </Card>
-      </div>
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <Card title="Cash flow" description="Inflow vs outflow">
-          <div className="flex items-end justify-between">
-            <span>
-              <small className="text-muted-foreground">Cash in</small>
-              <b className="block text-xl text-success">$124,800</b>
-            </span>
-            <span>
-              <small className="text-muted-foreground">Cash out</small>
-              <b className="block text-xl text-destructive">$86,400</b>
-            </span>
-          </div>
-          <div className="mt-5 rounded-lg bg-success/10 p-3 text-sm font-semibold text-success">
-            +$38,400 net cash flow
-          </div>
-        </Card>
-        <Card
-          title="Operating runway"
-          description="Based on current monthly burn"
-        >
-          <p className="text-3xl font-semibold">6.0 months</p>
-          <p className="text-xs text-muted-foreground">
-            $255,600 operating cash $42,600 burn
-          </p>
-          <div className="mt-5 grid grid-cols-6 gap-1">
-            {Array.from({ length: 6 }, (_, i) => (
-              <i
-                key={i}
-                className="h-3 rounded bg-primary"
-                style={{ opacity: 1 - i * 0.1 }}
-              />
-            ))}
-          </div>
-        </Card>
-        <Card title="Margin trend" description="Profitability quality">
-          <div className="space-y-4">
-            {[
-              ["Gross margin", 49.7],
-              ["Operating margin", 32.1],
-              ["Net margin", 25.9],
-            ].map(([n, v]) => (
-              <div key={n as string}>
-                <div className="flex justify-between text-xs">
-                  <span>{n}</span>
-                  <b>{v}%</b>
-                </div>
-                <P v={v as number} t="bg-success" />
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+        </div>
+      </section>
+
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
           className="xl:col-span-8"
-          title="Income vs expenses"
-          description="Revenue, operating expenses and net income"
+          title="Liquidity trajectory"
+          description="Revenue collected and operating cash over time"
+          action={
+            <div className="flex rounded-lg border border-border p-0.5">
+              {(["6M", "12M"] as const).map((period) => (
+                <button
+                  key={period}
+                  type="button"
+                  onClick={() => setRange(period)}
+                  className={
+                    (range === period
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground") +
+                    " rounded-md px-2.5 py-1 text-xs font-medium transition"
+                  }
+                >
+                  {period}
+                </button>
+              ))}
+            </div>
+          }
         >
           <ApexChart
-            type="bar"
-            height={300}
+            type="area"
+            height={290}
             options={chart}
             series={[
-              {
-                name: "Revenue",
-                type: "column",
-                data: [142, 158, 166, 171, 179, 186],
-              },
-              {
-                name: "Operating expenses",
-                type: "column",
-                data: [88, 94, 102, 108, 112, 116],
-              },
-              {
-                name: "Net income",
-                type: "line",
-                data: [32, 38, 42, 44, 46, 48],
-              },
+              { name: "Collections", data: revenue },
+              { name: "Operating cash", data: operatingCash },
             ]}
           />
+          <div className="mt-3 grid grid-cols-3 border-t border-border pt-4 text-xs">
+            <span>
+              <b className="block text-sm">$194K</b>
+              <small className="text-muted-foreground">
+                August collections
+              </small>
+            </span>
+            <span>
+              <b className="block text-sm text-success">+$38.4K</b>
+              <small className="text-muted-foreground">
+                Net cash this month
+              </small>
+            </span>
+            <span>
+              <b className="block text-sm">$42.6K</b>
+              <small className="text-muted-foreground">Monthly burn</small>
+            </span>
+          </div>
         </Card>
         <Card
           className="xl:col-span-4"
-          title="Expense breakdown"
-          description="$86,400 total operating spend"
+          title="Close checklist"
+          description="August control room"
+          action={<Badge tone="warning">2 actions</Badge>}
         >
           <div className="space-y-3">
             {[
-              ["Payroll", "$34,800", 40],
-              ["Operations", "$17,500", 20],
-              ["Marketing", "$12,600", 15],
-              ["Software", "$8,900", 10],
-              ["Facilities", "$6,200", 7],
-            ].map(([n, a, v]) => (
-              <div key={n as string}>
-                <div className="flex justify-between text-xs">
-                  <span>{n}</span>
-                  <b>
-                    {a} {v}%
+              [
+                "Bank reconciliation",
+                "Completed today",
+                "success",
+                CheckCircle2,
+              ],
+              ["Invoice approvals", "3 awaiting approval", "warning", Clock3],
+              [
+                "Payroll funding",
+                "Scheduled for Aug 28",
+                "primary",
+                CalendarDays,
+              ],
+              ["Tax reserve", "Fund by Aug 30", "destructive", ShieldCheck],
+            ].map(([title, detail, tone, Icon]) => (
+              <div
+                key={title as string}
+                className="flex items-center gap-3 rounded-xl border border-border p-3"
+              >
+                <span
+                  className={
+                    (tone === "success"
+                      ? "bg-success/10 text-success"
+                      : tone === "warning"
+                        ? "bg-warning/10 text-warning"
+                        : tone === "destructive"
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-primary/10 text-primary") +
+                    " grid size-9 place-items-center rounded-xl"
+                  }
+                >
+                  <Icon className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{title as string}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {detail as string}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        <Card title="Cash movement" description="Booked in the current period">
+          <div className="space-y-4">
+            {cashMovements.map((movement) => (
+              <div key={movement.label}>
+                <div className="flex items-center justify-between gap-3 text-xs">
+                  <span>{movement.label}</span>
+                  <b
+                    className={
+                      movement.value > 0 ? "text-success" : "text-destructive"
+                    }
+                  >
+                    {movement.value > 0 ? "+" : ""}
+                    {money(movement.value)}
                   </b>
                 </div>
-                <P v={v as number} />
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={movement.color + " h-full rounded-full"}
+                    style={{ width: `${Math.abs(movement.value) / 1450}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card
+          title="Capital allocation"
+          description="Spend against approved plan"
+        >
+          <ApexChart
+            type="donut"
+            height={205}
+            options={allocationChart}
+            series={[284, 68, 116, 172]}
+          />
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border pt-4 text-xs">
+            {[
+              ["Growth programs", "$284K", "bg-chart-1"],
+              ["Platform", "$68K", "bg-chart-2"],
+              ["Risk reserve", "$116K", "bg-chart-3"],
+              ["Available", "$172K", "bg-chart-4"],
+            ].map(([label, value, color]) => (
+              <div key={label as string} className="flex items-center gap-2">
+                <span className={(color as string) + " size-2 rounded-full"} />
+                <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                  {label as string}
+                </span>
+                <b>{value as string}</b>
               </div>
             ))}
           </div>
         </Card>
       </div>
-      <div className="mt-5 grid gap-4 xl:grid-cols-3">
-        <Card title="Accounts" description="Available balances">
-          <div className="space-y-3">
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-7"
+          title="Account stations"
+          description="Balances available for the next payment cycle"
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
             {[
-              ["Operating", " 4582", "$184,600"],
-              ["Reserve", " 8174", "$128,240"],
-              ["Payroll", " 2951", "$68,400"],
-              ["Petty cash", "", "$1,400"],
-            ].map(([n, id, a]) => (
-              <div className="flex items-center gap-3" key={n}>
-                <Landmark className="size-4 text-primary" />
-                <span className="flex-1 text-sm">
-                  {n}
-                  <small className="block text-xs text-muted-foreground">
-                    {id}
-                  </small>
-                </span>
-                <b>{a}</b>
-              </div>
-            ))}
-          </div>
-        </Card>
-        <Card title="Receivables" description="$96,420 outstanding">
-          <div className="grid grid-cols-2 gap-3 text-center text-xs">
-            {[
-              ["030", "$51K"],
-              ["3160", "$24K"],
-              ["6190", "$13K"],
-              ["90+", "$8K"],
-            ].map(([n, a]) => (
-              <span className="rounded-lg bg-muted p-3" key={n}>
-                <b className="block text-base">{a}</b>
-                {n} days
-              </span>
-            ))}
-          </div>
-          <p className="mt-4 text-xs text-destructive">$18,260 overdue</p>
-        </Card>
-        <Card title="Payables" description="$72,840 total payable">
-          <div className="space-y-3">
-            {[
-              ["Cloud hosting", "$8,400", "Aug 26"],
-              ["Office lease", "$6,800", "Aug 28"],
-              ["Software licenses", "$5,200", "Sep 01"],
-            ].map(([n, a, d]) => (
-              <div className="flex justify-between text-sm" key={n}>
-                <span>
-                  {n}
-                  <small className="block text-xs text-muted-foreground">
-                    {d}
-                  </small>
-                </span>
-                <b>{a}</b>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-      <Card
-        className="mt-5"
-        title="Recent transactions"
-        description="Latest reconciled account activity"
-        bodyClassName="p-0"
-      >
-        <div className="overflow-x-auto">
-          <table className="edzen-table min-w-[680px]">
-            <thead>
-              <tr>
-                {[
-                  "Transaction",
-                  "Account",
-                  "Category",
-                  "Date",
-                  "Amount",
-                  "Status",
-                ].map((x) => (
-                  <th key={x}>{x}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                [
-                  "Stripe settlement",
-                  "Operating",
-                  "Sales",
-                  "Aug 22",
-                  "+$12,840",
-                  "Completed",
-                ],
-                [
-                  "AWS cloud services",
-                  "Operating",
-                  "Infrastructure",
-                  "Aug 22",
-                  "-$4,280",
-                  "Paid",
-                ],
-                [
-                  "Payroll batch",
-                  "Payroll",
-                  "People",
-                  "Aug 21",
-                  "-$28,600",
-                  "Paid",
-                ],
-              ].map((r) => (
-                <tr key={r[0]}>
-                  {r.map((x, i) => (
-                    <td key={x}>
-                      {i === 4 ? (
-                        <b
-                          className={
-                            x.startsWith("+")
-                              ? "text-success"
-                              : "text-destructive"
-                          }
-                        >
-                          {x}
-                        </b>
-                      ) : i === 5 ? (
-                        <Badge tone="success">{x}</Badge>
-                      ) : (
-                        x
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <Card title="Revenue sources">
-          <div className="space-y-3">
-            {[
-              ["Subscriptions", 48, "$89.4K"],
-              ["Services", 24, "$44.7K"],
-              ["Marketplace", 17, "$31.7K"],
-              ["Other", 11, "$20.6K"],
-            ].map(([n, v, a]) => (
-              <div key={n as string}>
-                <div className="flex justify-between text-xs">
-                  <span>{n}</span>
-                  <b>{a}</b>
-                </div>
-                <P v={v as number} />
-              </div>
-            ))}
-          </div>
-        </Card>
-        <Card title="Financial goals">
-          <div className="space-y-3">
-            {[
-              ["Annual revenue", 71],
-              ["Expense reduction", 68],
-              ["Cash reserve", 64],
-              ["Net margin", 86],
-            ].map(([n, v]) => (
-              <div key={n as string}>
-                <div className="flex justify-between text-xs">
-                  <span>{n}</span>
-                  <b>{v}%</b>
-                </div>
-                <P v={v as number} t="bg-success" />
-              </div>
-            ))}
-          </div>
-        </Card>
-        <Card title="P&L summary">
-          <div className="space-y-2 text-sm">
-            {[
-              ["Revenue", "$186,420"],
-              ["Cost of revenue", "-$93,780"],
-              ["Gross profit", "$92,640"],
-              ["Operating expenses", "-$44,360"],
-              ["Net income", "$39,860"],
-            ].map(([n, a], i) => (
-              <p
-                className={
-                  i === 2 || i === 4 ? "border-t pt-2 font-semibold" : ""
-                }
-                key={n}
+              ["Operating account", "4582", 184600, Landmark, "primary"],
+              ["Reserve account", "8174", 128240, ShieldCheck, "success"],
+              ["Payroll account", "2951", 68400, CreditCard, "warning"],
+              ["Petty cash", "Local", 1400, Banknote, "chart-2"],
+            ].map(([name, number, amount, Icon, tone]) => (
+              <div
+                key={name as string}
+                className="rounded-2xl border border-border bg-muted/15 p-4"
               >
-                <span>{n}</span>
-                <b className="float-right">{a}</b>
-              </p>
+                <div className="flex items-start justify-between">
+                  <span
+                    className={
+                      (tone === "success"
+                        ? "bg-success/10 text-success"
+                        : tone === "warning"
+                          ? "bg-warning/10 text-warning"
+                          : tone === "chart-2"
+                            ? "bg-chart-2/10 text-chart-2"
+                            : "bg-primary/10 text-primary") +
+                      " grid size-10 place-items-center rounded-xl"
+                    }
+                  >
+                    <Icon className="size-5" />
+                  </span>
+                  <Badge tone="secondary">•• {number as string}</Badge>
+                </div>
+                <p className="mt-5 text-sm text-muted-foreground">
+                  {name as string}
+                </p>
+                <p className="mt-1 text-xl font-semibold">
+                  {money(amount as number)}
+                </p>
+              </div>
             ))}
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-5"
+          title="Decisions ahead"
+          description="Prioritized financial moves"
+        >
+          <div className="space-y-3">
+            {[
+              [
+                "Fund payroll reserve",
+                "$68.6K required by Aug 28",
+                "High",
+                "warning",
+                Target,
+              ],
+              [
+                "Chase 9 overdue invoices",
+                "$18.3K at risk this month",
+                "Priority",
+                "destructive",
+                ReceiptText,
+              ],
+              [
+                "Release infrastructure PO",
+                "$8.4K due after approval",
+                "Review",
+                "primary",
+                CheckCircle2,
+              ],
+            ].map(([title, detail, badge, tone, Icon]) => (
+              <button
+                type="button"
+                key={title as string}
+                className="flex w-full items-center gap-3 rounded-xl border border-border p-3 text-left transition hover:border-primary/35 hover:bg-muted/25"
+              >
+                <span
+                  className={
+                    (tone === "warning"
+                      ? "bg-warning/10 text-warning"
+                      : tone === "destructive"
+                        ? "bg-destructive/10 text-destructive"
+                        : "bg-primary/10 text-primary") +
+                    " grid size-9 shrink-0 place-items-center rounded-xl"
+                  }
+                >
+                  <Icon className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <b className="block text-sm">{title as string}</b>
+                  <small className="mt-0.5 block text-xs text-muted-foreground">
+                    {detail as string}
+                  </small>
+                </span>
+                <Badge
+                  tone={
+                    tone === "destructive"
+                      ? "danger"
+                      : tone === "warning"
+                        ? "warning"
+                        : "primary"
+                  }
+                >
+                  {badge as string}
+                </Badge>
+              </button>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid xl:grid-cols-2 mt-5 gap-4">
+        <Card
+          title="Cash activity"
+          description="Recently reconciled movements"
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAllActivity((value) => !value)}
+            >
+              {showAllActivity ? "Show recent" : "View all activity"}
+            </Button>
+          }
+          bodyClassName="p-0"
+        >
+          <div className="divide-y divide-border">
+            {[
+              [
+                "Stripe settlement",
+                "Operating account",
+                "Today, 09:24",
+                "+$12,840",
+                "success",
+                CircleDollarSign,
+              ],
+              [
+                "AWS cloud services",
+                "Operating account",
+                "Today, 08:10",
+                "-$4,280",
+                "destructive",
+                CreditCard,
+              ],
+              [
+                "Payroll batch",
+                "Payroll account",
+                "Yesterday, 16:30",
+                "-$28,600",
+                "destructive",
+                Users,
+              ],
+              ...(showAllActivity
+                ? [
+                    [
+                      "Enterprise renewal",
+                      "Operating account",
+                      "Aug 21, 14:10",
+                      "+$24,000",
+                      "success",
+                      Landmark,
+                    ],
+                    [
+                      "Software licenses",
+                      "Operating account",
+                      "Aug 21, 10:42",
+                      "-$5,200",
+                      "destructive",
+                      ReceiptText,
+                    ],
+                  ]
+                : []),
+            ].map(([name, account, date, amount, tone, Icon]) => (
+              <div
+                key={name as string}
+                className="flex items-center gap-3 px-5 py-4"
+              >
+                <span
+                  className={
+                    (tone === "success"
+                      ? "bg-success/10 text-success"
+                      : "bg-destructive/10 text-destructive") +
+                    " grid size-10 place-items-center rounded-xl"
+                  }
+                >
+                  <Icon className="size-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">{name as string}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {account as string} · {date as string}
+                  </p>
+                </div>
+                <b
+                  className={
+                    tone === "success" ? "text-success" : "text-destructive"
+                  }
+                >
+                  {amount as string}
+                </b>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card
+          title="Collections health"
+          description="How quickly invoices convert"
+          action={<Badge tone="success">Improving</Badge>}
+        >
+          <div className="rounded-2xl border border-success/20 bg-success/5 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Collection score
+                </p>
+                <p className="mt-1 text-3xl font-semibold tabular-nums">
+                  86
+                  <span className="text-base text-muted-foreground">/100</span>
+                </p>
+              </div>
+              <span className="grid size-11 place-items-center rounded-2xl bg-success/15 text-success">
+                <ArrowDownRight className="size-5" />
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-success">
+              DSO improved by 2.4 days this month
+            </p>
+          </div>
+          <div className="mt-4 space-y-2">
+            {[
+              ["Current", "$69.4K", 72, "bg-success"],
+              ["Due in 7 days", "$18.7K", 19, "bg-warning"],
+              ["Past due", "$8.3K", 9, "bg-destructive"],
+            ].map(([label, value, percent, color]) => (
+              <div
+                key={label as string}
+                className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-2.5 text-xs"
+              >
+                <span
+                  className={(color as string) + " size-2.5 rounded-full"}
+                />
+                <span className="flex-1 font-medium">{label as string}</span>
+                <b>{value as string}</b>
+                <span className="rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
+                  {percent as number}%
+                </span>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="mt-5 flex w-full items-center justify-between rounded-xl border border-dashed border-border px-3 py-2.5 text-xs font-medium transition hover:border-primary/40 hover:bg-muted/25"
+          >
+            <span>Open collection queue</span>
+            <ArrowUpRight className="size-4 text-primary" />
+          </button>
+        </Card>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-5"
+          title="Working capital radar"
+          description="Cash conversion signals for the current close"
+        >
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              ["DSO", "38.2", "days", "bg-primary", "-2.4 days"],
+              ["DPO", "26.6", "days", "bg-chart-2", "+1.2 days"],
+              ["Inventory", "14.8", "days", "bg-warning", "On plan"],
+              ["Cash cycle", "26.4", "days", "bg-success", "-3.6 days"],
+            ].map(([label, value, unit, color, trend]) => (
+              <div
+                key={label}
+                className="rounded-2xl border border-border bg-muted/15 p-4"
+              >
+                <span className={color + " block size-2 rounded-full"} />
+                <p className="mt-5 text-xs text-muted-foreground">{label}</p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums">
+                  {value}{" "}
+                  <small className="text-xs font-medium text-muted-foreground">
+                    {unit}
+                  </small>
+                </p>
+                <p className="mt-2 text-[11px] font-medium text-success">
+                  {trend}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-4"
+          title="Approval runway"
+          description="Spend moving through financial controls"
+        >
+          <div className="space-y-4">
+            {[
+              ["Purchase orders", "7", "$42.8K", 68, "bg-primary"],
+              ["Vendor invoices", "4", "$19.4K", 42, "bg-chart-2"],
+              ["Expense claims", "12", "$6.7K", 24, "bg-warning"],
+            ].map(([label, count, value, progress, color]) => (
+              <div key={label}>
+                <div className="flex items-center justify-between text-sm">
+                  <span>{label}</span>
+                  <b>
+                    {count}{" "}
+                    <small className="font-medium text-muted-foreground">
+                      {value}
+                    </small>
+                  </b>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={color + " h-full rounded-full"}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="mt-6 flex w-full items-center justify-between rounded-xl border border-dashed border-border p-3 text-left text-xs transition hover:border-primary/40 hover:bg-muted/25"
+          >
+            <span className="flex items-center gap-2 font-medium">
+              <FileCheck2 className="size-4 text-primary" /> Open approvals
+              center
+            </span>
+            <ArrowUpRight className="size-4 text-muted-foreground" />
+          </button>
+        </Card>
+        <Card
+          className="xl:col-span-3"
+          title="Entity pulse"
+          description="August consolidation"
+        >
+          <div className="space-y-3">
+            {[
+              ["US Holdings", "Closed", "success"],
+              ["EMEA Ltd", "In review", "warning"],
+              ["APAC Pte", "2 tasks", "destructive"],
+            ].map(([entity, state, tone]) => (
+              <div
+                key={entity}
+                className="flex items-center gap-3 rounded-xl border border-border p-3"
+              >
+                <span className="grid size-9 place-items-center rounded-xl bg-muted text-primary">
+                  <Building2 className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1 text-sm font-medium">
+                  {entity}
+                </span>
+                <Badge
+                  tone={
+                    tone === "success"
+                      ? "success"
+                      : tone === "warning"
+                        ? "warning"
+                        : "danger"
+                  }
+                >
+                  {state}
+                </Badge>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 rounded-xl bg-primary/5 p-3 text-xs text-muted-foreground">
+            Group close is <b className="text-foreground">82% complete</b> with
+            two entity tasks remaining.
           </div>
         </Card>
       </div>

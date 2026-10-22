@@ -14,6 +14,20 @@
   document
     .querySelectorAll(".nav-links a")
     .forEach((link) => link.addEventListener("click", closeMenu));
+
+  // Dashboard routes are root-relative in production. When this static landing
+  // page is opened from Explorer, resolve its demo cards against the local app
+  // server instead of the filesystem root (for example, C:\\dashboards\\...).
+  const demoOrigin =
+    location.protocol === "file:" ? "http://localhost:3000" : location.origin;
+  document.querySelectorAll(".all-dashboard-card[href^='/']").forEach((card) => {
+    const route = card.getAttribute("href");
+    if (route) card.href = new URL(route, demoOrigin).href;
+  });
+  document.querySelectorAll("[data-live-preview]").forEach((link) => {
+    const route = link.getAttribute("href");
+    if (route) link.href = new URL(route, demoOrigin).href;
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeMenu();
   });

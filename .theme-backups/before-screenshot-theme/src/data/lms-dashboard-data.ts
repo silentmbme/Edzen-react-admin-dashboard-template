@@ -96,18 +96,6 @@ export const LMS_COURSES: LmsCourse[] = [
     status: "Draft",
     color: "--chart-5",
   },
-  {
-    id: "CRS-106",
-    title: "Building Production APIs",
-    category: "Development",
-    instructorId: "daniel",
-    lessons: 26,
-    students: 0,
-    completed: 0,
-    price: 89,
-    status: "Draft",
-    color: "--primary",
-  },
 ];
 export interface LmsLearner {
   id: string;

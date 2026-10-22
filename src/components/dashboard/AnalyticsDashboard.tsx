@@ -1,654 +1,874 @@
-import { useState } from "react";
-
+﻿import { useState } from "react";
 import {
-  CalendarDays,
-  ChevronDown,
+  Activity,
+  ArrowDownRight,
+  ArrowUpRight,
+  Clock3,
   Download,
   Globe2,
-  MonitorSmartphone,
   MousePointerClick,
   Plus,
+  Radio,
+  Search,
+  Smartphone,
+  Target,
   UsersRound,
 } from "lucide-react";
-
+import { toast } from "sonner";
 import { ApexChart } from "@/components/charts/ApexChart";
-
 import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
-
-import { Badge, Card, PageHeader } from "./widgets";
-
 import { Button } from "@/components/ui/button";
+import { Card, PageHeader } from "./widgets";
+import {
+  analyticsAccents as accents,
+  analyticsChannels as channels,
+  analyticsPages as pages,
+  analyticsPalette,
+} from "./analytics-data";
 
-/* =====================================================
-   Chart Days
-===================================================== */
-
-const days = [
-  "Aug 1",
-  "Aug 5",
-  "Aug 9",
-  "Aug 13",
-  "Aug 17",
-  "Aug 21",
-  "Aug 25",
-  "Aug 31",
+const trends = {
+  "Last 7 days": {
+    labels: [
+      "Aug 25",
+      "Aug 26",
+      "Aug 27",
+      "Aug 28",
+      "Aug 29",
+      "Aug 30",
+      "Aug 31",
+    ],
+    values: [121, 138, 132, 154, 162, 143, 150],
+  },
+  "Last 30 days": {
+    labels: [
+      "Aug 1–4",
+      "Aug 5–8",
+      "Aug 9–12",
+      "Aug 13–16",
+      "Aug 17–20",
+      "Aug 21–24",
+      "Aug 25–28",
+      "Aug 29–31",
+    ],
+    values: [112, 116, 121, 123, 128, 132, 138, 130],
+  },
+};
+const devices = [
+  { name: "Desktop", share: 58 },
+  { name: "Mobile", share: 34 },
+  { name: "Tablet", share: 6 },
+  { name: "Other", share: 2 },
 ];
+const number = (value: number) => Math.round(value).toLocaleString("en-US");
+const selectClass =
+  "h-9 max-w-full rounded-md border border-border bg-card px-3 text-xs";
 
-/* =====================================================
-   Metric Component
-===================================================== */
-
-interface MetricProps {
-  icon: typeof UsersRound;
+function Meter({
+  value,
+  label,
+  index = 0,
+}: {
+  value: number;
   label: string;
-  value: string;
-  trend: string;
-}
-
-function Metric({ icon: Icon, label, value, trend }: MetricProps) {
+  index?: number;
+}) {
   return (
-    <div className="metric-card flex items-center gap-3 border-e border-border px-1 last:border-0 sm:px-4 py-3 rounded">
-      {/* Icon */}
-      <span className="icon-tile size-10">
-        <Icon className="size-[18px]" />
-      </span>
-
-      {/* Content */}
-      <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-
-        <p className="mt-0.5 text-xl font-semibold">{value}</p>
-
-        <p className="text-[11px] text-success">{trend}</p>
-      </div>
+    <div
+      role="meter"
+      aria-label={label}
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      className="h-1.5 overflow-hidden rounded-full bg-muted"
+    >
+      <div
+        className={`h-full rounded-full ${accents[index % 4]!.bg}`}
+        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+      />
     </div>
   );
 }
 
-/* =====================================================
-   Analytics Dashboard
-===================================================== */
-
 export function AnalyticsDashboard() {
-  /* ---------------------------------------------------
-     States
-  --------------------------------------------------- */
-
-  const [activeTab, setActiveTab] = useState("Overview");
-
-  const [traffic, setTraffic] = useState("All traffic");
-
-  /* ---------------------------------------------------
-     Chart Theme
-  --------------------------------------------------- */
-
   const { base } = useChartTheme();
-
-  /* =====================================================
-     Visitors Chart Options
-  ===================================================== */
-
-  const visitors = mergeOptions(base, {
-    chart: {
-      type: "bar",
-      height: 350,
+  const palette = analyticsPalette.map((color) => token(color));
+  const [tab, setTab] = useState("Overview");
+  const [traffic, setTraffic] = useState("All traffic");
+  const [period, setPeriod] = useState<keyof typeof trends>("Last 30 days");
+  const [metric, setMetric] = useState<
+    "Sessions" | "Engagement" | "Conversions"
+  >("Sessions");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("Views");
+  const [dismissed, setDismissed] = useState<string[]>([]);
+  const selected = channels.filter(
+    (c) => traffic === "All traffic" || traffic === c.name,
+  );
+  const periodScale = period === "Last 7 days" ? 0.24 : 1;
+  const sessions = selected.reduce((a, c) => a + c.sessions, 0) * periodScale;
+  const engaged = selected.reduce((a, c) => a + c.engaged, 0) * periodScale;
+  const conversions =
+    selected.reduce((a, c) => a + c.conversions, 0) * periodScale;
+  const visitors = sessions * 0.82;
+  const allSessions = channels.reduce(
+    (sum, channel) => sum + channel.sessions,
+    0,
+  );
+  const conversionRate = (conversions / sessions) * 100;
+  const timeline = trends[period];
+  const weights = timeline.values.reduce((a, b) => a + b, 0);
+  const total =
+    metric === "Sessions"
+      ? sessions
+      : metric === "Engagement"
+        ? engaged
+        : conversions;
+  const current = timeline.values.map((v) => Math.round((v / weights) * total));
+  const previous = current.map((v, i) =>
+    Math.round(v / (1.08 + (i % 3) * 0.03)),
+  );
+  const axisFormat = (value: number) =>
+    value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(Math.round(value));
+  const trendOptions = mergeOptions(base, {
+    chart: { type: "area" },
+    colors: [palette[0]!, palette[3]!],
+    stroke: { width: [3, 2], dashArray: [0, 5], curve: "smooth" },
+    fill: { opacity: [0.12, 0] },
+    xaxis: { categories: timeline.labels },
+    yaxis: { labels: { formatter: axisFormat } },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      y: { formatter: (v: number) => number(v) },
     },
-
-    colors: [token("--chart-1"), token("--chart-2")],
-
-    xaxis: {
-      categories: days,
-    },
-
-    yaxis: {
-      labels: {
-        formatter: (value: number) => `${Math.round(value)}k`,
-      },
-    },
-
-    stroke: {
-      curve: "smooth",
-      width: [0, 3],
-    },
-
+    legend: { position: "top", horizontalAlign: "left" },
+  });
+  const deviceOptions = mergeOptions(base, {
+    chart: { type: "donut" },
+    colors: palette,
+    labels: devices.map((d) => d.name),
+    stroke: { width: 4, colors: [token("--card")] },
+    legend: { show: false },
+    tooltip: { y: { formatter: (v: number) => `${v}%` } },
     plotOptions: {
-      bar: {
-        columnWidth: "48%",
-        borderRadius: 5,
-      },
-    },
-
-    markers: {
-      size: [0, 4],
-
-      hover: {
-        size: 6,
-      },
-    },
-
-    grid: {
-      padding: {
-        left: 6,
-        right: 12,
+      pie: {
+        donut: {
+          size: "78%",
+          labels: {
+            show: true,
+            value: { formatter: (v: string) => `${v}%` },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "Sessions",
+              color: token("--muted-foreground"),
+              formatter: () => number(sessions),
+            },
+          },
+        },
       },
     },
   });
-
-  /* =====================================================
-     Device Chart Options
-  ===================================================== */
-
-  const device = mergeOptions(base, {
-    chart: {
-      type: "radar",
-    },
-
-    colors: [token("--chart-1"), token("--chart-2")],
-
-    xaxis: {
-      categories: [
-        "Engagement",
-        "Pages / visit",
-        "Conversion",
-        "Speed",
-        "Retention",
-      ],
-    },
-
-    yaxis: {
-      show: false,
-    },
-
-    stroke: {
-      width: 2,
-    },
-
-    fill: {
-      opacity: 0.2,
-    },
-
-    markers: {
-      size: 3,
-    },
-
-    legend: {
-      position: "bottom",
-    },
-  });
-
-  /* =====================================================
-     Conversion Chart Options
-  ===================================================== */
-
-  const conversion = mergeOptions(base, {
-    chart: {
-      type: "bar",
-    },
-
-    colors: [token("--chart-1")],
-
+  const acquisitionOptions = mergeOptions(base, {
+    chart: { type: "bar", stacked: true, stackType: "100%" },
+    colors: [palette[0]!, palette[1]!],
+    stroke: { width: 0 },
     plotOptions: {
-      bar: {
-        horizontal: true,
-        borderRadius: 5,
-        barHeight: "54%",
-      },
+      bar: { horizontal: true, barHeight: "42%", borderRadius: 3 },
     },
-
     xaxis: {
-      categories: ["Product page", "Pricing", "Start trial", "Activation"],
+      categories: selected.map((c) => c.name),
+      labels: { formatter: (v: string) => `${Math.round(Number(v))}%` },
     },
-
-    dataLabels: {
-      enabled: true,
-
-      formatter: (value: number) => `${value}%`,
-
-      style: {
-        fontSize: "11px",
+    yaxis: { labels: { maxWidth: 110 } },
+    tooltip: { y: { formatter: (v: number) => number(v) } },
+    legend: { position: "bottom", horizontalAlign: "left" },
+  });
+  const heatOptions = mergeOptions(base, {
+    chart: { type: "heatmap" },
+    colors: palette,
+    stroke: { width: 4, colors: [token("--card")] },
+    dataLabels: { enabled: false },
+    plotOptions: {
+      heatmap: {
+        radius: 3,
+        enableShades: false,
+        colorScale: {
+          ranges: [
+            { from: 0, to: 39, color: palette[3]!, name: "Quiet" },
+            { from: 40, to: 59, color: palette[1]!, name: "Steady" },
+            { from: 60, to: 79, color: palette[2]!, name: "Active" },
+            { from: 80, to: 100, color: palette[0]!, name: "Peak" },
+          ],
+        },
       },
     },
-
-    legend: {
-      show: false,
+    xaxis: {
+      type: "category",
+      categories: ["00–04", "04–08", "08–12", "12–16", "16–20", "20–24"],
     },
-
-    grid: {
-      padding: {
-        right: 24,
+    legend: { show: false },
+    tooltip: {
+      y: {
+        title: { formatter: () => "Activity index:" },
+        formatter: (v: number) => `${v}/100`,
       },
     },
   });
-
-  /* =====================================================
-     Render
-  ===================================================== */
-
+  const heatSeries = ["Sun", "Sat", "Fri", "Thu", "Wed", "Tue", "Mon"].map(
+    (name, i) => ({
+      name,
+      data: [18, 24, 64, 92, 78, 46].map((value, j) => ({
+        x: ["00–04", "04–08", "08–12", "12–16", "16–20", "20–24"][j]!,
+        y: Math.min(
+          100,
+          Math.max(5, value - (i < 2 ? 25 : 0) + ((i * 7 + j * 3) % 12)),
+        ),
+      })),
+    }),
+  );
+  const filteredPages = pages
+    .filter((p) =>
+      `${p.path} ${p.title}`.toLowerCase().includes(query.toLowerCase()),
+    )
+    .sort((a, b) =>
+      sort === "Conversions"
+        ? b.conversions - a.conversions
+        : b.views - a.views,
+    );
+  const exportReport = () => {
+    const csv = [
+      "Channel,Sessions,Engaged sessions,Conversions",
+      ...selected.map(
+        (c) =>
+          `${c.name},${Math.round(c.sessions * periodScale)},${Math.round(c.engaged * periodScale)},${Math.round(c.conversions * periodScale)}`,
+      ),
+    ].join("\n");
+    const url = URL.createObjectURL(
+      new Blob([csv], { type: "text/csv;charset=utf-8;" }),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics-${period === "Last 7 days" ? "7" : "30"}-days.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Analytics report exported");
+  };
+  const overview = tab === "Overview";
   return (
     <>
-      {/* =================================================
-          Page Header
-      ================================================= */}
-
       <PageHeader
         title="Analytics"
         subtitle="See how visitors discover, explore and convert across your product."
         breadcrumb={["Edzen", "Dashboards", "Analytics"]}
         actions={
           <>
-            <Button variant="outline" size="sm">
-              <Download />
+            <Button variant="outline" size="sm" onClick={exportReport}>
+              <Download className="size-4" />
               Export
             </Button>
-
-            <Button size="sm">
-              <Plus />
+            <Button size="sm" onClick={exportReport}>
+              <Plus className="size-4" />
               Create report
             </Button>
           </>
         }
       />
-
-      {/* =================================================
-          Filters
-      ================================================= */}
-
-      <Card bodyClassName="p-3 sm:p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          {/* Tabs */}
-
-          <div className="flex flex-wrap items-center gap-1 rounded-lg bg-muted p-1">
-            <Button
-              size="sm"
-              variant={activeTab === "Overview" ? "default" : "ghost"}
-              onClick={() => setActiveTab("Overview")}
-            >
-              Overview
-            </Button>
-
-            <Button
-              size="sm"
-              variant={activeTab === "Acquisition" ? "default" : "ghost"}
-              onClick={() => setActiveTab("Acquisition")}
-            >
-              Acquisition
-            </Button>
-
-            <Button
-              size="sm"
-              variant={activeTab === "Behavior" ? "default" : "ghost"}
-              onClick={() => setActiveTab("Behavior")}
-            >
-              Behavior
-            </Button>
-
-            <Button
-              size="sm"
-              variant={activeTab === "Conversion" ? "default" : "ghost"}
-              onClick={() => setActiveTab("Conversion")}
-            >
-              Conversion
-            </Button>
-          </div>
-
-          {/* Filters */}
-
-          <div className="flex flex-wrap items-center gap-2 lg:ms-auto">
-            {/* Traffic Filter */}
-
-            <label className="relative">
-              <Globe2
-                className="
-                  pointer-events-none
-                  absolute
-                  start-3
-                  top-1/2
-                  size-4
-                  -translate-y-1/2
-                  text-muted-foreground
-                "
-              />
-
-              <select
-                value={traffic}
-                onChange={(event) => setTraffic(event.target.value)}
-                className="
-                  h-8
-                  appearance-none
-                  rounded-md
-                  border
-                  bg-background
-                  py-0
-                  ps-9
-                  pe-8
-                  text-xs
-                "
+      <Card bodyClassName="p-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div
+            className="flex flex-wrap gap-1 rounded-lg bg-muted p-1"
+            role="group"
+            aria-label="Analytics sections"
+          >
+            {["Overview", "Acquisition", "Behavior", "Conversion"].map((t) => (
+              <Button
+                key={t}
+                size="sm"
+                variant={tab === t ? "default" : "ghost"}
+                aria-pressed={tab === t}
+                onClick={() => setTab(t)}
               >
-                <option>All traffic</option>
-
-                <option>Organic traffic</option>
-
-                <option>Paid traffic</option>
-
-                <option>Referral traffic</option>
-              </select>
-
-              <ChevronDown
-                className="
-                  pointer-events-none
-                  absolute
-                  end-2
-                  top-1/2
-                  size-3.5
-                  -translate-y-1/2
-                  text-muted-foreground
-                "
-              />
-            </label>
-
-            {/* Date */}
-
-            <Button size="sm" variant="outline">
-              <CalendarDays />
-              Aug 131, 2026
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* =================================================
-          Audience Metrics
-      ================================================= */}
-
-      <Card
-        className="mt-4"
-        title="Audience pulse"
-        description="A quick read on this periods web performance"
-      >
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <Metric
-            icon={UsersRound}
-            label="Visitors"
-            value="84,268"
-            trend="+14.2% vs Jul"
-          />
-
-          <Metric
-            icon={MousePointerClick}
-            label="Engaged sessions"
-            value="52,614"
-            trend="+8.4% vs Jul"
-          />
-
-          <Metric
-            icon={MonitorSmartphone}
-            label="Avg. session"
-            value="4m 18s"
-            trend="+9.1% vs Jul"
-          />
-
-          <Metric
-            icon={Globe2}
-            label="Conversion rate"
-            value="4.56%"
-            trend="+0.62 pts vs Jul"
-          />
-        </div>
-      </Card>
-
-      {/* =================================================
-          Main Charts
-      ================================================= */}
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-5">
-        {/* Visitors & Sessions */}
-
-        <Card
-          className="xl:col-span-3"
-          title="Visitors & sessions"
-          description="Daily volume across the selected period"
-        >
-          <ApexChart
-            type="bar"
-            height={350}
-            options={visitors}
-            series={[
-              {
-                name: "Visitors",
-                type: "column",
-                data: [8.4, 10.8, 9.6, 13.2, 12.1, 15.8, 14.3, 17.6],
-              },
-              {
-                name: "Sessions",
-                type: "line",
-                data: [6.8, 8.1, 7.7, 10.4, 9.2, 12.5, 11.8, 13.9],
-              },
-            ]}
-          />
-        </Card>
-
-        {/* Device Engagement */}
-
-        <Card
-          className="xl:col-span-2"
-          title="Device engagement profile"
-          description="How desktop and mobile audiences behave"
-        >
-          <ApexChart
-            type="radar"
-            height={292}
-            options={device}
-            series={[
-              {
-                name: "Desktop",
-                data: [78, 72, 64, 82, 68],
-              },
-              {
-                name: "Mobile",
-                data: [62, 54, 48, 58, 52],
-              },
-            ]}
-          />
-
-          <div className="mt-1 grid grid-cols-3 gap-2 text-center text-xs">
-            <div>
-              <p className="font-semibold">78</p>
-
-              <p className="text-muted-foreground">Desktop score</p>
-            </div>
-
-            <div>
-              <p className="font-semibold">62</p>
-
-              <p className="text-muted-foreground">Mobile score</p>
-            </div>
-
-            <div>
-              <p className="font-semibold">64</p>
-
-              <p className="text-muted-foreground">Average score</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* =================================================
-          Acquisition / Conversion / Browser
-      ================================================= */}
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-6">
-        {/* Acquisition */}
-
-        <Card
-          className="xl:col-span-2"
-          title="Acquisition mix"
-          description="Sessions by source"
-        >
-          <div className="space-y-4">
-            {[
-              ["Organic search", "32,840", 68, "bg-primary"],
-              ["Direct", "18,920", 52, "bg-chart-2"],
-              ["Paid social", "14,482", 36, "bg-chart-3"],
-              ["Partner referrals", "8,604", 22, "bg-chart-4"],
-            ].map(([name, count, width, color]) => (
-              <div key={name as string}>
-                <div className="flex justify-between text-sm">
-                  <span>{name}</span>
-
-                  <span className="font-semibold">{count}</span>
-                </div>
-
-                <div className="mt-2 h-2 rounded-full bg-muted">
-                  <div
-                    className={`h-full rounded-full ${color}`}
-                    style={{
-                      width: `${width}%`,
-                    }}
-                  />
-                </div>
-              </div>
+                {t}
+              </Button>
             ))}
           </div>
-        </Card>
-
-        {/* Conversion Funnel */}
-
-        <Card
-          className="xl:col-span-2"
-          title="Conversion funnel"
-          description="Visitors advancing through the product journey"
-        >
-          <ApexChart
-            type="bar"
-            height={260}
-            options={conversion}
-            series={[
-              {
-                name: "Conversion",
-                data: [100, 64, 31, 18],
-              },
-            ]}
-          />
-        </Card>
-
-        {/* Browser Distribution */}
-
-        <Card
-          className="xl:col-span-2"
-          title="Browser distribution"
-          description="Browser share and experience quality"
-        >
-          <div className="space-y-3">
-            {[
-              ["Chrome", "62%", "Excellent"],
-              ["Safari", "19%", "Excellent"],
-              ["Edge", "11%", "Good"],
-              ["Firefox", "5%", "Good"],
-            ].map(([browser, share, status]) => (
-              <div
-                key={browser}
-                className="flex items-center justify-between rounded-lg border p-3"
+          <div className="flex flex-wrap gap-2">
+            <select
+              aria-label="Traffic source"
+              value={traffic}
+              onChange={(e) => setTraffic(e.target.value)}
+              className={selectClass}
+            >
+              <option>All traffic</option>
+              {channels.map((c) => (
+                <option key={c.name}>{c.name}</option>
+              ))}
+            </select>
+            <select
+              aria-label="Analytics date range"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as keyof typeof trends)}
+              className={selectClass}
+            >
+              {Object.keys(trends).map((p) => (
+                <option key={p}>{p}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Card>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          {
+            label: "Unique visitors",
+            value: number(visitors),
+            change: "+14.2%",
+            icon: UsersRound,
+          },
+          {
+            label: "Engaged sessions",
+            value: number(engaged),
+            change: `${((engaged / sessions) * 100).toFixed(1)}% rate`,
+            icon: MousePointerClick,
+          },
+          {
+            label: "Average engagement",
+            value: traffic === "Paid campaigns" ? "2m 48s" : "4m 18s",
+            change: "+9.1%",
+            icon: Clock3,
+          },
+          {
+            label: "Session conversion",
+            value: `${conversionRate.toFixed(2)}%`,
+            change: "+0.62 pts",
+            icon: Target,
+          },
+        ].map((m, i) => {
+          const Icon = m.icon;
+          return (
+            <Card key={m.label} bodyClassName="p-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-medium text-muted-foreground">
+                  {m.label}
+                </p>
+                <span
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-full text-white ${accents[i]!.bg}`}
+                >
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+              </div>
+              <p className="mt-3 text-[26px] font-semibold">{m.value}</p>
+              <p className="mt-2 flex flex-wrap items-center gap-1 text-xs">
+                {i !== 1 && (
+                  <ArrowUpRight className={`size-3.5 ${accents[i]!.text}`} />
+                )}
+                <span className={`font-medium ${accents[i]!.text}`}>
+                  {m.change}
+                </span>
+                <span className="text-muted-foreground">
+                  {i === 1 ? "of selected sessions" : "vs previous period"}
+                </span>
+              </p>
+            </Card>
+          );
+        })}
+      </div>
+      {overview && (
+        <div className="mt-4 grid gap-4 xl:grid-cols-12">
+          <Card
+            title="Audience momentum"
+            description="Current period compared with the preceding period"
+            className="xl:col-span-8"
+            bodyClassName="p-5"
+            action={
+              <select
+                aria-label="Audience metric"
+                value={metric}
+                onChange={(e) => setMetric(e.target.value as typeof metric)}
+                className={selectClass}
               >
-                <div>
-                  <p className="text-sm font-medium">{browser}</p>
-
+                <option>Sessions</option>
+                <option>Engagement</option>
+                <option>Conversions</option>
+              </select>
+            }
+          >
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-[26px] font-semibold">{number(total)}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {metric} across the selected period
+                </p>
+              </div>
+              <span className={`text-xs font-medium ${accents[0].text}`}>
+                August 2026
+              </span>
+            </div>
+            <ApexChart
+              type="area"
+              height={275}
+              options={trendOptions}
+              series={[
+                { name: "Current period", data: current },
+                { name: "Previous period", data: previous },
+              ]}
+            />
+            <div className="flex items-start gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+              <Activity className={`size-4 shrink-0 ${accents[0].text}`} />
+              Audience growth is accelerating toward the end of the month.
+            </div>
+          </Card>
+          <Card
+            title="Device composition"
+            description="Session share across device categories"
+            className="xl:col-span-4"
+            bodyClassName="p-5"
+            action={<Smartphone className="size-4 text-muted-foreground" />}
+          >
+            <ApexChart
+              type="donut"
+              height={230}
+              options={deviceOptions}
+              series={devices.map((d) => d.share)}
+            />
+            <ul className="space-y-3">
+              {devices.map((d, i) => (
+                <li key={d.name} className="flex items-center gap-2 text-sm">
+                  <span className={`size-2 rounded-full ${accents[i]!.bg}`} />
+                  <span className="flex-1 text-muted-foreground">{d.name}</span>
+                  <span className="font-semibold">{d.share}%</span>
+                  <span className="w-14 text-end text-xs text-muted-foreground">
+                    {number((sessions * d.share) / 100)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+      )}
+      {(overview || tab === "Acquisition") && (
+        <div className="mt-4 grid gap-4 xl:grid-cols-12">
+          <Card
+            title="Acquisition quality"
+            description="Engaged and non-engaged sessions by channel"
+            className="xl:col-span-7"
+            bodyClassName="p-5"
+          >
+            <div className="flex flex-wrap gap-6">
+              <div>
+                <p className="text-xs text-muted-foreground">Engagement rate</p>
+                <p className="mt-1 text-xl font-semibold">
+                  {((engaged / sessions) * 100).toFixed(1)}%
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">
+                  Channel conversions
+                </p>
+                <p className="mt-1 text-xl font-semibold">
+                  {number(conversions)}
+                </p>
+              </div>
+            </div>
+            <ApexChart
+              type="bar"
+              height={245}
+              options={acquisitionOptions}
+              series={[
+                {
+                  name: "Engaged",
+                  data: selected.map((c) =>
+                    Math.round(c.engaged * periodScale),
+                  ),
+                },
+                {
+                  name: "Not engaged",
+                  data: selected.map((c) =>
+                    Math.round((c.sessions - c.engaged) * periodScale),
+                  ),
+                },
+              ]}
+            />
+            <p className="border-t border-border pt-3 text-xs text-muted-foreground">
+              Partner referrals convert at 6.0%, the strongest rate across
+              channels.
+            </p>
+          </Card>
+          <Card
+            title="Channel efficiency"
+            description="Conversion yield and acquisition investment"
+            className="xl:col-span-5"
+            bodyClassName="p-5"
+          >
+            <ul className="space-y-5">
+              {selected.map((c) => {
+                const index = channels.indexOf(c);
+                return (
+                  <li key={c.name}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-sm font-medium">
+                        <span
+                          className={`size-2 rounded-full ${accents[index]!.bg}`}
+                        />
+                        {c.name}
+                      </span>
+                      <span
+                        className={`text-xs font-semibold ${accents[index]!.text}`}
+                      >
+                        {((c.conversions / c.sessions) * 100).toFixed(1)}% CVR
+                      </span>
+                    </div>
+                    <div className="mb-2 mt-1 flex justify-between gap-2 text-xs text-muted-foreground">
+                      <span>
+                        {number(c.conversions * periodScale)} conversions
+                      </span>
+                      <span>
+                        {c.cost
+                          ? `$${(c.cost / c.conversions).toFixed(0)} per conversion`
+                          : "No media spend"}
+                      </span>
+                    </div>
+                    <Meter
+                      value={(c.engaged / c.sessions) * 100}
+                      label={`${c.name} engagement rate`}
+                      index={index}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-5 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+              Paid spend:{" "}
+              <span className="font-semibold text-foreground">
+                $
+                {number(selected.reduce((a, c) => a + c.cost, 0) * periodScale)}
+              </span>{" "}
+              · Direct media costs only
+            </div>
+          </Card>
+        </div>
+      )}
+      {(overview || tab === "Conversion") && (
+        <div className="mt-4 grid gap-4 xl:grid-cols-12">
+          <Card
+            title="Conversion journey"
+            description="Session-based progression from discovery to activation"
+            className="xl:col-span-8"
+            bodyClassName="p-5"
+          >
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                { name: "All sessions", count: sessions, rate: 100 },
+                { name: "Product explored", count: sessions * 0.64, rate: 64 },
+                { name: "Trial started", count: sessions * 0.12, rate: 12 },
+                {
+                  name: "Goal completed",
+                  count: conversions,
+                  rate: conversionRate,
+                },
+              ].map((step, i) => (
+                <div
+                  key={step.name}
+                  className="rounded-lg border border-border p-4"
+                >
+                  <span className={`text-xs font-semibold ${accents[i]!.text}`}>
+                    0{i + 1}
+                  </span>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {step.name}
+                  </p>
+                  <p className="mt-1 text-xl font-semibold">
+                    {number(step.count)}
+                  </p>
+                  <div className="my-3">
+                    <Meter
+                      value={step.rate}
+                      label={`${step.name} share of sessions`}
+                      index={i}
+                    />
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    {share} of traffic
+                    {step.rate.toFixed(i === 3 ? 2 : 0)}% of sessions
                   </p>
                 </div>
-
-                <Badge tone={status === "Excellent" ? "success" : "info"}>
-                  {status}
-                </Badge>
+              ))}
+            </div>
+            <p className="mt-4 flex items-start gap-2 text-xs text-muted-foreground">
+              <ArrowDownRight
+                className={`size-4 shrink-0 ${accents[1].text}`}
+              />
+              Largest drop-off: product exploration to trial signup. Prioritize
+              the trial entry experience.
+            </p>
+          </Card>
+          <Card
+            title="Optimization queue"
+            description="Actions informed by audience behavior"
+            className="xl:col-span-4"
+            bodyClassName="p-5"
+          >
+            <ul className="space-y-4">
+              {[
+                {
+                  title: "Simplify mobile signup",
+                  detail:
+                    "Reduce form fields and improve the trial entry flow.",
+                },
+                {
+                  title: "Expand referral partnerships",
+                  detail:
+                    "Build on the strongest converting acquisition channel.",
+                },
+              ]
+                .filter((item) => !dismissed.includes(item.title))
+                .map((item, i) => (
+                  <li
+                    key={item.title}
+                    className="border-b border-border pb-4 last:border-0 last:pb-0"
+                  >
+                    <p className="text-sm font-medium">{item.title}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      {item.detail}
+                    </p>
+                    <button
+                      onClick={() => setDismissed((v) => [...v, item.title])}
+                      className={`mt-2 text-xs font-semibold ${accents[i]!.text}`}
+                    >
+                      Mark reviewed
+                    </button>
+                  </li>
+                ))}
+            </ul>
+            {dismissed.length === 2 && (
+              <div className="py-3 text-sm text-muted-foreground">
+                All recommendations reviewed.
+                <button
+                  className="mt-3 block text-xs font-medium text-foreground"
+                  onClick={() => setDismissed([])}
+                >
+                  Reset reviews
+                </button>
               </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* =================================================
-          Top Pages / Locations
-      ================================================= */}
-
-      <div className="mt-4 grid gap-4 xl:grid-cols-5">
-        {/* Top Pages */}
-
+            )}
+          </Card>
+        </div>
+      )}
+      {(overview || tab === "Behavior") && (
+        <div className="mt-4 grid gap-4 xl:grid-cols-12">
+          <Card
+            title="Engagement rhythm"
+            description="Relative session activity by weekday and time · UTC"
+            className="xl:col-span-7"
+            bodyClassName="p-3"
+          >
+            <ApexChart
+              type="heatmap"
+              height={285}
+              options={heatOptions}
+              series={heatSeries}
+            />
+            <div className="flex flex-wrap gap-4 border-t border-border px-2 pt-3 text-xs text-muted-foreground">
+              {[
+                { label: "Quiet", i: 3 },
+                { label: "Steady", i: 1 },
+                { label: "Active", i: 2 },
+                { label: "Peak", i: 0 },
+              ].map((l) => (
+                <span key={l.label} className="flex items-center gap-1.5">
+                  <span className={`size-2 rounded-sm ${accents[l.i]!.bg}`} />
+                  {l.label}
+                </span>
+              ))}
+            </div>
+          </Card>
+          <Card
+            title="Audience geography"
+            description="Visitor contribution across key markets"
+            className="xl:col-span-5"
+            bodyClassName="p-5"
+            action={<Globe2 className="size-4 text-muted-foreground" />}
+          >
+            <ul className="space-y-5">
+              {[
+                { name: "United States", share: 38 },
+                { name: "United Kingdom", share: 22 },
+                { name: "Germany", share: 16 },
+                { name: "Other markets", share: 24 },
+              ].map((country, i) => (
+                <li key={country.name}>
+                  <div className="mb-2 flex justify-between gap-2 text-sm">
+                    <span className="font-medium">{country.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {number((visitors * country.share) / 100)}{" "}
+                      <span className="ms-2 font-semibold text-foreground">
+                        {country.share}%
+                      </span>
+                    </span>
+                  </div>
+                  <Meter
+                    value={country.share}
+                    label={`${country.name} visitor share`}
+                    index={i}
+                  />
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5 border-t border-border pt-3 text-xs text-muted-foreground">
+              Leading market: United States · {number(visitors * 0.38)} visitors
+            </div>
+          </Card>
+        </div>
+      )}
+      <div className="mt-4 grid gap-4 xl:grid-cols-12">
         <Card
-          className="xl:col-span-3"
-          title="Top pages"
-          description="Content attracting the most qualified audience"
+          title="Content performance"
+          description="High-impact pages across the selected audience"
+          className="xl:col-span-8"
           bodyClassName="p-0"
+          action={
+            <div className="flex flex-wrap gap-2">
+              <label className="relative">
+                <Search className="absolute start-2.5 top-2.5 size-3.5 text-muted-foreground" />
+                <input
+                  aria-label="Search analytics pages"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Find a page..."
+                  className="h-9 w-40 rounded-md border border-border bg-card pe-2 ps-8 text-xs"
+                />
+              </label>
+              <select
+                aria-label="Sort analytics pages"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className={selectClass}
+              >
+                <option>Views</option>
+                <option>Conversions</option>
+              </select>
+            </div>
+          }
         >
           <div className="overflow-x-auto">
-            <table className="edzen-table min-w-[620px]">
+            <table className="w-full min-w-[580px] text-sm">
               <thead>
-                <tr>
-                  <th>Page</th>
-
-                  <th>Views</th>
-
-                  <th>Engagement</th>
-
-                  <th>Conversions</th>
+                <tr className="border-b border-border text-xs text-muted-foreground">
+                  {["Page", "Views", "Engagement", "Goals", "Avg. time"].map(
+                    (h) => (
+                      <th key={h} className="px-5 py-3 text-start font-medium">
+                        {h}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
-
               <tbody>
-                {[
-                  ["/workspace/overview", "18,482", "68.4%", "842"],
-                  ["/solutions/teams", "12,946", "54.1%", "486"],
-                  ["/pricing", "8,254", "42.8%", "392"],
-                  ["/resources/report", "6,812", "61.2%", "184"],
-                ].map((row) => (
-                  <tr key={row[0]}>
-                    {row.map((cell, index) => (
-                      <td
-                        key={cell}
-                        className={
-                          index === 0 ? "font-medium" : "text-muted-foreground"
-                        }
-                      >
-                        {cell}
-                      </td>
-                    ))}
+                {filteredPages.map((p) => (
+                  <tr
+                    key={p.path}
+                    className="border-b border-border last:border-0 hover:bg-muted/40"
+                  >
+                    <td className="px-5 py-3.5">
+                      <p className="font-medium">{p.title}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {p.path}
+                      </p>
+                    </td>
+                    <td className="px-5 py-3.5 font-medium">
+                      {number(
+                        p.views *
+                          periodScale *
+                          (sessions / (allSessions * periodScale)),
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className="text-xs">{p.engaged}%</span>
+                      <div className="mt-1.5 w-16">
+                        <Meter
+                          value={p.engaged}
+                          label={`${p.title} engagement`}
+                        />
+                      </div>
+                    </td>
+                    <td className="px-5 py-3.5">
+                      {number(
+                        p.conversions *
+                          periodScale *
+                          (sessions / (allSessions * periodScale)),
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5 text-muted-foreground">
+                      {p.time}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {filteredPages.length === 0 && (
+              <p className="p-6 text-center text-sm text-muted-foreground">
+                No pages match your search.
+              </p>
+            )}
           </div>
         </Card>
-
-        {/* Top Locations */}
-
         <Card
-          className="xl:col-span-2"
-          title="Top locations"
-          description="Visitor volume by market"
+          title="Experience quality"
+          description="Core Web Vitals · 75th percentile"
+          className="xl:col-span-4"
+          bodyClassName="p-5"
+          action={<Radio className={`size-4 ${accents[0].text}`} />}
         >
-          <div className="space-y-4">
+          <p className="text-[26px] font-semibold">
+            92
+            <span className="text-sm font-normal text-muted-foreground">
+              {" "}
+              / 100
+            </span>
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Overall experience score
+          </p>
+          <ul className="mt-5 space-y-4">
             {[
-              ["United States", "24,680", "29%"],
-              ["United Kingdom", "11,240", "13%"],
-              ["Germany", "8,920", "11%"],
-              ["Singapore", "6,482", "8%"],
-            ].map(([country, visitors, share], index) => (
-              <div key={country} className="flex items-center gap-3">
-                <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                  {index + 1}
-                </span>
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{country}</p>
-
-                  <p className="text-xs text-muted-foreground">
-                    {share} of total visitors
+              {
+                name: "Largest contentful paint",
+                value: "1.8s",
+                detail: "Target ≤ 2.5s",
+                i: 0,
+              },
+              {
+                name: "Interaction to next paint",
+                value: "148ms",
+                detail: "Target ≤ 200ms",
+                i: 2,
+              },
+              {
+                name: "Cumulative layout shift",
+                value: "0.04",
+                detail: "Target ≤ 0.10",
+                i: 3,
+              },
+            ].map((v) => (
+              <li
+                key={v.name}
+                className="flex items-center justify-between gap-3 border-b border-border pb-3 last:border-0"
+              >
+                <div>
+                  <p className="text-xs font-medium">{v.name}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {v.detail}
                   </p>
                 </div>
-
-                <span className="text-sm font-semibold">{visitors}</span>
-              </div>
+                <span className={`text-sm font-semibold ${accents[v.i]!.text}`}>
+                  {v.value}
+                </span>
+              </li>
             ))}
-          </div>
+          </ul>
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+            All three metrics meet the selected performance targets.
+          </p>
         </Card>
       </div>
     </>

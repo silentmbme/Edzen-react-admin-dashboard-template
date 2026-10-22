@@ -12,6 +12,8 @@ import {
   CheckCheck,
   ArrowUpRight,
   RotateCcw,
+  Sparkles,
+  School,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getUserImage } from "@/lib/user-images";
@@ -27,14 +29,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card, Badge, PageHeader } from "./widgets";
 const grades = ["Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
 const initialStudents = [
@@ -302,29 +296,219 @@ export function SchoolManagementDashboard() {
           </>
         }
       />
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-5">
-        <div className="flex items-center gap-3">
-          <GraduationCap className="size-9 text-primary" />
-          <div>
-            <p className="font-semibold">Learning today. Leading tomorrow.</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Sample school · October 9, 2026 · Session-only changes
+      <div className="mb-5 grid gap-4 xl:grid-cols-12">
+        <Card className="xl:col-span-8" bodyClassName="p-0">
+          <div className="grid overflow-hidden lg:grid-cols-[1.35fr_.85fr]">
+            <div className="relative p-6 sm:p-7">
+              <div className="absolute -right-16 -top-16 size-56 rounded-full bg-primary/8 blur-3xl" />
+              <div className="relative">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+                  <Sparkles className="size-3.5" />
+                  Campus command center
+                </span>
+                <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-tight">
+                  The school day is ready to run.
+                </h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+                  Keep attendance steady, clear fee follow-ups, and give every
+                  classroom the support it needs before the next bell.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <span className="rounded-lg border bg-card px-3 py-2">
+                    <small className="block text-[10px] text-muted-foreground">
+                      Present today
+                    </small>
+                    <b className="block text-sm text-success">
+                      {
+                        selected.filter(
+                          (student) => student.attendance === "Present",
+                        ).length
+                      }{" "}
+                      students
+                    </b>
+                  </span>
+                  <span className="rounded-lg border bg-card px-3 py-2">
+                    <small className="block text-[10px] text-muted-foreground">
+                      Lessons scheduled
+                    </small>
+                    <b className="block text-sm text-primary">
+                      {
+                        teachers.filter(
+                          (teacher) =>
+                            grade === "all" || teacher.grade === grade,
+                        ).length
+                      }{" "}
+                      sessions
+                    </b>
+                  </span>
+                  <span className="rounded-lg border bg-card px-3 py-2">
+                    <small className="block text-[10px] text-muted-foreground">
+                      Fee follow-ups
+                    </small>
+                    <b className="block text-sm text-warning">
+                      {money(outstanding)}
+                    </b>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="border-t bg-muted/35 p-5 lg:border-s lg:border-t-0">
+              <div className="flex items-center justify-between">
+                <span>
+                  <p className="text-sm font-semibold">Campus readiness</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Today’s operating signals
+                  </p>
+                </span>
+                <span className="grid size-10 place-items-center rounded-xl bg-[var(--chart-2)]/15 text-[var(--chart-2)]">
+                  <School className="size-5" />
+                </span>
+              </div>
+              <div className="mt-5 space-y-4">
+                <div>
+                  <div className="mb-1.5 flex justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Student attendance
+                    </span>
+                    <b>
+                      {selected.length
+                        ? Math.round(
+                            (selected.filter(
+                              (student) => student.attendance === "Present",
+                            ).length /
+                              selected.length) *
+                              100,
+                          )
+                        : 0}
+                      %
+                    </b>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-[var(--chart-1)]"
+                      style={{
+                        width:
+                          (selected.length
+                            ? Math.round(
+                                (selected.filter(
+                                  (student) => student.attendance === "Present",
+                                ).length /
+                                  selected.length) *
+                                  100,
+                              )
+                            : 0) + "%",
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Fees collected
+                    </span>
+                    <b>
+                      {collected + outstanding
+                        ? Math.round(
+                            (collected / (collected + outstanding)) * 100,
+                          )
+                        : 0}
+                      %
+                    </b>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-[var(--chart-3)]"
+                      style={{
+                        width:
+                          (collected + outstanding
+                            ? Math.round(
+                                (collected / (collected + outstanding)) * 100,
+                              )
+                            : 0) + "%",
+                      }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="mb-1.5 flex justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Assignment review
+                    </span>
+                    <b>
+                      {assignments.length
+                        ? Math.round(
+                            (assignments.filter((task) => task.done).length /
+                              assignments.length) *
+                              100,
+                          )
+                        : 0}
+                      %
+                    </b>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-[var(--chart-4)]"
+                      style={{
+                        width:
+                          (assignments.length
+                            ? Math.round(
+                                (assignments.filter((task) => task.done)
+                                  .length /
+                                  assignments.length) *
+                                  100,
+                              )
+                            : 0) + "%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-4"
+          title="School view"
+          description="Focus the full dashboard by grade"
+        >
+          <label
+            htmlFor="school-grade-filter"
+            className="text-xs font-medium text-muted-foreground"
+          >
+            Grade
+          </label>
+          <select
+            id="school-grade-filter"
+            aria-label="School grade"
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
+            className="mt-2 h-10 w-full cursor-pointer rounded-lg border border-border bg-card px-3 text-sm"
+          >
+            <option value="all">All grades</option>
+            {grades.map((g) => (
+              <option key={g}>{g}</option>
+            ))}
+          </select>
+          <div className="mt-5 rounded-xl border bg-muted/25 p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                Daily checklist
+              </span>
+              <Badge tone="success" variant="dot">
+                On track
+              </Badge>
+            </div>
+            <p className="mt-3 text-sm font-semibold">
+              Morning roll call complete
+            </p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              Classroom, transport, and library teams have submitted their first
+              updates.
             </p>
           </div>
-        </div>
-        <select
-          aria-label="School grade"
-          value={grade}
-          onChange={(e) => setGrade(e.target.value)}
-          className="h-10 rounded-lg border border-border bg-card px-3 text-sm"
-        >
-          <option value="all">All grades</option>
-          {grades.map((g) => (
-            <option key={g}>{g}</option>
-          ))}
-        </select>
+        </Card>
       </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           {
             label: "Enrolled students",
@@ -370,9 +554,7 @@ export function SchoolManagementDashboard() {
                 <p className="text-xs font-medium text-muted-foreground">
                   {m.label}
                 </p>
-                <span
-                  className="metric-icon grid size-11 place-items-center rounded-xl"
-                >
+                <span className="metric-icon grid size-11 place-items-center rounded-xl">
                   <m.icon className="size-5" />
                 </span>
               </div>
@@ -386,8 +568,9 @@ export function SchoolManagementDashboard() {
           </section>
         ))}
       </div>
-      <div className="mb-6 grid gap-6 xl:grid-cols-2">
+      <div className="mb-5 grid gap-4 xl:grid-cols-12">
         <Card
+          className="xl:col-span-7"
           title="Attendance pulse"
           description="Present students as bars and absent students as an area"
         >
@@ -409,6 +592,7 @@ export function SchoolManagementDashboard() {
           />
         </Card>
         <Card
+          className="xl:col-span-5"
           title="Fee collection"
           description="Collected fees and outstanding balances · USD"
         >
@@ -444,91 +628,85 @@ export function SchoolManagementDashboard() {
             onChange={(e) => setQuery(e.target.value)}
           />
         }
-        bodyClassName="p-0"
+        bodyClassName="p-4"
       >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {["Student", "Grade", "Attendance", "Fee balance", "Actions"].map(
-                (h) => (
-                  <TableHead key={h}>{h}</TableHead>
-                ),
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {visible.map((s) => (
-              <TableRow key={s.id}>
-                <TableCell>
-                  <p className="font-medium">{s.name}</p>
-                  <p className="text-xs text-muted-foreground">{s.id}</p>
-                </TableCell>
-                <TableCell>{s.grade}</TableCell>
-                <TableCell>
-                  <Badge
-                    tone={s.attendance === "Present" ? "success" : "warning"}
-                  >
-                    {s.attendance}
-                  </Badge>
-                </TableCell>
-                <TableCell>{money(s.fee - s.paid)}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        setStudents((current) =>
-                          current.map((item) =>
-                            item.id === s.id
-                              ? {
-                                  ...item,
-                                  attendance:
-                                    item.attendance === "Present"
-                                      ? "Absent"
-                                      : "Present",
-                                }
-                              : item,
-                          ),
-                        )
-                      }
-                    >
-                      Mark {s.attendance === "Present" ? "absent" : "present"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={s.paid === s.fee}
-                      onClick={() => {
-                        setStudents((current) =>
-                          current.map((item) =>
-                            item.id === s.id
-                              ? { ...item, paid: item.fee }
-                              : item,
-                          ),
-                        );
-                        toast.success("Sample fee marked paid");
-                      }}
-                    >
-                      Mark paid
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-            {!visible.length && (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="py-8 text-center text-muted-foreground"
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {visible.map((s) => (
+            <article key={s.id} className="rounded-xl border p-3">
+              <div className="flex items-start gap-3">
+                <img
+                  src={getUserImage(s.name)}
+                  alt=""
+                  className="size-10 rounded-xl object-cover"
+                />
+                <span className="min-w-0 flex-1">
+                  <b className="block truncate text-sm">{s.name}</b>
+                  <small className="block text-xs text-muted-foreground">
+                    {s.id} · {s.grade}
+                  </small>
+                </span>
+                <Badge
+                  tone={s.attendance === "Present" ? "success" : "warning"}
+                  variant="dot"
                 >
-                  No students match your search.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        <p className="border-t border-border px-5 py-3 text-xs text-muted-foreground">
+                  {s.attendance}
+                </Badge>
+              </div>
+              <div className="mt-4 flex items-center justify-between border-t pt-3">
+                <span>
+                  <small className="block text-[10px] text-muted-foreground">
+                    Fee balance
+                  </small>
+                  <b className="text-sm">{money(s.fee - s.paid)}</b>
+                </span>
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      setStudents((current) =>
+                        current.map((item) =>
+                          item.id === s.id
+                            ? {
+                                ...item,
+                                attendance:
+                                  item.attendance === "Present"
+                                    ? "Absent"
+                                    : "Present",
+                              }
+                            : item,
+                        ),
+                      )
+                    }
+                  >
+                    Mark {s.attendance === "Present" ? "absent" : "present"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={s.paid === s.fee}
+                    onClick={() => {
+                      setStudents((current) =>
+                        current.map((item) =>
+                          item.id === s.id ? { ...item, paid: item.fee } : item,
+                        ),
+                      );
+                      toast.success("Sample fee marked paid");
+                    }}
+                  >
+                    Mark paid
+                  </Button>
+                </>
+              </div>
+            </article>
+          ))}
+          {!visible.length && (
+            <p className="col-span-full py-8 text-center text-sm text-muted-foreground">
+              No students match your search.
+            </p>
+          )}
+        </div>
+        <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">
           Attendance and fee actions update sample records only.
         </p>
       </Card>
@@ -1020,7 +1198,9 @@ export function SchoolManagementDashboard() {
                 key={bus.bus}
                 className="flex flex-wrap items-center gap-4 py-4"
               >
-                <span className={`grid size-10 place-items-center rounded-lg text-sm font-semibold ${bus.color}`}>
+                <span
+                  className={`grid size-10 place-items-center rounded-lg text-sm font-semibold ${bus.color}`}
+                >
                   {bus.bus}
                 </span>
                 <div className="min-w-0 flex-1">

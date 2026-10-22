@@ -1,7 +1,7 @@
 const fs = require("node:fs"),
   path = require("node:path");
 const root = path.resolve(__dirname, ".."),
-  folder = path.join(root, "landing/edzen-landingpage");
+  folder = path.join(root, "public/landing");
 const { entries } = JSON.parse(
   fs.readFileSync(
     path.join(folder, "assets/screenshots/dashboard-captures.json"),

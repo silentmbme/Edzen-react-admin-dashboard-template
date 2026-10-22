@@ -438,6 +438,16 @@ html[data-sidebar-color="dark"] .edzen-sidebar {
     color-scheme: inherit;
   }
 
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
   textarea {
@@ -692,12 +702,10 @@ a[class*="hover:-translate-y"] {
 /* Preserve the existing header and sidebar independently of content colors. */
 .edzen-sidebar {
   --radius: 0.375rem;
-  --primary: #087f75;
-  --primary-foreground: #ffffff;
   --sidebar: #ffffff;
   --sidebar-foreground: #49635f;
   --sidebar-accent: #e7f3ef;
-  --sidebar-accent-foreground: #176b60;
+  --sidebar-accent-foreground: var(--primary);
   --sidebar-border: #d9e3e0;
   --foreground: #243b3a;
   --muted-foreground: #586e6c;
@@ -713,7 +721,7 @@ a[class*="hover:-translate-y"] {
   --sidebar: #151c29;
   --sidebar-foreground: #bccfc8;
   --sidebar-accent: #28473e;
-  --sidebar-accent-foreground: #087f75;
+  --sidebar-accent-foreground: var(--primary);
   --sidebar-border: #344055;
   --foreground: #e8f1ee;
   --muted-foreground: #acbfba;
@@ -726,9 +734,10 @@ a[class*="hover:-translate-y"] {
 }
 .edzen-sidebar nav a[aria-current="page"],
 .edzen-sidebar nav button[aria-expanded="true"] {
-  background: color-mix(in srgb, var(--primary) 12%, var(--sidebar));
-  color: var(--primary);
-  border-inline-start: 3px solid var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-inline-start: 0;
+  box-shadow: var(--shadow-sm);
 }
 .edzen-sidebar nav svg {
   color: var(--primary);
@@ -774,15 +783,19 @@ header.bg-header {
 }
 /* Existing dark navigation accents remain independent of the content theme. */
 /* Inner active links use text emphasis without a filled row or edge marker. */
-.edzen-sidebar nav :is(a[aria-current="page"], button.text-primary)[data-nav-depth]:not([data-nav-depth="0"]),
-.edzen-sidebar nav :is(a, button)[data-nav-depth]:not([data-nav-depth="0"]):hover {
+.edzen-sidebar
+  nav
+  :is(a[aria-current="page"], button.text-primary)[data-nav-depth]:not(
+    [data-nav-depth="0"]
+  ),
+.edzen-sidebar
+  nav
+  :is(a, button)[data-nav-depth]:not([data-nav-depth="0"]):hover {
   background: transparent !important;
   border-inline-start: 0;
   box-shadow: none;
 }
 .edzen-sidebar[data-tone="dark"] {
-  --primary: #087f75;
-  --primary-foreground: #ffffff;
   --chart-1: #63d4ba;
   --chart-2: #f49b7e;
   --chart-3: #b899ed;
@@ -815,7 +828,7 @@ html.dark .edzen-sidebar[data-tone="light"] {
   --sidebar: #151c29;
   --sidebar-foreground: #bccfc8;
   --sidebar-accent: #28473e;
-  --sidebar-accent-foreground: #087f75;
+  --sidebar-accent-foreground: var(--primary);
   --sidebar-border: #37504a;
   --foreground: #e8f1ee;
   --muted-foreground: #acbfba;
@@ -840,19 +853,36 @@ html.dark .edzen-sidebar > [data-tone="light"] {
   display: inline;
 }
 html.dark .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-light,
-html[data-sidebar-color="dark"] .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-light {
+html[data-sidebar-color="dark"]
+  .edzen-sidebar[data-tone="light"]
+  .brand-logo
+  .brand-logo-light {
   display: none;
 }
 html.dark .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-symbol,
-html.dark .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-lettering,
-html[data-sidebar-color="dark"] .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-symbol,
-html[data-sidebar-color="dark"] .edzen-sidebar[data-tone="light"] .brand-logo .brand-logo-dark-lettering {
+html.dark
+  .edzen-sidebar[data-tone="light"]
+  .brand-logo
+  .brand-logo-dark-lettering,
+html[data-sidebar-color="dark"]
+  .edzen-sidebar[data-tone="light"]
+  .brand-logo
+  .brand-logo-dark-symbol,
+html[data-sidebar-color="dark"]
+  .edzen-sidebar[data-tone="light"]
+  .brand-logo
+  .brand-logo-dark-lettering {
   display: inline;
 }
 
 .edzen-sidebar[data-tone="dark"] nav,
 html.dark .edzen-sidebar[data-tone="light"] nav {
-  scrollbar-color: color-mix(in oklab, var(--sidebar-foreground) 38%, var(--sidebar)) var(--sidebar);
+  scrollbar-color: color-mix(
+      in oklab,
+      var(--sidebar-foreground) 38%,
+      var(--sidebar)
+    )
+    var(--sidebar);
   scrollbar-width: thin;
 }
 .edzen-sidebar[data-tone="dark"] nav::-webkit-scrollbar,
@@ -868,21 +898,74 @@ html.dark .edzen-sidebar[data-tone="light"] nav::-webkit-scrollbar-track {
 html.dark .edzen-sidebar[data-tone="light"] nav::-webkit-scrollbar-thumb {
   border: 2px solid var(--sidebar);
   border-radius: 999px;
-  background: color-mix(in oklab, var(--sidebar-foreground) 38%, var(--sidebar));
+  background: color-mix(
+    in oklab,
+    var(--sidebar-foreground) 38%,
+    var(--sidebar)
+  );
 }
 
-.edzen-sidebar nav[data-tone="dark"] :is(a, button)[data-nav-depth]:not([aria-current="page"]):not([aria-expanded="true"]):hover svg {
+.edzen-sidebar
+  nav[data-tone="dark"]
+  :is(a, button)[data-nav-depth]:not([aria-current="page"]):not(
+    [aria-expanded="true"]
+  ):hover
+  svg {
   color: var(--sidebar-accent-foreground) !important;
 }
 
-.edzen-sidebar nav[data-tone="dark"] :is(a[aria-current="page"], button[aria-expanded="true"]) svg {
+.edzen-sidebar
+  nav[data-tone="dark"]
+  :is(a[aria-current="page"], button[aria-expanded="true"])
+  svg {
   color: var(--sidebar-accent-foreground) !important;
 }
 
-.edzen-sidebar nav[data-tone="dark"] :is(a, button)[data-nav-depth="0"]:not([aria-current="page"]):not([aria-expanded="true"]):hover,
-.edzen-sidebar nav[data-tone="dark"] :is(a[aria-current="page"], button[aria-expanded="true"]),
-html.dark .edzen-sidebar[data-tone="light"] nav :is(a, button)[data-nav-depth="0"]:not([aria-current="page"]):not([aria-expanded="true"]):hover,
-html.dark .edzen-sidebar[data-tone="light"] nav :is(a[aria-current="page"], button[aria-expanded="true"]) {
-  background: color-mix(in srgb, var(--primary) 12%, var(--sidebar)) !important;
-  color: var(--sidebar-accent-foreground) !important;
+.edzen-sidebar
+  nav[data-tone="dark"]
+  :is(a, button)[data-nav-depth="0"]:not([aria-current="page"]):not(
+    [aria-expanded="true"]
+  ):hover,
+.edzen-sidebar
+  nav[data-tone="dark"]
+  :is(a[aria-current="page"], button[aria-expanded="true"]),
+html.dark
+  .edzen-sidebar[data-tone="light"]
+  nav
+  :is(a, button)[data-nav-depth="0"]:not([aria-current="page"]):not(
+    [aria-expanded="true"]
+  ):hover,
+html.dark
+  .edzen-sidebar[data-tone="light"]
+  nav
+  :is(a[aria-current="page"], button[aria-expanded="true"]) {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+/* Keep primary-filled top-level states legible, while nested navigation stays
+   light-weight and uses the selected skin color as text. */
+.edzen-sidebar
+  nav
+  :is(a[aria-current="page"], button[aria-expanded="true"])[data-nav-depth="0"]
+  svg {
+  color: var(--primary-foreground) !important;
+}
+.edzen-sidebar nav .sidebar-active-icon {
+  color: var(--primary-foreground) !important;
+}
+.edzen-sidebar
+  nav
+  :is(a[aria-current="page"], button[aria-expanded="true"])[data-nav-depth]:not(
+    [data-nav-depth="0"]
+  ) {
+  color: var(--primary) !important;
+}
+.edzen-sidebar
+  nav
+  :is(a[aria-current="page"], button[aria-expanded="true"])[data-nav-depth]:not(
+    [data-nav-depth="0"]
+  )
+  svg {
+  color: var(--primary) !important;
 }

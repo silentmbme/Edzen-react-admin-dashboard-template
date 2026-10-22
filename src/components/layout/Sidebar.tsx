@@ -13,7 +13,9 @@ import { BrandLogo } from "@/components/branding/BrandLogo";
 function Icon({ name, className }: { name?: string; className?: string }) {
   if (!name) return null;
 
-  const Cmp = (Icons as unknown as Record<string, Icons.LucideIcon>)[name] ?? Icons.Circle;
+  const Cmp =
+    (Icons as unknown as Record<string, Icons.LucideIcon>)[name] ??
+    Icons.Circle;
 
   return <Cmp className={className} aria-hidden />;
 }
@@ -46,7 +48,10 @@ function isActive(item: NavItem, path: string) {
 ===================================================== */
 
 function branchActive(item: NavItem, path: string) {
-  return isActive(item, path) || item.children?.some((child) => branchActive(child, path)) === true;
+  return (
+    isActive(item, path) ||
+    item.children?.some((child) => branchActive(child, path)) === true
+  );
 }
 
 /* =====================================================
@@ -77,8 +82,8 @@ function NavLeaf({
       data-nav-depth={depth}
       title={collapsed ? item.label : undefined}
       className={cn(
-        "group flex items-center gap-3 rounded-lg px-3 py-2",
-        "text-[13.5px] font-medium transition-colors",
+        "group flex items-center gap-3 rounded-xl px-3 py-2.5",
+        "text-[13.5px] font-medium transition-all duration-200",
 
         depth > 0 && "py-1.5 text-[13px]",
         depth === 1 && "ps-9",
@@ -87,7 +92,7 @@ function NavLeaf({
         collapsed && depth === 0 && "justify-center px-0",
 
         active
-          ? "text-primary"
+          ? "bg-primary text-primary-foreground shadow-sm"
           : depth > 0
             ? "text-sidebar-foreground hover:text-sidebar-accent-foreground"
             : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -95,15 +100,26 @@ function NavLeaf({
     >
       {/* Main icon or child dot */}
       {depth === 0 ? (
-        <Icon name={item.icon} className="size-[18px] shrink-0" />
+        <Icon
+          name={item.icon}
+          className={cn(
+            "size-[18px] shrink-0",
+            active && "sidebar-active-icon",
+          )}
+        />
       ) : (
         <span
-          className={cn("size-1.5 shrink-0 rounded-full", active ? "bg-primary" : "bg-border")}
+          className={cn(
+            "size-1.5 shrink-0 rounded-full",
+            active ? "bg-primary" : "bg-border",
+          )}
         />
       )}
 
       {/* Navigation label */}
-      {(!collapsed || depth > 0) && <span className="truncate">{item.label}</span>}
+      {(!collapsed || depth > 0) && (
+        <span className="truncate">{item.label}</span>
+      )}
 
       {/* Badge */}
       {!collapsed && item.badge && (
@@ -153,7 +169,15 @@ function NavBranch({
    top-level branches are displayed like normal items.
   */
   if (collapsed && depth === 0) {
-    return <NavLeaf item={item} path={path} collapsed depth={depth} onNavigate={onNavigate} />;
+    return (
+      <NavLeaf
+        item={item}
+        path={path}
+        collapsed
+        depth={depth}
+        onNavigate={onNavigate}
+      />
+    );
   }
 
   return (
@@ -166,9 +190,9 @@ function NavBranch({
         data-nav-depth={depth}
         className={cn(
           "flex w-full items-center gap-3",
-          "rounded-lg px-3 py-2",
+          "rounded-xl px-3 py-2.5",
           "text-[13.5px] font-medium",
-          "transition-colors",
+          "transition-all duration-200",
 
           depth > 0 && "py-1.5 ps-9 text-[13px]",
 
@@ -177,7 +201,7 @@ function NavBranch({
           active
             ? depth > 0
               ? "text-primary"
-              : "bg-primary/8 text-primary shadow-[inset_3px_0_0_var(--primary)] rtl:shadow-[inset_-3px_0_0_var(--primary)]"
+              : "bg-primary text-primary-foreground shadow-sm"
             : depth > 0
               ? "text-sidebar-foreground hover:text-sidebar-accent-foreground"
               : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -185,10 +209,19 @@ function NavBranch({
       >
         {/* Icon */}
         {depth === 0 ? (
-          <Icon name={item.icon} className="size-[18px] shrink-0" />
+          <Icon
+            name={item.icon}
+            className={cn(
+              "size-[18px] shrink-0",
+              active && "sidebar-active-icon",
+            )}
+          />
         ) : (
           <span
-            className={cn("size-1.5 shrink-0 rounded-full", active ? "bg-primary" : "bg-border")}
+            className={cn(
+              "size-1.5 shrink-0 rounded-full",
+              active ? "bg-primary" : "bg-border",
+            )}
           />
         )}
 
@@ -200,6 +233,7 @@ function NavBranch({
           className={cn(
             "ms-auto size-4 shrink-0",
             "transition-transform duration-200",
+            active && "sidebar-active-icon",
             open ? "rotate-90" : "rtl:rotate-180",
           )}
           aria-hidden
@@ -268,7 +302,12 @@ function NavBranch({
    Main Sidebar Component
 ===================================================== */
 
-export function Sidebar({ collapsed, currentPath, onNavigate, darkSurface }: SidebarProps) {
+export function Sidebar({
+  collapsed,
+  currentPath,
+  onNavigate,
+  darkSurface,
+}: SidebarProps) {
   return (
     <div
       data-tone={darkSurface ? "dark" : "light"}
@@ -280,14 +319,17 @@ export function Sidebar({ collapsed, currentPath, onNavigate, darkSurface }: Sid
 
       <div
         className={cn(
-          "flex h-16 shrink-0 items-center",
-          "border-b border-sidebar-border",
-          "px-5",
+          "flex h-16 shrink-0 items-center border-sidebar-border border-b",
+          "px-4",
 
           collapsed && "justify-center px-0",
         )}
       >
-        <Link to="/" className="flex items-center gap-2.5" aria-label="Edzen home">
+        <Link
+          to="/"
+          className="flex items-center gap-2.5"
+          aria-label="Edzen home"
+        >
           <BrandLogo
             variant={collapsed ? "icon" : "full"}
             darkSurface={darkSurface}
@@ -305,7 +347,9 @@ export function Sidebar({ collapsed, currentPath, onNavigate, darkSurface }: Sid
         data-tone={darkSurface ? "dark" : "light"}
         className="
           flex-1
+          mt-0
           space-y-5
+          border-sidebar-border
           overflow-y-auto
           px-3
           py-4
@@ -368,17 +412,27 @@ export function Sidebar({ collapsed, currentPath, onNavigate, darkSurface }: Sid
       =============================================== */}
 
       {!collapsed && (
-        <section aria-label="Workspace storage" className="m-3 rounded-lg border border-sidebar-border bg-sidebar p-3.5">
+        <section
+          aria-label="Workspace storage"
+          className="m-2 rounded-2xl border border-sidebar-border bg-sidebar-accent/35 p-3.5"
+        >
           <div className="flex items-center gap-2.5">
             <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
               <Icons.HardDrive className="size-4" aria-hidden />
             </span>
-            <p className="min-w-0 flex-1 text-[12px] font-semibold text-foreground">Workspace storage</p>
-            <span className="text-[12px] font-semibold tabular-nums text-primary">74%</span>
+            <p className="min-w-0 flex-1 text-[12px] font-semibold text-foreground">
+              Workspace storage
+            </p>
+            <span className="text-[12px] font-semibold tabular-nums text-primary">
+              74%
+            </span>
           </div>
 
           <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-            <p><span className="font-medium text-foreground">18.4 GB</span> / 25 GB</p>
+            <p>
+              <span className="font-medium text-foreground">18.4 GB</span> / 25
+              GB
+            </p>
             <span>6.6 GB free</span>
           </div>
           <div

@@ -46,33 +46,41 @@ test("light wordmark and collapsed icon use Edzen assets and accessible labels",
   assert.match(full, /viewBox="145 131 1882 503"/);
   assert.match(icon, /edzen-icon\.png/);
   assert.doesNotMatch(icon, /edzen-logo\.png/);
-  assert.doesNotMatch(full + icon, /Edzen|logo-light\.png|logo-dark\.png/);
+  assert.doesNotMatch(full + icon, /logo-light\.png|logo-dark\.png/);
 });
 
 test("dark surfaces whiten only the wordmark and keep the symbol unfiltered", () => {
   const full = logoMarkup({ darkSurface: true });
   assert.match(full, /feColorMatrix/);
-  assert.equal((full.match(/<image /g) ?? []).length, 2);
+  assert.equal((full.match(/<image /g) ?? []).length, 3);
   assert.equal((full.match(/ filter=/g) ?? []).length, 1);
-  assert.match(logoMarkup({}, true), /feColorMatrix/);
-  assert.doesNotMatch(
+  assert.match(logoMarkup({}, true), /data-dark-surface="true"/);
+  assert.match(
     logoMarkup({ darkSurface: false }, true),
-    /feColorMatrix/,
+    /data-dark-surface="false"/,
   );
 });
 
-test("live source has no old visible names, sample domains, or logo imports", () => {
-  const oldBrand =
-    /\bEdzen\b|\bEDZEN\b|edzenadmin|edzensystems|Edzen2026|edzen\.(?:app|com|example|demo)/;
+test("live source uses the current brand assets without deprecated logo imports", () => {
+  const deprecatedLogo =
+    /logos\/(?:logo-light|logo-dark|logo-icon-light|logo-icon-dark)\.png/;
   function walk(directory) {
     for (const item of fs.readdirSync(directory, { withFileTypes: true })) {
       const file = path.join(directory, item.name);
       if (item.isDirectory()) walk(file);
       else if (/\.(tsx?|css)$/.test(file))
-        assert.doesNotMatch(fs.readFileSync(file, "utf8"), oldBrand, file);
+        assert.doesNotMatch(
+          fs.readFileSync(file, "utf8"),
+          deprecatedLogo,
+          file,
+        );
     }
   }
   walk("src");
+  assert.match(
+    fs.readFileSync("src/components/branding/BrandLogo.tsx", "utf8"),
+    /edzen-logo\.png/,
+  );
 });
 
 test("transparent logo assets and all browser icon formats are installed", () => {
@@ -100,8 +108,16 @@ test("transparent logo assets and all browser icon formats are installed", () =>
     fs.readFileSync("src/routes/__root.tsx", "utf8"),
     /href: "\/edzen-favicon\.png"/,
   );
-  assert.match(fs.readFileSync("src/routes/__root.tsx", "utf8"), /href: "\/edzen-favicon\.ico"/);
-  assert.equal(fs.readFileSync("public/edzen-favicon.png").equals(fs.readFileSync("public/favicon.png")), true);
+  assert.match(
+    fs.readFileSync("src/routes/__root.tsx", "utf8"),
+    /href: "\/edzen-favicon\.ico"/,
+  );
+  assert.equal(
+    fs
+      .readFileSync("public/edzen-favicon.png")
+      .equals(fs.readFileSync("public/favicon.png")),
+    true,
+  );
   assert.equal(fs.readFileSync("public/edzen-favicon.ico").equals(ico), true);
 });
 

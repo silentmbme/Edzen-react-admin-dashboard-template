@@ -42,6 +42,7 @@ const userImageMap: Record<string, string> = {
   "emma wilson": user3,
   ew: user3,
   "emma brooks": user3,
+  "elena mrquez": user3,
   eb: user3,
   ed: user3,
   bw: user3,

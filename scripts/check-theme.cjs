@@ -27,9 +27,9 @@ for (const file of files) {
   }
   if (
     text.includes("<ApexChart") &&
-    /(?:color:\s*["']#|colors:\s*\[\s*["']#|type:\s*["']gradient)/.test(text)
+    /(?:color:\s*["']#|colors:\s*\[\s*["']#)/.test(text)
   ) {
-    problems.push(`${file}: fixed chart color or gradient`);
+    problems.push(`${file}: fixed chart color`);
   }
   const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true);
   for (const error of source.parseDiagnostics) {

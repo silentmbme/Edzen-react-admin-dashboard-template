@@ -1,78 +1,169 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
-import { CalendarDays, CheckCircle2, Plus } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  CircleAlert,
+  Clock3,
+  FolderKanban,
+  Flag,
+  Layers3,
+  MoreHorizontal,
+  Plus,
+  Sparkles,
+  Target,
+  TimerReset,
+  UsersRound,
+} from "lucide-react";
 
 import { ApexChart } from "@/components/charts/ApexChart";
-
+import { Button } from "@/components/ui/button";
+import { projects } from "@/data/project-dashboard-data";
 import { mergeOptions, token, useChartTheme } from "@/lib/chart-config";
 
 import { Avatar, Badge, Card, PageHeader } from "./widgets";
 
-import { Button } from "@/components/ui/button";
-
-import {
-  deadlines,
-  projects,
-  tasks,
-  workload,
-} from "@/data/project-dashboard-data";
-
-/* =====================================================
-   Status Tones
-===================================================== */
-
-const tones = {
-  "On Track": "success",
-  "At Risk": "warning",
-  Delayed: "danger",
+const phaseTones = {
+  "On Track": { dot: "bg-success", text: "text-success", fill: "bg-success" },
+  "At Risk": { dot: "bg-warning", text: "text-warning", fill: "bg-warning" },
+  Delayed: {
+    dot: "bg-destructive",
+    text: "text-destructive",
+    fill: "bg-destructive",
+  },
 } as const;
 
-/* =====================================================
-   Progress Component
-===================================================== */
+const milestones = [
+  ["26", "AUG", "Homepage sign-off", "Website Redesign", "Today", "warning"],
+  ["29", "AUG", "Beta release", "Mobile App v2", "3 days", "primary"],
+  ["02", "SEP", "Data validation", "CRM Migration", "1 week", "danger"],
+  [
+    "05",
+    "SEP",
+    "Campaign launch",
+    "Marketing Automation",
+    "10 days",
+    "success",
+  ],
+] as const;
 
-type ProgressProps = {
+const team = [
+  ["Design", "Sophia Carter", "SC", 76, "2 reviews left"],
+  ["Engineering", "Daniel Lee", "DL", 88, "API decision pending"],
+  ["Quality", "Olivia Smith", "OS", 64, "Beta coverage booked"],
+  ["Product", "Ethan Brown", "EB", 92, "3 approvals queued"],
+] as const;
+
+const decisions = [
+  [
+    "Confirm legacy API owner",
+    "CRM Migration",
+    "Unblocks 14 tasks",
+    "Critical",
+  ],
+  [
+    "Approve mobile beta cohort",
+    "Mobile App v2",
+    "Release plan is ready",
+    "Today",
+  ],
+  [
+    "Choose homepage variation",
+    "Website Redesign",
+    "Design handoff waits",
+    "Today",
+  ],
+] as const;
+
+const workstreamStages = [
+  {
+    title: "Ready to move",
+    count: "06",
+    tone: "bg-[var(--chart-1)]",
+    items: [
+      ["Design system handoff", "Website Redesign", "SC"],
+      ["Beta cohort brief", "Mobile App v2", "EB"],
+    ],
+  },
+  {
+    title: "In motion",
+    count: "12",
+    tone: "bg-[var(--chart-2)]",
+    items: [
+      ["Customer data mapping", "CRM Migration", "DL"],
+      ["Campaign automation", "Marketing Automation", "OS"],
+    ],
+  },
+  {
+    title: "Waiting",
+    count: "03",
+    tone: "bg-[var(--chart-4)]",
+    items: [
+      ["Legacy API decision", "CRM Migration", "DL"],
+      ["Homepage approval", "Website Redesign", "SC"],
+    ],
+  },
+] as const;
+
+function Progress({
+  value,
+  className = "bg-primary",
+}: {
   value: number;
-  tone?: string;
-};
-
-function Progress({ value, tone = "bg-primary" }: ProgressProps) {
+  className?: string;
+}) {
   return (
     <div className="h-1.5 overflow-hidden rounded-full bg-muted">
       <div
-        className={`h-full rounded-full ${tone}`}
-        style={{
-          width: `${value}%`,
-        }}
+        className={`h-full rounded-full transition-all ${className}`}
+        style={{ width: `${value}%` }}
       />
     </div>
   );
 }
 
-/* =====================================================
-   Projects Dashboard
-===================================================== */
-
 export function ProjectsDashboard() {
-  const { base } = useChartTheme();
+  const { base, themeKey } = useChartTheme();
+  const [activeLane, setActiveLane] = useState<"All work" | "Needs attention">(
+    "All work",
+  );
+  const [completedMilestones, setCompletedMilestones] = useState<string[]>([]);
+  const [decisionAcknowledged, setDecisionAcknowledged] = useState(false);
 
-  /* =====================================================
-     Delivery Trend Chart
-  ===================================================== */
+  const visibleProjects = useMemo(
+    () =>
+      activeLane === "All work"
+        ? projects
+        : projects.filter(([, , , , status]) => status !== "On Track"),
+    [activeLane],
+  );
 
-  const chart = useMemo(
+  const toggleMilestone = (title: string) => {
+    setCompletedMilestones((current) =>
+      current.includes(title)
+        ? current.filter((item) => item !== title)
+        : [...current, title],
+    );
+  };
+
+  const deliveryOptions = useMemo(
     () =>
       mergeOptions(base, {
-        chart: {
-          type: "bar",
-        },
-
+        chart: { type: "line", stacked: false },
         colors: [
           token("--chart-1"),
+          token("--chart-2"),
           token("--chart-3"),
-          token("--destructive"),
+          token("--chart-4"),
         ],
-
+        stroke: { width: [0, 3, 3, 0], curve: "smooth" },
+        fill: { opacity: [0.9, 1, 1, 0.9] },
+        plotOptions: {
+          bar: { columnWidth: "42%", borderRadius: 4 },
+        },
         xaxis: {
           categories: [
             "Aug 05",
@@ -83,983 +174,781 @@ export function ProjectsDashboard() {
             "Sep 09",
           ],
         },
-
-        plotOptions: {
-          bar: {
-            columnWidth: "45%",
-            borderRadius: 5,
-          },
-        },
-
-        stroke: {
-          curve: "straight",
-          width: [0, 3, 2],
-        },
-
-        legend: {
-          position: "top",
-          horizontalAlign: "left",
-        },
-      }),
-    [base],
-  );
-
-  /* =====================================================
-     Budget Chart
-  ===================================================== */
-
-  const budgetChart = useMemo(
-    () =>
-      mergeOptions(base, {
-        chart: {
-          type: "bar",
-          stacked: true,
-
-          toolbar: {
-            show: false,
-          },
-        },
-
-        colors: [token("--chart-2"), token("--muted")],
-
-        plotOptions: {
-          bar: {
-            horizontal: true,
-            barHeight: "48%",
-            borderRadius: 5,
-          },
-        },
-
-        xaxis: {
-          categories: ["Website", "Mobile app", "CRM", "Automation"],
-
-          max: 150,
-
-          labels: {
-            formatter: (value: string) => `$${value}K`,
-          },
-        },
-
         yaxis: {
-          labels: {
-            style: {
-              fontSize: "12px",
-            },
-          },
+          labels: { formatter: (value: number) => String(Math.round(value)) },
         },
-
-        dataLabels: {
-          enabled: false,
-        },
-
-        grid: {
-          borderColor: token("--border"),
-          strokeDashArray: 4,
-        },
-
-        legend: {
-          position: "top",
-          horizontalAlign: "left",
-        },
-
-        tooltip: {
-          y: {
-            formatter: (value: number) => `$${value}K`,
-          },
-        },
-      }),
-    [base],
-  );
-
-  /* =====================================================
-     Team Performance Radar Chart
-  ===================================================== */
-
-  const teamPerformanceChart = useMemo(
-    () =>
-      mergeOptions(base, {
-        chart: {
-          type: "radar",
-
-          toolbar: {
-            show: false,
-          },
-        },
-
-        colors: [token("--chart-1")],
-
-        xaxis: {
-          categories: ["Design", "Development", "QA", "Product", "Operations"],
-        },
-
-        yaxis: {
-          show: false,
-          min: 0,
-          max: 100,
-          tickAmount: 4,
-        },
-
-        stroke: {
-          width: 2.5,
-        },
-
-        fill: {
-          opacity: 0.2,
-        },
-
-        markers: {
-          size: 4,
-          strokeWidth: 0,
-        },
-
-        plotOptions: {
-          radar: {
-            polygons: {
-              strokeColors: token("--border"),
-
-              connectorColors: token("--border"),
-
-              fill: {
-                colors: ["transparent"],
-              },
-            },
-          },
-        },
-
-        dataLabels: {
-          enabled: true,
-
-          background: {
-            enabled: false,
-          },
-
-          style: {
-            fontSize: "10px",
-            fontWeight: 600,
-          },
-        },
-
-        legend: {
-          show: false,
-        },
+        tooltip: { shared: true, intersect: false },
+        legend: { position: "bottom", horizontalAlign: "left" },
       }),
     [base],
   );
 
   return (
     <>
-      {/* =================================================
-          Page Header
-      ================================================= */}
-
       <PageHeader
         title="Projects"
-        subtitle="One place to steer delivery, capacity and project risk."
+        subtitle="A clear view of what is moving, what is waiting, and where to steer next."
         breadcrumb={["Edzen", "Dashboards", "Projects"]}
         actions={
           <>
             <Button variant="outline" size="sm">
               <CalendarDays />
-              August
+              Aug 2026
             </Button>
-
             <Button size="sm">
               <Plus />
-              Create project
+              New project
             </Button>
           </>
         }
       />
 
-      {/* =================================================
-          Delivery Command Center
-      ================================================= */}
-
-      <Card className="overflow-hidden border-primary/25" bodyClassName="p-0">
-        <div className="grid xl:grid-cols-[1.65fr_1fr]">
-          {/* Portfolio Overview */}
-
-          <div className="p-6">
-            <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">
-              Delivery command center
-            </p>
-
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-              68% of portfolio delivery is on plan.
-            </h2>
-
-            <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-              14 active projects are consuming $284K of the $410K portfolio
-              budget. Three need an owner decision this week.
-            </p>
-
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section className="edzen-card sm:p-6 p-4 overflow-hidden">
+        <div className="grid xl:grid-cols-2 gap-4">
+         <div className="xl:col-span-6 col-span-12">
+           <div className="relative overflow-hidden">
+            <div className="absolute -right-20 -top-24 size-64 rounded-full bg-primary/8 blur-3xl" />
+            <div className="relative">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-primary">
+                <span className="grid size-7 place-items-center rounded-lg bg-primary text-primary-foreground">
+                  <Sparkles className="size-3.5" />
+                </span>
+                Portfolio cockpit
+              </div>
+              <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                Your delivery plan is holding steady.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
+                14 active initiatives are moving through the studio. Focus the
+                next planning session on two dependencies and one client
+                approval.
+              </p>
+            </div>
+          </div>
+         </div>
+         <div className="xl:col-span-6 col-span-12">
+          <div className="bg-muted/50 p-4 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold">Delivery signal</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  This week’s operating health
+                </p>
+              </div>
+              <span className="grid size-10 place-items-center rounded-xl bg-success/12 text-success">
+                <Target className="size-5" />
+              </span>
+            </div>
+            <div className="mt-6 space-y-4">
               {[
-                ["Portfolio", 24],
-                ["Active", 14],
-                ["At risk", 3],
-                ["Completed", 7],
-              ].map(([name, value]) => (
-                <div
-                  key={name as string}
-                  className="rounded-xl border bg-card p-3"
-                >
-                  <p className="text-xs text-muted-foreground">{name}</p>
-
-                  <p className="mt-1 text-2xl font-semibold">{value}</p>
+                ["Scope confidence", "84%", "bg-[var(--chart-1)]"],
+                ["Schedule confidence", "76%", "bg-[var(--chart-2)]"],
+                ["Capacity coverage", "91%", "bg-[var(--chart-4)]"],
+              ].map(([label, value, tone]) => (
+                <div key={label}>
+                  <div className="mb-1.5 flex justify-between text-xs">
+                    <span className="text-muted-foreground">{label}</span>
+                    <b>{value}</b>
+                  </div>
+                  <Progress
+                    value={Number.parseInt(value, 10)}
+                    className={tone}
+                  />
                 </div>
               ))}
             </div>
           </div>
-
-          {/* Portfolio Pulse */}
-
-          <div className="border-t bg-muted/35 p-6 xl:border-s xl:border-t-0">
-            <p className="text-sm font-semibold">Portfolio pulse</p>
-
-            <div className="mt-5 space-y-4">
-              {[
-                ["Schedule confidence", 68, "bg-primary"],
-                ["Budget consumed", 69, "bg-success"],
-                ["Team capacity", 82, "bg-info"],
-              ].map(([name, value, color]) => (
-                <div key={name as string}>
-                  <div className="mb-2 flex justify-between text-xs">
-                    <span>{name}</span>
-
-                    <b>{value}%</b>
-                  </div>
-
-                  <Progress value={value as number} tone={color as string} />
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-6 rounded-lg bg-warning/10 px-3 py-2 text-xs text-warning">
-              3 delivery risks require review before Friday.
-            </p>
           </div>
         </div>
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[
+            ["Live projects", "14", "across 4 clients"],
+            ["On-plan work", "68%", "up 8 points"],
+            ["Open decisions", "3", "need an owner"],
+            ["Capacity left", "18h", "this week"],
+          ].map(([label, value, note]) => (
+            <div
+              key={label}
+              className="rounded-xl border border-border/80 bg-background/65 p-3"
+            >
+              <p className="text-[11px] text-muted-foreground">{label}</p>
+              <p className="mt-1 text-xl font-semibold tracking-tight">
+                {value}
+              </p>
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                {note}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+     <div className="mt-5 grid gap-4 xl:grid-cols-12">
+       <Card
+        className="xl:col-span-8"
+        title="Delivery outlook"
+        description="Planned, completed, reviewed, and blocked work across the next six weeks"
+        action={
+          <Badge tone="success" variant="dot">
+            Updated today
+          </Badge>
+        }
+      >
+        <ApexChart
+          key={themeKey}
+          type="line"
+          height={285}
+          options={deliveryOptions}
+          series={[
+            {
+              name: "Planned",
+              type: "column",
+              data: [58, 72, 76, 84, 92, 104],
+            },
+            {
+              name: "Completed",
+              type: "line",
+              data: [46, 61, 66, 78, 81, 94],
+            },
+            {
+              name: "In review",
+              type: "line",
+              data: [14, 12, 18, 13, 16, 11],
+            },
+            { name: "Blocked", type: "column", data: [7, 5, 8, 4, 6, 3] },
+          ]}
+        />
       </Card>
 
-      {/* =================================================
-          Active Delivery Board
-      ================================================= */}
+      <Card
+        className="xl:col-span-4"
+        title="Portfolio rhythm"
+        description="This week at a glance"
+      >
+        <div className="space-y-2">
+          {[
+            ["12","Mon", "Planning sync", "09:30" , "12.6%"],
+            ["04","Wed", "Design critique", "14:00", "22.64%"],
+            ["23","Thu", "Client steering", "11:00", "34.53%"],
+            ["15","Fri", "Release checkpoint", "16:00", "42.6%"],
+          ].map(([date,day, event, time,value], index) => (
+            <div key={event} className="flex items-center gap-3 p-2 border rounded-xl">
+              <span
+                className={`flex flex-col justify-center size-12 place-items-center rounded-lg text-[11px] font-bold ${index === 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+              >
+                <span>{date}</span>
+                {day}
+              </span>
+              <span className="min-w-0 flex-1">
+                <b className="block truncate text-sm">{event}</b>
+                <small className="text-xs text-muted-foreground">
+                  {time}
+                </small>
+              </span>
+              <span className="text-xs text-muted">{value}</span>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="mt-5 flex w-full cursor-pointer items-center justify-center gap-1 rounded-lg border py-2 text-xs font-semibold text-primary transition hover:bg-primary/5"
+        >
+          <Layers3 className="size-3.5" />
+          Open planning board
+        </button>
+      </Card>
+     </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
           className="xl:col-span-8"
-          title="Active delivery board"
-          description="Projects arranged by delivery confidence"
+          title="Project lanes"
+          description="A concise view of delivery across the active portfolio"
+          action={
+            <span className="text-[11px] font-medium text-muted-foreground">
+              {visibleProjects.length} active lanes
+            </span>
+          }
         >
-          <div className="grid gap-3 sm:grid-cols-2">
-            {projects.map(([name, client, progress, due, status, owner]) => (
-              <div key={name} className="rounded-xl border p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{name}</p>
-
-                    <p className="text-xs text-muted-foreground">
-                      {client} due {due}
-                    </p>
-                  </div>
-
-                  <Badge tone={tones[status]}>{status}</Badge>
-                </div>
-
-                <div className="mt-5 flex items-center gap-3">
-                  <Avatar initials={owner} />
-
-                  <div className="flex-1">
-                    <div className="mb-2 flex justify-between text-xs">
-                      <span>Delivery progress</span>
-
-                      <b>{progress}%</b>
-                    </div>
-
-                    <Progress
-                      value={Number(progress)}
-                      tone={
-                        status === "Delayed"
-                          ? "bg-destructive"
-                          : status === "At Risk"
-                            ? "bg-warning"
-                            : "bg-success"
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Execution Pulse */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Execution pulse"
-          description="Work status across all active projects"
-        >
-          <div className="space-y-3">
-            {[
-              ["Ready to start", 84, "bg-muted"],
-              ["In progress", 126, "bg-primary"],
-              ["In review", 42, "bg-warning"],
-              ["Delivered", 428, "bg-success"],
-              ["Blocked", 18, "bg-destructive"],
-            ].map(([name, value, color]) => (
-              <div key={name as string} className="flex items-center gap-3">
-                <i className={`size-2.5 rounded-full ${color}`} />
-
-                <span className="flex-1 text-sm">{name}</span>
-
-                <b className="text-sm">{value}</b>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5 rounded-lg bg-primary/10 p-3 text-xs">
-            <b className="text-primary">72% completion</b>
-
-            <span className="block pt-1 text-muted-foreground">
-              +8 points from the previous sprint.
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex rounded-lg bg-muted p-1">
+              {(["All work", "Needs attention"] as const).map((lane) => (
+                <button
+                  key={lane}
+                  type="button"
+                  onClick={() => setActiveLane(lane)}
+                  className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-semibold transition ${activeLane === lane ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {lane}
+                </button>
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              Updated 12 minutes ago
             </span>
           </div>
-        </Card>
-      </div>
-
-      {/* =================================================
-          Workload / Deadlines / Budget
-      ================================================= */}
-
-      <div className="mt-5 grid gap-4 xl:grid-cols-12">
-        {/* Team Workload */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Team workload"
-          description="People closest to capacity"
-        >
-          <div className="space-y-4">
-            {workload.map(([name, initials, count, capacity]) => (
-              <div key={name} className="flex gap-3">
-                <Avatar initials={initials} />
-
-                <div className="flex-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-medium">{name}</span>
-
-                    <b>{count} tasks</b>
-                  </div>
-
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="flex-1">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {visibleProjects.map(
+              ([name, client, progress, due, status, owner], index) => {
+                const tone = phaseTones[status];
+                const accent = [
+                  "bg-[var(--chart-1)]",
+                  "bg-[var(--chart-2)]",
+                  "bg-[var(--chart-3)]",
+                  "bg-[var(--chart-4)]",
+                ][index];
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    className="group relative min-h-40 cursor-pointer overflow-hidden rounded-xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-sm"
+                  >
+                    <span
+                      className={`absolute inset-y-0 start-0 w-1 ${accent}`}
+                    />
+                    <div className="flex items-start justify-between gap-3 ps-1">
+                      <span className="flex min-w-0 items-center gap-3">
+                        <span className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground transition group-hover:bg-primary/10 group-hover:text-primary">
+                          <FolderKanban className="size-4" />
+                        </span>
+                        <span className="min-w-0 text-start">
+                          <b className="block truncate text-sm">{name}</b>
+                          <small className="block truncate text-xs text-muted-foreground">
+                            {client}
+                          </small>
+                        </span>
+                      </span>
+                      <span
+                        className={`inline-flex shrink-0 items-center gap-1.5 text-[11px] font-semibold ${tone.text}`}
+                      >
+                        <i className={`size-2 rounded-full ${tone.dot}`} />
+                        {status}
+                      </span>
+                    </div>
+                    <div className="mt-5 ps-1">
+                      <div className="mb-2 flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">
+                          Delivery progress
+                        </span>
+                        <b>{progress}%</b>
+                      </div>
                       <Progress
-                        value={capacity}
-                        tone={capacity > 90 ? "bg-warning" : "bg-primary"}
+                        value={Number(progress)}
+                        className={tone.fill}
                       />
                     </div>
-
-                    <span
-                      className={
-                        capacity > 90
-                          ? "text-xs font-semibold text-warning"
-                          : "text-xs font-semibold"
-                      }
-                    >
-                      {capacity}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    <div className="mt-4 flex items-center justify-between border-t pt-3 ps-1">
+                      <span className="flex items-center gap-2">
+                        <Avatar initials={owner} className="size-6" />
+                        <small className="text-xs text-muted-foreground">
+                          Project owner
+                        </small>
+                      </span>
+                      <small className="rounded-md bg-muted px-2 py-1 text-[10px] font-semibold text-muted-foreground">
+                        Due {due}
+                      </small>
+                    </div>
+                  </button>
+                );
+              },
+            )}
           </div>
         </Card>
 
-        {/* Next Deadlines */}
-
         <Card
           className="xl:col-span-4"
-          title="Next deadlines"
-          description="The work that cannot slip"
+          title="Next best move"
+          description="The one action that clears the most work"
+          action={
+            <Badge
+              tone={decisionAcknowledged ? "success" : "danger"}
+              variant="dot"
+            >
+              {decisionAcknowledged ? "Owner assigned" : "Needs action"}
+            </Badge>
+          }
         >
-          <ol className="space-y-3">
-            {deadlines.map(([month, day, project, item, priority]) => (
-              <li key={project} className="flex gap-3 rounded-lg border p-3">
-                <time className="w-9 text-center">
-                  <b className="block text-lg leading-none">{day}</b>
-
-                  <small className="text-[10px] text-muted-foreground">
-                    {month}
+          <div
+            className={`rounded-xl border p-4 ${
+              decisionAcknowledged
+                ? "border-success/25 bg-success/6"
+                : "border-destructive/20 bg-destructive/6"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <span
+                className={`grid size-10 shrink-0 place-items-center rounded-xl ${
+                  decisionAcknowledged
+                    ? "bg-success text-success-foreground"
+                    : "bg-destructive text-destructive-foreground"
+                }`}
+              >
+                {decisionAcknowledged ? (
+                  <Check className="size-5" />
+                ) : (
+                  <CircleAlert className="size-5" />
+                )}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Assign the API owner</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  CRM Migration is waiting on a compatibility decision.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-3 divide-x rounded-lg border bg-card/60 text-center">
+              {[
+                ["Impact", "14 tasks"],
+                ["Deadline", "Today"],
+                ["Effort", "15 min"],
+              ].map(([label, value]) => (
+                <span key={label} className="px-2 py-2.5">
+                  <small className="block text-[10px] text-muted-foreground">
+                    {label}
                   </small>
-                </time>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold">{project}</p>
-
-                  <p className="truncate text-xs text-muted-foreground">
-                    {item}
-                  </p>
-                </div>
-
-                <Badge
-                  tone={
-                    priority === "Critical"
-                      ? "danger"
-                      : priority === "High"
-                        ? "warning"
-                        : "muted"
-                  }
-                >
-                  {priority}
-                </Badge>
-              </li>
-            ))}
-          </ol>
-        </Card>
-
-        {/* Budget Watch */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Budget watch"
-          description="Active allocation, spend and remaining headroom"
-          bodyClassName="pb-4"
-        >
-          <ApexChart
-            type="bar"
-            height={218}
-            options={budgetChart}
-            series={[
-              {
-                name: "Spent",
-                data: [68, 92, 54, 70],
-              },
-              {
-                name: "Remaining",
-                data: [12, 48, 56, 10],
-              },
-            ]}
-          />
-
-          <div className="mt-2 grid grid-cols-3 divide-x rtl:divide-x-reverse rounded-lg border bg-muted/25 py-2 text-center">
-            <div>
-              <p className="text-[10px] text-muted-foreground">Allocated</p>
-
-              <b className="text-sm">$410K</b>
+                  <b className="mt-1 block text-xs">{value}</b>
+                </span>
+              ))}
             </div>
-
-            <div>
-              <p className="text-[10px] text-muted-foreground">Committed</p>
-
-              <b className="text-sm text-primary">$284K</b>
-            </div>
-
-            <div>
-              <p className="text-[10px] text-muted-foreground">Headroom</p>
-
-              <b className="text-sm text-success">$126K</b>
-            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setDecisionAcknowledged((current) => !current)}
+            className="mt-4 flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition hover:border-primary/35 hover:bg-muted/25"
+          >
+            <Avatar initials="DL" />
+            <span className="flex-1">
+              <b className="block text-sm text-start">Daniel Lee</b>
+              <small className="text-xs text-muted-foreground text-start">
+                {decisionAcknowledged
+                  ? "Decision owner confirmed"
+                  : "Suggested decision owner"}
+              </small>
+            </span>
+            <span
+              className={`grid size-8 place-items-center rounded-lg ${
+                decisionAcknowledged
+                  ? "bg-success/12 text-success"
+                  : "bg-primary/10 text-primary"
+              }`}
+            >
+              {decisionAcknowledged ? (
+                <Check className="size-4" />
+              ) : (
+                <ChevronRight className="size-4" />
+              )}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setDecisionAcknowledged(true)}
+            className="mt-3 inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-primary"
+          >
+            {decisionAcknowledged ? "Open decision brief" : "Assign owner now"}
+            <ArrowRight className="size-3.5" />
+          </button>
+          <div className="mt-4 border-t pt-3 text-[11px] text-muted-foreground">
+            Resolving this dependency releases the migration workstream.
           </div>
         </Card>
       </div>
-
-      {/* =================================================
-          Delivery Trend + Risk Register
-      ================================================= */}
 
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
           className="xl:col-span-7"
-          title="Delivery trend"
-          description="Are planned tasks being delivered on schedule?"
+          title="Milestone runway"
+          description="The commitments that define the next ten days"
         >
-          <ApexChart
-            type="bar"
-            height={300}
-            options={chart}
-            series={[
-              {
-                name: "Planned",
-                type: "column",
-                data: [92, 104, 118, 126, 134, 142],
-              },
-              {
-                name: "Completed",
-                type: "line",
-                data: [74, 88, 102, 116, 124, 136],
-              },
-              {
-                name: "Overdue",
-                type: "line",
-                data: [14, 12, 15, 10, 9, 7],
-              },
-            ]}
-          />
+          <div className="relative mt-2 grid gap-3 sm:grid-cols-2">
+            <div className="absolute left-5 top-7 hidden h-[calc(100%-56px)] w-px bg-border sm:block" />
+            {milestones.map(([date, month, title, project, state, tone]) => {
+              const complete = completedMilestones.includes(title);
+              const badgeTone =
+                tone === "danger"
+                  ? "danger"
+                  : tone === "warning"
+                    ? "warning"
+                    : tone === "success"
+                      ? "success"
+                      : "primary";
+              return (
+                <button
+                  key={title}
+                  type="button"
+                  onClick={() => toggleMilestone(title)}
+                  className={`relative flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition ${complete ? "border-success/30 bg-success/5" : "hover:border-primary/35"}`}
+                >
+                  <time
+                    className={`grid size-10 shrink-0 place-items-center rounded-xl border text-center ${complete ? "border-success/30 bg-success text-success-foreground" : "bg-card"}`}
+                  >
+                    <b className="text-sm leading-none">
+                      {complete ? <Check className="size-4" /> : date}
+                    </b>
+                    {!complete && (
+                      <small className="mt-0.5 text-[8px] font-semibold text-muted-foreground">
+                        {month}
+                      </small>
+                    )}
+                  </time>
+                  <span className="min-w-0 flex-1">
+                    <b
+                      className={`block truncate text-sm ${complete ? "line-through opacity-60" : ""}`}
+                    >
+                      {title}
+                    </b>
+                    <small className="block truncate text-xs text-muted-foreground">
+                      {project}
+                    </small>
+                  </span>
+                  <Badge tone={badgeTone}>{complete ? "Done" : state}</Badge>
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            Click a milestone when it is delivered.
+          </p>
         </Card>
-
-        {/* Risk Register */}
 
         <Card
           className="xl:col-span-5"
-          title="Risk register"
-          description="Highest-impact blockers this week"
+          title="People allocation"
+          description="Current load by practice area"
         >
-          <div className="space-y-3">
-            {[
-              [
-                "Legacy API compatibility",
-                "CRM Migration",
-                "Critical",
-                "Dependency unresolved",
-              ],
-              [
-                "Payment gateway approval",
-                "Mobile App v2",
-                "High",
-                "External sign-off due",
-              ],
-              [
-                "Design approval delay",
-                "Website Redesign",
-                "Medium",
-                "Client feedback pending",
-              ],
-            ].map(([name, project, severity, note]) => (
-              <div key={name} className="rounded-xl border p-3">
-                <div className="flex justify-between gap-2">
-                  <p className="text-sm font-semibold">{name}</p>
-
-                  <Badge
-                    tone={
-                      severity === "Critical"
-                        ? "danger"
-                        : severity === "High"
-                          ? "warning"
-                          : "muted"
+          <div className="space-y-4">
+            {team.map(([discipline, name, initials, load, note]) => (
+              <div key={discipline} className="flex items-center gap-3">
+                <Avatar initials={initials} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span>
+                      <b className="text-sm">{discipline}</b>
+                      <small className="ml-2 text-xs text-muted-foreground">
+                        {name}
+                      </small>
+                    </span>
+                    <b
+                      className={load > 85 ? "text-xs text-warning" : "text-xs"}
+                    >
+                      {load}%
+                    </b>
+                  </div>
+                  <Progress
+                    value={load}
+                    className={
+                      load > 85
+                        ? "bg-warning"
+                        : load > 75
+                          ? "bg-primary"
+                          : "bg-success"
                     }
-                  >
-                    {severity}
-                  </Badge>
+                  />
+                  <small className="mt-1 block text-[11px] text-muted-foreground">
+                    {note}
+                  </small>
                 </div>
-
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {project} {note}
-                </p>
               </div>
             ))}
           </div>
-
-          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-            <span className="rounded-lg bg-muted p-2">
-              <b className="block text-lg">7</b>
-              Open risks
-            </span>
-
-            <span className="rounded-lg bg-muted p-2">
-              <b className="block text-lg text-destructive">2</b>
-              Critical
-            </span>
-
-            <span className="rounded-lg bg-muted p-2">
-              <b className="block text-lg text-warning">18</b>
-              Blocked
-            </span>
+          <div className="mt-5 flex items-center gap-2 rounded-xl bg-info/10 p-3 text-xs text-info">
+            <UsersRound className="size-4 shrink-0" />
+            <span>12 people are assigned across the active portfolio.</span>
           </div>
         </Card>
       </div>
 
-      {/* =================================================
-          Tasks / Milestones / Performance
-      ================================================= */}
-
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
-        {/* Priority Tasks */}
-
         <Card
-          className="xl:col-span-4"
-          title="Priority tasks"
-          description="Personal actions due next"
+          className="xl:col-span-5"
+          title="Investment posture"
+          description="Portfolio allocation for the current quarter"
         >
-          <div className="space-y-3">
-            {tasks.map(([task, project, _priority, owner, due, done]) => (
-              <label
-                key={task}
-                className="flex items-start gap-3 rounded-lg border p-3"
-              >
-                <input
-                  type="checkbox"
-                  defaultChecked={done}
-                  className="mt-0.5 size-4 accent-primary"
-                />
-
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{task}</p>
-
-                  <p className="text-xs text-muted-foreground">
-                    {project} {due}
-                  </p>
-                </div>
-
-                <Avatar initials={owner} className="size-7 text-[10px]" />
-              </label>
-            ))}
-          </div>
-        </Card>
-
-        {/* Milestone Path */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Milestone path"
-          description="Recent and next project markers"
-        >
-          <ol className="space-y-4 border-s ps-5">
-            {[
-              [
-                "Design system approved",
-                "Website Redesign",
-                "Completed",
-                "Aug 22",
-              ],
-              ["Beta testing", "Mobile App v2", "Current", "Aug 29"],
-              ["Data migration", "CRM Migration", "Upcoming", "Sep 02"],
-              ["Campaign launch", "Marketing Automation", "Upcoming", "Sep 05"],
-            ].map(([milestone, project, status, date]) => (
-              <li key={milestone} className="relative">
-                <i className="absolute -start-[22px] top-1 size-2.5 rounded-full bg-primary ring-4 ring-card" />
-
-                <p className="text-sm font-semibold">{milestone}</p>
-
-                <p className="text-xs text-muted-foreground">
-                  {project} {status} {date}
+          <div className="flex items-center justify-center gap-6 py-3">
+            <div
+              className="relative grid size-32 shrink-0 place-items-center rounded-full"
+              style={{
+                background:
+                  "conic-gradient(var(--chart-1) 0 42%, var(--chart-2) 42% 70%, var(--chart-3) 70% 88%, var(--muted) 88% 100%)",
+              }}
+            >
+              <span className="grid size-24 place-items-center p-5 rounded-full bg-card text-center">
+                <b className="block text-xl">$410K</b>
+                <small className="text-[10px] text-muted-foreground">
+                  allocated
+                </small>
+              </span>
+            </div>
+            <div className="space-y-3 text-xs">
+              {[
+                ["Product build", "42%", "bg-[var(--chart-1)]"],
+                ["Growth", "28%", "bg-[var(--chart-2)]"],
+                ["Platform", "18%", "bg-[var(--chart-3)]"],
+                ["Reserve", "12%", "bg-muted-foreground"],
+              ].map(([label, value, color]) => (
+                <p key={label} className="flex items-center gap-2">
+                  <i className={`size-2.5 rounded-full ${color}`} />
+                  <span className="flex-1 text-muted-foreground">{label}</span>
+                  <b>{value}</b>
                 </p>
-              </li>
-            ))}
-          </ol>
-        </Card>
-
-        {/* Team Performance */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Team performance"
-          description="On-time completion by discipline"
-          bodyClassName="pb-4"
-        >
-          <ApexChart
-            type="radar"
-            height={255}
-            options={teamPerformanceChart}
-            series={[
-              {
-                name: "On-time delivery",
-
-                data: [88, 76, 82, 91, 72],
-              },
-            ]}
-          />
-
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2 border-t pt-3 text-xs">
-            <span className="flex justify-between">
-              <span className="text-muted-foreground">Best signal</span>
-
-              <b className="text-success">Product 91%</b>
-            </span>
-
-            <span className="flex justify-between">
-              <span className="text-muted-foreground">Focus area</span>
-
-              <b className="text-warning">Operations 72%</b>
-            </span>
+              ))}
+            </div>
+          </div>
+          <div className="mt-2 rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">
+            <b className="text-foreground">$126K</b> remains uncommitted for the
+            quarter.
           </div>
         </Card>
-      </div>
 
-      {/* =================================================
-          Delivery Stand-up + Decisions
-      ================================================= */}
-
-      <div className="mt-5 grid gap-4 xl:grid-cols-12">
         <Card
-          className="xl:col-span-8"
-          title="Delivery stand-up"
-          description="The project conversations that need a decision before the next planning cycle"
-          action={
-            <Badge tone="warning" variant="dot">
-              3 decisions waiting
-            </Badge>
-          }
+          className="xl:col-span-7"
+          title="Decision queue"
+          description="Small calls with outsized delivery impact"
         >
           <div className="divide-y rounded-xl border">
-            {[
-              [
-                "Website Redesign",
-                "Homepage approval is blocking developer handoff",
-                "Sophia Carter",
-                "Today",
-                "warning",
-              ],
-              [
-                "CRM Migration",
-                "Legacy API compatibility needs a technical owner",
-                "Daniel Lee",
-                "Tomorrow",
-                "danger",
-              ],
-              [
-                "Mobile App v2",
-                "Beta feedback is ready for product triage",
-                "Olivia Smith",
-                "Aug 29",
-                "info",
-              ],
-              [
-                "Marketing Automation",
-                "Campaign audience is ready for launch approval",
-                "Emma Wilson",
-                "Sep 05",
-                "success",
-              ],
-            ].map(([project, update, owner, date, tone]) => (
-              <div
-                key={project}
-                className="flex flex-wrap items-center gap-3 px-4 py-3"
-              >
-                <span
-                  className={`size-2.5 rounded-full ${
-                    tone === "danger"
-                      ? "bg-destructive"
-                      : tone === "warning"
-                        ? "bg-warning"
-                        : tone === "info"
-                          ? "bg-info"
-                          : "bg-success"
-                  }`}
-                />
-
-                <span className="min-w-[160px] flex-1">
-                  <b className="block text-sm">{project}</b>
-
-                  <small className="block text-xs text-muted-foreground">
-                    {update}
-                  </small>
-                </span>
-
-                <span className="text-xs text-muted-foreground">
-                  Owner: {owner}
-                </span>
-
-                <Badge tone={tone as "warning" | "danger" | "info" | "success"}>
-                  {date}
-                </Badge>
-
-                <button
-                  type="button"
-                  onClick={() => alert(`${project} stand-up item opened`)}
-                  className="text-xs font-semibold text-primary"
-                >
-                  Open
-                </button>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Decision Queue */}
-
-        <Card
-          className="xl:col-span-4"
-          title="Decision queue"
-          description="Small choices with a big delivery impact"
-        >
-          <div className="space-y-3">
-            {[
-              [
-                "Approve homepage route",
-                "Website Redesign",
-                "15 min",
-                "success",
-              ],
-              ["Assign API owner", "CRM Migration", "Today", "danger"],
-              ["Confirm beta cohort", "Mobile App v2", "Tomorrow", "warning"],
-            ].map(([decision, project, timing, tone]) => (
+            {decisions.map(([decision, project, detail, timing]) => (
               <button
-                type="button"
                 key={decision}
-                onClick={() => alert(`${decision} decision opened`)}
-                className="flex w-full items-center gap-3 rounded-xl border p-3 text-start transition hover:border-primary/30"
+                type="button"
+                className="flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left transition hover:bg-muted/35"
               >
                 <span
-                  className={`grid size-8 place-items-center rounded-lg ${
-                    tone === "danger"
-                      ? "bg-destructive/12 text-destructive"
-                      : tone === "warning"
-                        ? "bg-warning/16 text-warning"
-                        : "bg-success/12 text-success"
-                  }`}
+                  className={`grid size-8 place-items-center rounded-lg ${timing === "Critical" ? "bg-destructive/12 text-destructive" : "bg-warning/14 text-warning"}`}
                 >
-                  <CheckCircle2 className="size-4" />
+                  <Clock3 className="size-4" />
                 </span>
-
-                <span className="flex-1">
-                  <b className="block text-sm">{decision}</b>
-
-                  <small className="text-xs text-muted-foreground">
-                    {project}
+                <span className="min-w-0 flex-1 text-start">
+                  <b className="block truncate text-sm">{decision}</b>
+                  <small className="block truncate text-xs text-muted-foreground">
+                    {project} - {detail}
                   </small>
                 </span>
-
-                <small className="text-xs font-semibold text-primary">
+                <Badge tone={timing === "Critical" ? "danger" : "warning"}>
                   {timing}
-                </small>
+                </Badge>
+                <MoreHorizontal className="size-4 text-muted-foreground" />
               </button>
             ))}
           </div>
         </Card>
       </div>
 
-      {/* =================================================
-          Capacity / Health / Project Rhythm
-      ================================================= */}
-
       <div className="mt-5 grid gap-4 xl:grid-cols-12">
-        {/* Capacity Board */}
-
         <Card
-          className="xl:col-span-5"
-          title="Capacity board"
-          description="How much focused delivery time is available this week"
+          className="xl:col-span-8"
+          title="Workstream control board"
+          description="A project-focused board for moving work through the week"
+          action={
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
+              <TimerReset className="size-3.5" />
+              Sprint 18
+            </span>
+          }
         >
-          <div className="space-y-4">
-            {[
-              ["Design", "4.5 days", "2 requests waiting", 76, "SC"],
-              ["Engineering", "2.0 days", "1 dependency blocked", 88, "DL"],
-              ["QA", "3.5 days", "Beta starts Friday", 64, "OW"],
-              ["Product", "1.5 days", "3 decisions queued", 92, "EW"],
-            ].map(([discipline, availability, note, load, initials]) => (
-              <div key={discipline} className="flex items-center gap-3">
-                <Avatar
-                  initials={initials as string}
-                  className="size-9 text-[10px]"
-                />
-
-                <span className="min-w-0 flex-1">
-                  <span className="flex justify-between gap-2">
-                    <b className="text-sm">{discipline}</b>
-
-                    <small className="text-xs font-semibold">
-                      {availability}
-                    </small>
+          <div className="grid gap-3 md:grid-cols-3">
+            {workstreamStages.map((stage) => (
+              <section
+                key={stage.title}
+                className="rounded-xl border bg-muted/15 p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-xs font-semibold">
+                    <i className={`size-2.5 rounded-full ${stage.tone}`} />
+                    {stage.title}
                   </span>
-
-                  <small className="block text-xs text-muted-foreground">
-                    {note}
-                  </small>
-
-                  <div className="mt-2 h-1.5 rounded-full bg-muted">
-                    <div
-                      className={`h-full rounded-full ${
-                        (load as number) > 85 ? "bg-warning" : "bg-success"
-                      }`}
-                      style={{
-                        width: `${load}%`,
-                      }}
-                    />
-                  </div>
-                </span>
-              </div>
+                  <span className="grid size-6 place-items-center rounded-md bg-card text-[10px] font-bold text-muted-foreground">
+                    {stage.count}
+                  </span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {stage.items.map(([task, project, owner], index) => (
+                    <button
+                      key={task}
+                      type="button"
+                      className="w-full cursor-pointer rounded-lg border bg-card p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-sm"
+                    >
+                      <span className="flex items-start justify-between gap-2">
+                        <b className="text-xs leading-5 text-start">{task}</b>
+                        <MoreHorizontal className="size-4 shrink-0 text-muted-foreground" />
+                      </span>
+                      <span className="mt-3 flex items-center justify-between gap-2">
+                        <small className="truncate text-[11px] text-muted-foreground">
+                          {project}
+                        </small>
+                        <span
+                          className={`grid size-6 shrink-0 place-items-center rounded-md text-[9px] font-bold ${
+                            index === 0
+                              ? "bg-primary/12 text-primary"
+                              : "bg-[var(--chart-2)]/15 text-[var(--chart-2)]"
+                          }`}
+                        >
+                          {owner}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
-
-          <p className="mt-5 rounded-xl bg-info/10 p-3 text-xs text-muted-foreground">
-            <b className="text-info">Planning note:</b> Engineering has 2
-            focused days available after the API owner is confirmed.
-          </p>
+          <button
+            type="button"
+            className="mt-4 inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-primary"
+          >
+            View the full work board <ArrowRight className="size-3.5" />
+          </button>
         </Card>
-
-        {/* Delivery Health */}
 
         <Card
           className="xl:col-span-4"
-          title="Delivery health"
-          description="Signals across scope, schedule and quality"
+          title="Portfolio momentum"
+          description="How the team is converting planned work"
         >
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-3 gap-2">
             {[
-              ["Scope", "Stable", "success"],
-              ["Schedule", "Watch", "warning"],
-              ["Quality", "Strong", "success"],
-            ].map(([label, state, tone]) => (
+              ["Planned", "128", "bg-[var(--chart-1)]"],
+              ["Shipped", "94", "bg-[var(--chart-2)]"],
+              ["Blocked", "08", "bg-[var(--chart-4)]"],
+            ].map(([label, value, color]) => (
               <div key={label} className="rounded-xl border p-3">
-                <span
-                  className={`mx-auto grid size-8 place-items-center rounded-full ${
-                    tone === "warning"
-                      ? "bg-warning/16 text-warning"
-                      : "bg-success/12 text-success"
-                  }`}
-                >
-                  <CheckCircle2 className="size-4" />
-                </span>
-
-                <b className="mt-3 block text-sm">{state}</b>
-
-                <small className="text-xs text-muted-foreground">{label}</small>
+                <i className={`mb-4 block size-2.5 rounded-full ${color}`} />
+                <b className="block text-xl tracking-tight">{value}</b>
+                <small className="mt-1 block text-[10px] text-muted-foreground">
+                  {label}
+                </small>
               </div>
             ))}
           </div>
+          <div className="mt-5">
+            <div className="mb-2 flex items-center justify-between text-xs">
+              <span className="font-medium">Weekly completion</span>
+              <b className="text-success">73%</b>
+            </div>
+            <div className="flex h-3 overflow-hidden rounded-full bg-muted">
+              <span className="bg-[var(--chart-1)]" style={{ width: "31%" }} />
+              <span className="bg-[var(--chart-2)]" style={{ width: "42%" }} />
+              <span className="bg-[var(--chart-3)]" style={{ width: "18%" }} />
+              <span className="bg-[var(--chart-4)]" style={{ width: "9%" }} />
+            </div>
+            <div className="mt-3 flex items-center gap-2 rounded-lg bg-success/10 p-2.5 text-xs text-success">
+              <BarChart3 className="size-4" />
+              <span>9 more tasks shipped than last week.</span>
+            </div>
+          </div>
+        </Card>
+      </div>
 
-          <div className="mt-5 space-y-3 text-sm">
-            <p className="flex justify-between">
-              <span className="text-muted-foreground">Delivery confidence</span>
-
-              <b>82 / 100</b>
-            </p>
-
-            <p className="flex justify-between">
-              <span className="text-muted-foreground">Milestones on time</span>
-
-              <b className="text-success">12 of 14</b>
-            </p>
-
-            <p className="flex justify-between">
-              <span className="text-muted-foreground">Open dependencies</span>
-
-              <b className="text-warning">5</b>
-            </p>
+      <div className="mt-5 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-5"
+          title="Scope guardrails"
+          description="Changes that should be reviewed before the next sprint"
+        >
+          <div className="space-y-3">
+            {[
+              [
+                "Mobile App v2",
+                "2 change requests",
+                "Product review",
+                "warning",
+              ],
+              [
+                "CRM Migration",
+                "1 integration request",
+                "Technical review",
+                "danger",
+              ],
+              ["Website Redesign", "No scope change", "Protected", "success"],
+            ].map(([project, request, review, tone]) => (
+              <button
+                key={project}
+                type="button"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition hover:border-primary/35"
+              >
+                <span
+                  className={`grid size-9 place-items-center rounded-xl ${
+                    tone === "danger"
+                      ? "bg-destructive/12 text-destructive"
+                      : tone === "warning"
+                        ? "bg-warning/15 text-warning"
+                        : "bg-success/12 text-success"
+                  }`}
+                >
+                  <Flag className="size-4" />
+                </span>
+                <span className="min-w-0 flex-1 text-start">
+                  <b className="block text-sm">{project}</b>
+                  <small className="block text-xs text-muted-foreground">
+                    {request}
+                  </small>
+                </span>
+                <small
+                  className={`text-xs font-semibold ${
+                    tone === "danger"
+                      ? "text-destructive"
+                      : tone === "warning"
+                        ? "text-warning"
+                        : "text-success"
+                  }`}
+                >
+                  {review}
+                </small>
+              </button>
+            ))}
           </div>
         </Card>
 
-        {/* Project Rhythm */}
-
         <Card
-          className="xl:col-span-3"
-          title="Project rhythm"
-          description="Next delivery moments"
+          className="xl:col-span-7"
+          title="Delivery snapshots"
+          description="Project outcomes worth sharing in the next leadership review"
         >
-          <ol className="space-y-4 border-s ps-4">
+          <div className="grid gap-3 sm:grid-cols-3">
             {[
-              ["Today", "Design review", "Website Redesign"],
-              ["Aug 29", "Beta checkpoint", "Mobile App v2"],
-              ["Sep 02", "Migration rehearsal", "CRM Migration"],
-              ["Sep 05", "Campaign launch", "Marketing Automation"],
-            ].map(([date, event, project]) => (
-              <li key={event} className="relative">
-                <span className="absolute -start-[21px] top-1 size-2.5 rounded-full bg-primary ring-4 ring-card" />
-
-                <small className="text-xs font-semibold text-primary">
-                  {date}
-                </small>
-
-                <b className="mt-1 block text-sm">{event}</b>
-
-                <small className="text-xs text-muted-foreground">
-                  {project}
-                </small>
-              </li>
+              [
+                "Website Redesign",
+                "Design system handoff",
+                "82%",
+                "7 screens approved",
+                "bg-[var(--chart-1)]",
+              ],
+              [
+                "Mobile App v2",
+                "Beta release readiness",
+                "64%",
+                "42 testers enrolled",
+                "bg-[var(--chart-2)]",
+              ],
+              [
+                "Marketing Automation",
+                "Launch sequence",
+                "71%",
+                "3 journeys validated",
+                "bg-[var(--chart-3)]",
+              ],
+            ].map(([project, outcome, value, proof, color]) => (
+              <article key={project} className="rounded-xl border p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <span
+                    className={`grid size-9 place-items-center rounded-xl ${
+                      color === "bg-[var(--chart-1)]"
+                        ? "bg-[var(--chart-1)]/12 text-[var(--chart-1)]"
+                        : color === "bg-[var(--chart-2)]"
+                          ? "bg-[var(--chart-2)]/15 text-[var(--chart-2)]"
+                          : "bg-[var(--chart-3)]/15 text-[var(--chart-3)]"
+                    }`}
+                  >
+                    <FolderKanban className="size-4" />
+                  </span>
+                  <b className="text-xl tracking-tight">{value}</b>
+                </div>
+                <p className="mt-4 text-sm font-semibold">{outcome}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{project}</p>
+                <div className="mt-4 border-t pt-3 text-xs font-medium text-muted-foreground">
+                  {proof}
+                </div>
+              </article>
             ))}
-          </ol>
+          </div>
         </Card>
       </div>
     </>

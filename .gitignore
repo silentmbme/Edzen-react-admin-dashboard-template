@@ -16,6 +16,10 @@ dist-ssr
 .nitro
 *.local
 
+# Local review snapshots and generated deployment state
+.branding-backups/
+.theme-backups/
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

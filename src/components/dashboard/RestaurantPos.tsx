@@ -1,4 +1,4 @@
-import food0 from "@/assets/images/restaurant/margherita-pizza.jpg";
+﻿import food0 from "@/assets/images/restaurant/margherita-pizza.jpg";
 import food1 from "@/assets/images/restaurant/vegetable-pizza.jpg";
 import food2 from "@/assets/images/restaurant/garden-salad.jpg";
 import food3 from "@/assets/images/restaurant/greek-salad.jpg";
@@ -19,6 +19,13 @@ import {
   Pizza,
   Salad,
   Check,
+  ChefHat,
+  Clock3,
+  MapPin,
+  Users,
+  Timer,
+  CircleDollarSign,
+  ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/AppShell";
@@ -31,7 +38,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { PageHeader, Badge } from "./widgets";
+import { Card, PageHeader, Badge } from "./widgets";
 const menu = [
   {
     id: "M1",
@@ -202,19 +209,51 @@ export function RestaurantPos() {
         subtitle="Take orders, manage tables, and keep your kitchen moving."
         breadcrumb={["Dashboards", "Restaurant POS"]}
       />
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-        <div className="flex items-center gap-3">
-          <UtensilsCrossed className="size-6 text-primary" />
-          <div>
-            <p className="text-sm font-semibold">The Green Table</p>
-            <p className="text-xs text-muted-foreground">
-              Sample menu · USD · Orders stay in this page session
-            </p>
+      <section className="mb-5 overflow-hidden">
+        <div className="grid gap-4 lg:grid-cols-[1.25fr_.75fr]">
+          <div className="relative rounded-2xl overflow-hidden bg-primary px-5 py-6 text-primary-foreground sm:px-7">
+            <div className="absolute -right-10 -top-12 size-48 rounded-full border-[28px] border-primary-foreground/10" />
+            <div className="relative flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-primary-foreground/75">
+                  <ChefHat className="size-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em]">
+                    Service station
+                  </span>
+                </div>
+                <h2 className="mt-3 text-2xl font-semibold text-white">The Green Table</h2>
+                <p className="mt-1 text-sm text-primary-foreground/75">
+                  Lunch service · 12:00–15:00 · Downtown dining room
+                </p>
+              </div>
+              <Badge
+                tone="secondary"
+                className="bg-primary-foreground/15 text-primary-foreground"
+              >
+                Live shift
+              </Badge>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 rounded-2xl border divide-x divide-border bg-card">
+            {[
+              ["06", "seated", Users],
+              ["04", "open", MapPin],
+              ["14m", "ticket time", Timer],
+            ].map(([value, label, Icon]) => (
+              <div key={label as string} className="p-4 sm:p-5">
+                <Icon className="size-4 text-primary" />
+                <p className="mt-4 text-xl font-semibold tabular-nums">
+                  {value as string}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {label as string}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
-        <Badge tone="primary">Demo POS · No payment processed</Badge>
-      </div>
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+      </section>
+      <div className="mb-5 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-3">
         {[
           {
             label: "Orders placed",
@@ -242,40 +281,45 @@ export function RestaurantPos() {
         ].map((metric) => (
           <section
             key={metric.label}
-            className="metric-card edzen-card relative overflow-hidden p-5"
+            className="group relative bg-card p-5 transition hover:bg-muted/30"
             style={{
               background: `color-mix(in oklch, var(${metric.color}) 6%, var(--card))`,
             }}
           >
-            <div className="relative flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  {metric.label}
-                </p>
-                <p className="mt-3 text-3xl font-semibold tracking-tight tabular-nums">
-                  {metric.value}
-                </p>
-              </div>
+            <div className="relative flex items-center gap-4">
               <span
-                className="metric-icon grid size-12 place-items-center rounded-2xl"
+                className="grid size-12 shrink-0 place-items-center rounded-2xl"
                 style={{
                   color: `var(${metric.color})`,
                   background: `color-mix(in oklch,var(${metric.color}) 12%,transparent)`,
                 }}
               >
-                <metric.icon className="size-6" />
+                <metric.icon className="size-5" />
               </span>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">
+                  {metric.label}
+                </p>
+                <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums">
+                  {metric.value}
+                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {metric.note}
+                </p>
+              </div>
             </div>
-            <p className="relative mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
-              {metric.note}
-            </p>
           </section>
         ))}
       </div>
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Explore menu</h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-muted/20 p-4">
+            <div>
+              <h2 className="text-lg font-semibold">Menu composer</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Build a table ticket from the live menu
+              </p>
+            </div>
             <div className="relative w-full sm:w-64">
               <Search className="absolute start-3 top-3 size-4 text-muted-foreground" />
               <Input
@@ -287,7 +331,7 @@ export function RestaurantPos() {
               />
             </div>
           </div>
-          <div className="mb-5 flex flex-wrap gap-2">
+          <div className="mb-5 flex flex-wrap gap-2 rounded-xl border border-border bg-card p-2">
             {["All", "Pizza", "Salads", "Mains", "Drinks"].map((c) => (
               <Button
                 key={c}
@@ -300,20 +344,20 @@ export function RestaurantPos() {
               </Button>
             ))}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             {visible.map((item) => (
               <article
                 key={item.id}
-                className="edzen-card overflow-hidden transition-shadow hover:shadow-md"
+                className="group overflow-hidden rounded-2xl border border-border bg-card transition hover:border-primary/35 hover:shadow-md"
               >
-                <div className="group relative aspect-[4/3] overflow-hidden bg-muted">
+                <div className="group relative min-h-45 overflow-hidden bg-muted">
                   <img
                     src={item.image}
                     alt={item.name}
                     loading="lazy"
                     width={640}
                     height={640}
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <span
                     className="absolute start-3 top-3 rounded-full bg-card/95 px-2.5 py-1 text-[10px] font-semibold shadow-sm"
@@ -327,24 +371,21 @@ export function RestaurantPos() {
                     </span>
                   )}
                 </div>
-                <div
-                  className="p-4"
-                  style={{
-                    borderTop: `3px solid color-mix(in oklch,var(${item.color}) 40%,transparent)`,
-                  }}
-                >
-                  <h3 className="text-sm font-semibold">{item.name}</h3>
+                <div className="flex min-w-0 flex-col p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-sm font-semibold">{item.name}</h3>
+                    <span className="text-base font-semibold">
+                      {money(item.price)}
+                    </span>
+                  </div>
                   <p className="mt-1 min-h-8 text-xs text-muted-foreground">
                     {item.description}
                   </p>
-                  <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                  <div className="mt-auto flex items-center justify-between border-t border-border pt-3">
                     <div>
-                      <span className="text-lg font-semibold">
-                        {money(item.price)}
-                      </span>
-                      <p className="text-[10px] text-muted-foreground">
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                         Per serving
-                      </p>
+                      </span>
                     </div>
                     <Button
                       size="sm"
@@ -371,26 +412,25 @@ export function RestaurantPos() {
             </p>
           )}
         </div>
-        <aside className="edzen-card overflow-hidden xl:sticky xl:top-24">
-          <div className="flex items-center justify-between border-b border-border p-5">
+        <aside className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm xl:sticky xl:top-24">
+          <div className="flex items-center justify-between border-b border-border bg-muted/25 p-5">
             <div>
-              <h2 className="font-semibold">Current order</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {items.reduce((sum, item) => sum + (cart[item.id] ?? 0), 0)}{" "}
-                items
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="grid size-8 place-items-center rounded-xl bg-primary/10 text-primary">
+                  <ReceiptText className="size-4" />
+                </span>
+                <h2 className="font-semibold">Ticket builder</h2>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={!items.length}
-              onClick={() => setCart({})}
-            >
-              Clear
-            </Button>
+            
+            <p className="mt-1 text-xs text-muted-foreground bg-primary/12 text-primary px-2 py-0.5 rounded-full font-medium">
+              {items.reduce((sum, item) => sum + (cart[item.id] ?? 0), 0)}{" "}
+              items
+            </p>
+            
           </div>
           <div className="p-5">
-            <div className="mb-4 grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+            <div className="mb-4 grid grid-cols-3 gap-1 rounded-2xl border border-border bg-muted/50 p-1.5">
               {["Dine in", "Takeaway", "Delivery"].map((type) => (
                 <button
                   key={type}
@@ -399,7 +439,7 @@ export function RestaurantPos() {
                   className={
                     "rounded-md px-2 py-2 text-xs font-medium transition " +
                     (orderType === type
-                      ? "bg-card text-primary shadow-sm"
+                      ? "bg-card text-primary shadow-sm ring-1 ring-border"
                       : "text-muted-foreground")
                   }
                   onClick={() => setOrderType(type)}
@@ -414,7 +454,7 @@ export function RestaurantPos() {
             <select
               id="pos-table"
               disabled={orderType !== "Dine in"}
-              className="mb-5 mt-2 h-10 w-full rounded-lg border border-border bg-card px-3 text-sm"
+              className="mb-5 mt-2 h-10 w-full rounded-xl border border-border bg-muted/20 px-3 text-sm"
               value={table}
               onChange={(e) => setTable(e.target.value)}
             >
@@ -426,7 +466,10 @@ export function RestaurantPos() {
             </select>
             <div className="space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="border-b border-border pb-4">
+                <div
+                  key={item.id}
+                  className="rounded-xl border border-border bg-muted/15 p-3"
+                >
                   <div className="flex items-start justify-between gap-2">
                     <img
                       src={item.image}
@@ -451,7 +494,7 @@ export function RestaurantPos() {
                       <Trash2 className="size-3.5" />
                     </Button>
                   </div>
-                  <div className="mt-3 flex items-center justify-between">
+                  <div className="mt-3 flex items-center justify-between border-t pt-3">
                     <div className="flex items-center gap-3">
                       <Button
                         variant="outline"
@@ -554,63 +597,148 @@ export function RestaurantPos() {
           </div>
         </aside>
       </div>
-      <section className="edzen-card mt-6 p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[15px] font-semibold">Kitchen orders</h2>
-          <Badge tone="primary" size="sm">
-            {orders.length} orders
-          </Badge>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {orders.map((order) => (
-            <article
-              key={order.id}
-              className="rounded-xl border border-border p-4"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold">{order.id}</p>
-                <Badge
-                  tone={order.status === "Ready" ? "success" : "primary"}
-                  size="sm"
+      <section className="mt-6 grid gap-4 xl:grid-cols-12">
+        <Card
+          className="xl:col-span-8"
+          title="Expedite board"
+          description="Tickets move from the line to the pass as the kitchen progresses."
+        >
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              [
+                "On the line",
+                "Preparing",
+                "border-warning/30 bg-warning/5",
+                Clock3,
+              ],
+              ["At the pass", "Preparing", "border-info/30 bg-info/5", ChefHat],
+              [
+                "Ready to serve",
+                "Ready",
+                "border-success/30 bg-success/5",
+                Check,
+              ],
+            ].map(([label, status, color, Icon], columnIndex) => {
+              const tickets = orders.filter(
+                (order, index) =>
+                  order.status === status &&
+                  (status === "Ready" || index % 2 === columnIndex % 2),
+              );
+              return (
+                <div
+                  key={label as string}
+                  className="rounded-2xl border border-border bg-muted/20 p-3"
                 >
-                  {order.status}
-                </Badge>
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="flex items-center gap-2 text-xs font-semibold">
+                      <span
+                        className={
+                          (color as string) +
+                          " grid size-7 place-items-center rounded-lg border"
+                        }
+                      >
+                        <Icon className="size-3.5" />
+                      </span>
+                      {label as string}
+                    </span>
+                    <span className="text-xs tabular-nums text-muted-foreground">
+                      {tickets.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {tickets.map((order) => (
+                      <article
+                        key={order.id}
+                        className="rounded-xl border border-border bg-card p-3 shadow-sm"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <b className="text-xs">{order.id}</b>
+                          <span className="text-[10px] text-muted-foreground">
+                            {order.table}
+                          </span>
+                        </div>
+                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                          {order.items}
+                        </p>
+                        {order.notes && (
+                          <p className="mt-2 rounded-lg bg-warning/10 px-2 py-1 text-[10px] text-warning">
+                            Note: {order.notes}
+                          </p>
+                        )}
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-xs font-semibold">
+                            {money(order.total)}
+                          </span>
+                          {order.status !== "Ready" && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs"
+                              onClick={() =>
+                                setOrders((current) =>
+                                  current.map((o) =>
+                                    o.id === order.id
+                                      ? { ...o, status: "Ready" }
+                                      : o,
+                                  ),
+                                )
+                              }
+                            >
+                              Ready <ArrowUpRight className="size-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                    {!tickets.length && (
+                      <div className="rounded-xl border border-dashed border-border p-5 text-center text-xs text-muted-foreground">
+                        Clear station
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+        <Card
+          className="xl:col-span-4"
+          title="Sales mix"
+          description="Current sample shift"
+        >
+          <div className="space-y-5 pt-1">
+            {[
+              ["Food", 62, "bg-primary"],
+              ["Drinks", 24, "bg-info"],
+              ["Add-ons", 14, "bg-warning"],
+            ].map(([label, value, color]) => (
+              <div key={label as string}>
+                <div className="mb-2 flex justify-between text-xs">
+                  <span>{label as string}</span>
+                  <b>{value as number}%</b>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={(color as string) + " h-full rounded-full"}
+                    style={{ width: `${value}%` }}
+                  />
+                </div>
               </div>
-              <p className="mt-2 text-xs font-medium">{order.table}</p>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                {order.items}
-              </p>
-              {order.notes && (
-                <p className="mt-2 rounded-lg bg-primary/5 p-2 text-xs">
-                  Kitchen note: {order.notes}
-                </p>
-              )}
-              <div className="mt-4 flex items-center justify-between">
-                <span className="font-semibold">{money(order.total)}</span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={order.status === "Ready"}
-                  onClick={() =>
-                    setOrders((current) =>
-                      current.map((o) =>
-                        o.id === order.id ? { ...o, status: "Ready" } : o,
-                      ),
-                    )
-                  }
-                >
-                  <Check className="size-3.5" />
-                  Mark ready
-                </Button>
+            ))}
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/20 p-3">
+              <span className="grid size-9 place-items-center rounded-xl bg-success/10 text-success">
+                <CircleDollarSign className="size-5" />
+              </span>
+              <div>
+                <p className="text-xs text-muted-foreground">Average ticket</p>
+                <p className="font-semibold">$28.40</p>
               </div>
-            </article>
-          ))}
-        </div>
-        {!orders.length && (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            Orders will appear here after checkout.
-          </p>
-        )}
+              <span className="ms-auto text-xs font-medium text-success">
+                +8.2%
+              </span>
+            </div>
+          </div>
+        </Card>
       </section>
       <Dialog
         open={!!receipt}

@@ -13,7 +13,7 @@ const source = ts.transpileModule(
   },
 ).outputText;
 function load(saved, blocked = false, server = false) {
-  let stored = saved;
+  const storage = new Map([["edzen-admin-settings", saved]]);
   const root = { dir: "", dataset: {}, classList: { toggle() {} } };
   const context = {
     exports: {},
@@ -22,10 +22,10 @@ function load(saved, blocked = false, server = false) {
       document: { documentElement: root },
       window: {
         localStorage: {
-          getItem: () => stored,
-          setItem: (_, value) => {
+          getItem: (key) => storage.get(key) ?? null,
+          setItem: (key, value) => {
             if (blocked) throw Error("Storage blocked");
-            stored = value;
+            storage.set(key, value);
           },
         },
         matchMedia: () => ({ matches: false }),
@@ -34,7 +34,12 @@ function load(saved, blocked = false, server = false) {
   };
   vm.createContext(context);
   vm.runInContext(source, context);
-  return { settings: context.exports, root, context, stored: () => stored };
+  return {
+    settings: context.exports,
+    root,
+    context,
+    stored: () => storage.get("edzen-admin-settings"),
+  };
 }
 test("direction updates immediately, persists, reloads, and resets", () => {
   const app = load(null);

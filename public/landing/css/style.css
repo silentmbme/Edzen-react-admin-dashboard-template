@@ -5945,7 +5945,7 @@ body {
         margin-bottom: 18px
     }
 }
-/* Version 2.0.0 additions retain the original landing design. */
+/* Version 1.0.0 additions retain the original landing design. */
 .workspace-feature-shot { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:18px; background:linear-gradient(135deg,#f1f5ff,#fafbff); padding:24px; }
 .workspace-preview-label { color:#8395ba; font-size:10px; letter-spacing:.14em; font-weight:700; }
 .workspace-mark { display:grid; place-items:center; width:72px; height:72px; background:#fff; border:1px solid #dde6f7; border-radius:20px; color:#5277c5; font-size:24px; font-weight:800; box-shadow:0 10px 26px #4d6da515; }

@@ -15,6 +15,20 @@
     overlay?.classList.toggle("visible");
   });
   overlay?.addEventListener("click", closeMenu);
+
+  // Keep preview cards usable from a directly opened documentation file.
+  // Production links remain on the current site; local files open the Vite app.
+  const demoOrigin =
+    location.protocol === "file:" ? "http://localhost:3000" : location.origin;
+  document
+    .querySelectorAll(
+      ".preview-card[href^='/'], [data-live-preview][href^='/']",
+    )
+    .forEach((card) => {
+      const route = card.getAttribute("href");
+      if (route) card.href = new URL(route, demoOrigin).href;
+    });
+
   document.querySelectorAll(".nav-link").forEach((link) => {
     link.addEventListener("click", () => {
       document
